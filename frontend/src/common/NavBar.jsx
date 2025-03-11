@@ -75,7 +75,7 @@ const NavBar = () => {
   ];
 
   return (
-    <Navbar expand="lg" className="custom-navbar">
+    <Navbar expand="lg" className="custom-navbar fixed-top ">
       <Container fluid>
         <Navbar.Brand href="/home" className="logo-container">
           <img src={TidyHomeLogo} alt="Logo" className="logo" />
