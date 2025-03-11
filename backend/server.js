@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import inventoryRoutes from "./Routes/inventoryRoute.js";
 
 // Load environment variables
 dotenv.config();
@@ -14,13 +15,16 @@ app.use(cors());
 
 // Connect to MongoDB
 mongoose
-    .connect(process.env.MONGO_URI)
-    .then(() => console.log("MongoDB Connected"))
-    .catch((err) => console.error("MongoDB Connection Error:", err));
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB Connection Error:", err));
+
+// Use the inventory route
+app.use("/api/inventory", inventoryRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
-    res.send("Welcome TidyHome");
+  res.send("Welcome TidyHome");
 });
 
 // Start Server
