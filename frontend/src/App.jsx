@@ -13,6 +13,9 @@ import ShoppingListPage from "./components/ShoppingList/ShoppingList.jsx";
 import { ToastContainer } from "react-toastify";
 
 import ConsumptionHome from "./pages/consumption_home.jsx";
+import CustomNotification  from "./pages/custom_notification_home.jsx";
+import Footer from "./common/Footer.jsx";
+
 
 const MainLayout = () => {
   return (
@@ -20,6 +23,7 @@ const MainLayout = () => {
       <ToastContainer />
       <NavBar />
       <Outlet />
+      <Footer />
     </div>
   );
 };
@@ -35,6 +39,7 @@ const App = () => {
           <Route path="/shopping-list" element={<ShoppingListPage />} />
           <Route path="/suppliers" element={<HomePage />} />
           <Route path="/consumption_home" element={<ConsumptionHome />} />
+          <Route path="/custom_notification" element={<CustomNotification />} />
         </Route>
       </Routes>
     </Router>

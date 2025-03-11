@@ -1,13 +1,13 @@
 import { HelmetProvider } from "react-helmet-async";
 import PropTypes from "prop-types";
-import ConsumptionHome from "../components/consumption/consumption_home";
+import CustomNotification from "../components/custom_notification/custom_notification";
 
 const ContactPage = ({ image }) => {
   const defaultDescription =
     "Track and manage your household inventory effortlessly with TidyHome. Keep an eye on your stock, monitor usage, and reduce waste with our smart home stock management system.";
   const defaultKeywords =
     "home inventory, stock management, household stock, consumption log, home storage, pantry tracking, home supplies tracker, inventory tracking, stock monitoring, home organization, household management, grocery tracking, smart home stock, kitchen inventory, home essentials, home stock control";
-  const defaultTitle = "TidyHome | Consumption Home";
+  const defaultTitle = "TidyHome | Custom Notification";
   const defaultImage = "https://placehold.co/600x400/png";
 
   return (
@@ -44,7 +44,7 @@ const ContactPage = ({ image }) => {
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
 
-          <ConsumptionHome />
+          <CustomNotification />
         </div>
       </div>
     </div>
