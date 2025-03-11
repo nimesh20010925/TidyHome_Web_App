@@ -14,10 +14,7 @@ const customNotificationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    notification_type: {
-      type: String,
-      required: true,
-    },
+   
     assign_to: {
       type: String,
       required: true,
