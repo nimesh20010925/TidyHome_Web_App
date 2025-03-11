@@ -4,48 +4,47 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 26px;
-  margin-left: 24vh;
+  gap: 60px; /* Adjusted gap */
   margin-top: 6px;
+  flex-grow: 1;
 }
 
 .nav-item {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   cursor: pointer;
   padding: 10px;
-  padding-top: 2px;
   transition: color 0.3s ease-in-out;
   position: relative;
-  gap: 12px;
+  gap: 8px;
 }
 
 .nav-item .nav-icon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
 }
 
 .nav-item .nav-label {
-  font-size: 16px;
+  font-size: 14px;
   color: #6c757d;
 }
 
 .nav-item.active .nav-label {
-  color: #832ae3;
+  color: #C799FF;
   font-weight: bold;
 }
 
 .nav-item.active::after {
   content: "";
   position: absolute;
-  bottom: 0px;
+  bottom: -4px;
   left: 50%;
-  width: 96%;
+  width: 90%;
   height: 3px;
-  background-color: #832ae3;
+  background-color: #C799FF;
   transform: translateX(-50%);
   border-radius: 2px;
 }
@@ -57,21 +56,21 @@
 }
 
 .icon:hover {
-  color: #832ae3;
+  color: #C799FF;
 }
 
 .profile-picture-preview {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
   border: none;
   margin-right: 10px;
 }
 
-.avatar-head-txt {
+.avatar-head-txt, .avatar-role-txt {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
   color: #252525 !important;
 }
 
@@ -79,9 +78,47 @@
   background-color: white;
   padding: 0px 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .logo-container .logo {
-  width: 70px;
-  height: 60px;
+  width: 60px;
+  height: 50px;
+  margin-right: 10px; /* Reduced margin */
+}
+
+.navbar-collapse {
+  flex-grow: 0;
+}
+
+.navbar-toggler {
+  border-color: transparent;
+  padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler-icon {
+  background-color: #6c757d;
+}
+
+.navbar-expand-lg .navbar-collapse{
+  gap: 80px;
+}
+/* On smaller screens */
+@media (max-width: 767px) {
+  .nav-links {
+    flex-direction: column;
+    gap: 16px;
+    margin-left: 0;
+  }
+
+  .nav-item {
+    font-size: 14px;
+  }
+
+  .profile-picture-preview {
+    width: 30px;
+    height: 30px;
+  }
 }
