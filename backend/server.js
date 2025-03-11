@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import inventoryRoutes from "./Routes/inventoryRoute.js";
-import authRoutes from "./Route/authRoutes.js"
-import homeRoutes from "./Route/homeRoutes.js"
+import authRoutes from "./Routes/authRoutes.js"
+import homeRoutes from "./Routes/homeRoutes.js"
 // Load environment variables
 dotenv.config();
 
