@@ -85,3 +85,128 @@
   width: 70px;
   height: 60px;
 }
+.sidebar {
+  width: 300px;
+  height: 100vh;
+  top: 0;
+  right: 0; /* Moves sidebar to the right */
+  overflow-y: auto;
+  padding: 10px;
+  background: transparent !important; /* Removes background */
+}
+
+.card, .list-group-item {
+  background: transparent !important;
+  border: none !important;
+}
+
+/*sign up page*/
+.section .imgBx::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(255deg,#000000,#464c50);
+  z-index: 1;
+  mix-blend-mode: screen;
+}
+.section{
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+}
+.imgBx{
+  position: relative;
+  width: 50%;
+  height: 100%;
+}
+.imgBx img{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.contentBx{
+  display: flex;
+  width: 50%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.formBx{
+  width: 60%;
+  padding: 30px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+}
+.signuph2{
+  color: #000;
+  font-weight: 600;
+  font-size: 1.5em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  border-bottom: 4px solid #c799FF;
+  display: inline-block;
+  letter-spacing: 1px;
+}
+.signupinputBx{
+  margin-bottom: 20px;
+}
+.signupinputBx span{
+  font-size: 16px;
+  margin-bottom: 5px;
+  display: inline-block;
+  color: #607db8;
+  font-weight: 300;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+.signupinput{
+  width: 100%;
+  padding: 10px 20px;
+  outline: none;
+  font-weight: 400;
+  border: 1px solid #c799FF;
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: #c799FF;
+  background: transparent;
+  border-radius: 30px;
+
+}
+.signupbutton{
+  width: 100%;
+  padding: 10px 20px;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: #c799FF;
+  background: transparent;
+  border-radius: 30px;
+  background: #c799FF;
+  color: #fff;
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
+.signupbutton:hover{
+  background: #966bcb;
+}
+
+.remember{
+  margin-bottom: 10px;
+  color: #607d8b;
+  font-weight: 400;
+  font-size: 14px;
+}
+.signuppara{
+  color: #607d8b;
+}
+.signuplink{
+  color: #c799FF;
+}
