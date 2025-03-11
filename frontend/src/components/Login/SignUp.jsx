@@ -1,8 +1,11 @@
 import React from "react";
 import SignupImage from "../../assets/login/signup.jpeg";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const SignUp = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="section">
       <div className="imgBx">
@@ -13,7 +16,7 @@ const SignUp = () => {
           <h2 className="signuph2">Sign Up</h2>
           <form action="">
             <div className="signupinputBx">
-              <span>UserName</span>
+              <span>{t("USERNAME")}</span>
               <input type="text" className="signupinput" />
             </div>
             <div className="signupinputBx">
