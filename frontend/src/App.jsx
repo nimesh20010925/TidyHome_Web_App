@@ -20,10 +20,10 @@ const MainLayout = () => {
       <ToastContainer />
       <NavBar />
       <div className="d-flex flex-grow-1">
-        <div className="flex-grow-1 p-3 mt-5">
+        <div className="app-body flex-grow-1 p-3">
           <Outlet />
         </div>
-        <div className="mt-5">
+        <div className="app-sidebar">
           <SideBar />
         </div>
       </div>

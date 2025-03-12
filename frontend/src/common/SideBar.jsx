@@ -1,7 +1,9 @@
 import React from "react";
 import { Card, Dropdown, ListGroup } from "react-bootstrap";
 import { FaPlus, FaBox, FaTruck, FaFileExport } from "react-icons/fa";
-import userAvatar from "../assets/navBar/dummy-user.png"; // Correct import
+import userAvatar from "../assets/navBar/dummy-user.png";
+import addNotification from "../assets/sideBar/add-notification.png";
+import addShopping from "../assets/sideBar/add-shopping.png";
 
 const SideBar = () => {
   const user = {
@@ -21,9 +23,9 @@ const SideBar = () => {
   ];
 
   return (
-    <div className="sidebar border-start mh-100">
+    <div className="sidebar border-start h-100">
       <Card className="mb-3 border-0 shadow-none">
-        <Card.Body className="d-flex align-items-center justify-content-between">
+        <Card.Body className="d-flex align-items-center justify-content-between pb-0">
           <div className="d-flex align-items-center">
             <img
               src={user.avatar}
@@ -36,7 +38,7 @@ const SideBar = () => {
               <small>{user.role}</small>
             </div>
           </div>
-          <Dropdown>
+          <Dropdown className="ms-2">
             <Dropdown.Toggle variant="light" size="sm" className="border-0">
               ⋮
             </Dropdown.Toggle>
@@ -48,11 +50,31 @@ const SideBar = () => {
         </Card.Body>
       </Card>
       <div className="border-top m-2 mt-3"></div>
-      <h6 className="fw-bold">Quick Actions</h6> 
-      
+      <h6 className="fw-bold mt-2 pt-1">QUICK ACTIONS</h6>
+
       <ListGroup variant="flush">
         <ListGroup.Item action className="border-0">
           <FaPlus className="me-2" /> Create Consumption
+        </ListGroup.Item>
+        <ListGroup.Item action className="border-0">
+          <img
+            src={addNotification}
+            className="me-2 add-notification-icon"
+            width="22px"
+            height="22px"
+            alt="Add Notification"
+          />
+          Create Custom Notification
+        </ListGroup.Item>
+        <ListGroup.Item action className="border-0">
+          <img
+            src={addShopping}
+            className="me-2 add-notification-icon"
+            width="22px"
+            height="22px"
+            alt="Create Shopping List"
+          />
+          Create New Shopping List
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
           <FaBox className="me-2" /> Add Product
@@ -61,14 +83,17 @@ const SideBar = () => {
           <FaTruck className="me-2" /> Add Supplier
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
-          <FaFileExport className="me-2" /> Export Report
+          <FaFileExport className="me-2" /> Export Reports
         </ListGroup.Item>
       </ListGroup>
-      <div className="border-top m-2 mt-3"></div>
-      <h6 className="fw-bold mt-3">FAMILY MEMBERS</h6>
+      <div className="border-top m-2 mt-2 pt-1"></div>
+      <h6 className="fw-bold mt-2">FAMILY MEMBERS</h6>
       <ListGroup variant="flush">
         {familyMembers.map((member) => (
-          <ListGroup.Item key={member.id} className="d-flex align-items-center border-0">
+          <ListGroup.Item
+            key={member.id}
+            className="d-flex align-items-center border-0"
+          >
             <img
               src={member.avatar}
               alt="Member Avatar"

@@ -78,7 +78,7 @@ const NavBar = () => {
     <Navbar expand="lg" className="custom-navbar fixed-top ">
       <Container fluid>
         <Navbar.Brand href="/home" className="logo-container">
-          <img src={TidyHomeLogo} alt="Logo" className="logo" />
+          <img src={TidyHomeLogo} alt="Logo" className="nav-logo" />
         </Navbar.Brand>
         <Nav className="nav-links">
           {buttonsData.map(({ tab, route, icon, activeIcon, label }) => (
@@ -96,17 +96,17 @@ const NavBar = () => {
             </div>
           ))}
         </Nav>
-        <Row className="d-flex align-items-center justify-content-end col-lg-3 col-md-1 col-12">
-          <Col className="d-flex align-items-center mt-1">
-            {renderProfileSection()}
-          </Col>
-
-          <Col className="d-flex align-items-center gap-3">
+        <Row className="d-flex align-items-center justify-content-end">
+          <Col className="d-flex align-items-center gap-2 me-1">
+            <FaBell className="bell-icon" />
             <div className="d-flex align-items-center">
               <img src={Language} width="28px" height="28px" alt="Language" />
               <LanguageSelector />
             </div>
-            <FaBell className="icon" />
+          </Col>
+
+          <Col className="d-flex align-items-center mt-1">
+            {renderProfileSection()}
           </Col>
         </Row>
       </Container>
