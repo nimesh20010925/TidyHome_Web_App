@@ -5,9 +5,14 @@
     "SUPPLIERS": "Suppliers",
 
     "INVENTORY_MANAGEMENT": "Inventory Management",
+
     "Consumption": "Consumption",
     "NOTIFICATIONS": "Notifications",
     "Search": "Search"
 
     
+
+
+    "USERNAME": "Username"
+
 }

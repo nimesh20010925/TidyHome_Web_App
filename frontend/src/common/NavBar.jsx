@@ -98,7 +98,7 @@ const NavBar = () => {
   ];
 
   return (
-    <Navbar expand="lg" className="custom-navbar">
+    <Navbar expand="lg" className="custom-navbar fixed-top ">
       <Container fluid>
         <div className="container">
           <div className="outer-layer">
