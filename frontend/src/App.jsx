@@ -14,6 +14,11 @@ import { ToastContainer } from "react-toastify";
 import SideBar from "./common/SideBar.jsx";
 import SignUp from "./components/Login/SignUp.jsx";
 
+import ConsumptionHome from "./pages/consumption_home.jsx";
+import CustomNotification  from "./pages/custom_notification_home.jsx";
+import Footer from "./common/Footer.jsx";
+
+
 const MainLayout = () => {
   return (
     <div className="d-flex flex-column vh-100">
@@ -37,6 +42,7 @@ const AuthLayout = () => {
     <div className="d-flex flex-column vh-100 justify-content-center align-items-center">
       <ToastContainer />
       <Outlet />
+      <Footer />
     </div>
   );
 };
@@ -48,9 +54,12 @@ const App = () => {
         {/* Routes with Sidebar & Navbar */}
         <Route path="/" element={<MainLayout />}>
           <Route path="/inventory" element={<InventoryPage />} />
+          
           <Route path="/home" element={<HomePage />} />
           <Route path="/shopping-list" element={<ShoppingListPage />} />
           <Route path="/suppliers" element={<HomePage />} />
+          <Route path="/consumption_home" element={<ConsumptionHome />} />
+          <Route path="/custom_notification" element={<CustomNotification />} />
         </Route>
 
         {/* Routes without Sidebar & Navbar */}
