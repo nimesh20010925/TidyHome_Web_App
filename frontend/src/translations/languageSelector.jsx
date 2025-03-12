@@ -35,7 +35,7 @@ const LanguageSelector = () => {
           outline: 'none',
         }}
       >
-        <span style={{ marginRight: '2px', marginBottom: '3px', fontSize: '16px' }}>
+        <span style={{ marginRight: '2px', marginBottom: '3px', fontSize: '12px' }}>
           {i18n.language === 'en' ? 'English' : 'සිංහල'}
         </span>
         <img
@@ -68,6 +68,7 @@ const LanguageSelector = () => {
               paddingLeft: '8px',
               cursor: 'pointer',
               backgroundColor: i18n.language === 'en' ? '#EBBFFF' : '#fff',
+              fontSize: '12px',
             }}
           >
             English
@@ -79,6 +80,7 @@ const LanguageSelector = () => {
               paddingLeft: '8px',
               cursor: 'pointer',
               backgroundColor: i18n.language === 'si' ? '#EBBFFF' : '#fff',
+              fontSize: '12px',
             }}
           >
             සිංහල
