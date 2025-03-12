@@ -6,6 +6,9 @@
 
     "INVENTORY_MANAGEMENT": "Inventory Management",
 
+
+    "USERNAME": "Username",
+
     "Consumption": "Consumption",
     "NOTIFICATIONS": "Notifications",
     "Search": "Search"
@@ -14,5 +17,6 @@
 
 
     "USERNAME": "Username"
+
 
 }
