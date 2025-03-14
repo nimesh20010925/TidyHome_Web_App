@@ -62,7 +62,19 @@ export const loginController = async (req, res) => {
     // Generate JWT token
     const token = generateToken(user);
 
-    res.status(200).json({ success: true, message: "Login successful", token, user });
+    // Determine redirection path
+    let redirectTo = "/dashboard";
+    if (user.role === "homeOwner" && !user.homeID) {
+      redirectTo = "/create-home";
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Login successful", 
+      token, 
+      user, 
+      redirectTo 
+    });
 
   } catch (error) {
     console.error(error);

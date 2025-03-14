@@ -13,45 +13,41 @@ const SignUp = () => {
       </div>
       <div className="contentBx">
         <div className="formBx">
-          <h2 className="signuph2">Sign Up</h2>
+          <h2 className="signuph2">{t("SIGNUP")}</h2>
           <form action="">
             <div className="signupinputBx">
               <span>{t("USERNAME")}</span>
-              <input type="text" className="signupinput" />
+              <input type="text" className="signupinput" placeholder={t("EXJOHNPERERA")}/>
             </div>
             <div className="signupinputBx">
-              <span>Email</span>
-              <input type="text" className="signupinput" />
+              <span>{t("EMAIL")}</span>
+              <input type="text" className="signupinput" placeholder={t("EXEMAIL")}/>
             </div>
             <div className="signupinputBx">
-              <span>Password</span>
-              <input type="password" className="signupinput" />
+              <span>{t("PASSWORD")}</span>
+              <input type="password" className="signupinput" placeholder={t("EXPASSWORD")}/>
             </div>
             <div className="signupinputBx">
-              <span>Phone</span>
-              <input type="tel" className="signupinput" />
+              <span>{t("PHONE")}</span>
+              <input type="tel" className="signupinput" placeholder={t("EXPHONE")}/>
             </div>
             <div className="signupinputBx">
-              <span>Address</span>
-              <input type="text" className="signupinput" />
-            </div>
-            <div className="signupinputBx">
-              <span>Security Answer</span>
-              <input type="text" className="signupinput" />
+              <span>{t("ADDRESS")}</span>
+              <input type="text" className="signupinput" placeholder={t("EXADDRESS")}/>
             </div>
             <div className="remember">
               <label>
-                <input type="checkbox" /> Remember Me
+                <input type="checkbox" /> {t("REMEMBERME")}
               </label>
             </div>
             <div className="signupinputBx">
-              <input type="submit" value="Sign Up" className="signupbutton" />
+              <input type="submit" value={t("SIGNUP")} className="signupbutton" />
             </div>
             <div>
               <p className="signuppara">
-                Already have an account?{" "}
+                {t("ALREADYHAVEANACCOUNT")}{" "}
                 <Link to="/login" className="signuplink">
-                  Sign In
+                {t("SIGNUP")}
                 </Link>
               </p>
             </div>

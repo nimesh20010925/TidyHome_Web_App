@@ -20,10 +20,14 @@ export const createHomeController = async (req, res) => {
       return res.status(400).json({ success: false, message: "User is not authorized to create a home" });
     }
 
+    // Include OwnerName from the user model
+    const OwnerName = user.name; // Assuming 'name' exists in the user model
+
     // Create new home
     const newHome = new homeModel({
       homeName,
-      ownerID,
+      ownerID: user._id,
+      OwnerName, // Fixed missing OwnerName
       number_of_members,
       homePhone,
       address,
@@ -32,7 +36,7 @@ export const createHomeController = async (req, res) => {
     // Save the home
     const home = await newHome.save();
 
-    // Update user with the newly created homeID
+    // Ensure user model has homeID before updating
     user.homeID = home._id;
     await user.save();
 
@@ -43,6 +47,7 @@ export const createHomeController = async (req, res) => {
       home: {
         _id: home._id,
         homeName: home.homeName,
+        OwnerName: home.OwnerName,
         ownerID: home.ownerID,
         number_of_members: home.number_of_members,
         homePhone: home.homePhone,

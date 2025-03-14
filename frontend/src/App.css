@@ -100,30 +100,22 @@
   border: none !important;
 }
 
-/*sign up page*/
-.section .imgBx::before{
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(255deg,#000000,#464c50);
-  z-index: 1;
-  mix-blend-mode: screen;
-}
-.section{
+/* Default Layout */
+.section {
   position: relative;
   width: 100%;
   height: 100vh;
   display: flex;
 }
-.imgBx{
+
+/* Left Image Box */
+.imgBx {
   position: relative;
   width: 50%;
   height: 100%;
 }
-.imgBx img{
+
+.imgBx img {
   position: absolute;
   top: 0;
   left: 0;
@@ -132,32 +124,63 @@
   object-fit: cover;
 }
 
-.contentBx{
+/* Right Content Box */
+.contentBx {
   display: flex;
   width: 50%;
   height: 100%;
   justify-content: center;
   align-items: center;
 }
-.formBx{
-  width: 60%;
-  padding: 30px;
+
+/* Form Box */
+.formBx {
+  max-height: 90vh;
+  width: 70%;
+  padding: 40px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.9);
+  position: relative;
+  z-index: 2;
 }
-.signuph2{
-  color: #000;
+
+
+
+.loginlogo {
+  width: 150px; /* Adjust as needed */
+  display: block;
+  margin: 0 auto; /* Ensures it's centered */
+}
+
+.signuph2 {
+  text-align: center;
+  margin-top: 10px;
   font-weight: 600;
   font-size: 1.5em;
   text-transform: uppercase;
-  margin-bottom: 20px;
   border-bottom: 4px solid #c799FF;
   display: inline-block;
   letter-spacing: 1px;
 }
-.signupinputBx{
-  margin-bottom: 20px;
+.loginh2 {
+  text-align: left; /* Align the heading to the left */
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 1.5em;
+  text-transform: uppercase;
+  border-bottom: 4px solid #c799FF;
+  letter-spacing: 1px;
+  width: fit-content; /* Prevents full-width heading */
+  margin-bottom: 30px;
 }
-.signupinputBx span{
+
+/* Input Fields */
+.signupinputBx {
+  margin-bottom: 10px;
+}
+
+.signupinputBx span {
   font-size: 16px;
   margin-bottom: 5px;
   display: inline-block;
@@ -166,7 +189,8 @@
   font-size: 16px;
   letter-spacing: 1px;
 }
-.signupinput{
+
+.signupinput {
   width: 100%;
   padding: 10px 20px;
   outline: none;
@@ -177,36 +201,113 @@
   color: #c799FF;
   background: transparent;
   border-radius: 30px;
-
 }
-.signupbutton{
+
+/* Sign Up Button */
+.signupbutton {
   width: 100%;
   padding: 10px 20px;
   font-weight: 500;
   font-size: 16px;
   letter-spacing: 1px;
-  color: #c799FF;
-  background: transparent;
-  border-radius: 30px;
   background: #c799FF;
   color: #fff;
-  outline: none;
+  border-radius: 30px;
   border: none;
   cursor: pointer;
+  margin-bottom: 20px;
 }
-.signupbutton:hover{
+
+.signupbutton:hover {
   background: #966bcb;
 }
 
-.remember{
-  margin-bottom: 10px;
+/* Remember Me */
+.remember {
+  margin-bottom: 20px;
   color: #607d8b;
   font-weight: 400;
   font-size: 14px;
 }
-.signuppara{
+
+/* Paragraph & Link */
+.signuppara {
   color: #607d8b;
 }
-.signuplink{
+
+.signuplink {
   color: #c799FF;
+}
+
+.fogotpasswordlink {
+  padding-left: 190px;
+}
+
+/* 🔹 Mobile View - Form Over Image */
+@media screen and (max-width: 768px) {
+  .section {
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .imgBx {
+    width: 100%;
+    height: 100vh;
+  }
+
+  .imgBx img {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+  }
+
+  .contentBx {
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .formBx {
+    width: 90%;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 15px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  .fogotpasswordlink {
+    padding-left: 400px;
+  }
+}
+
+/* 🔹 Small Mobile Screens */
+@media screen and (max-width: 480px) {
+  .formBx {
+    width: 85%;
+    padding: 20px;
+  }
+
+  .signuph2 {
+    font-size: 1.3em;
+  }
+
+  .signupinputBx span {
+    font-size: 14px;
+  }
+
+  .signupinput {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  .signupbutton {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+  .fogotpasswordlink {
+    padding-left: 90px;
+  }
 }

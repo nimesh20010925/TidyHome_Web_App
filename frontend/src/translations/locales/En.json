@@ -6,5 +6,27 @@
 
     "INVENTORY_MANAGEMENT": "Inventory Management",
 
-    "USERNAME": "Username"
+    "USERNAME": "Username",
+    "EMAIL": "email",
+    "PASSWORD":"password",
+    "PHONE":"phone",
+    "ADDRESS":"address",
+    "SIGNUP":"Sign Up",
+    "ALREADYHAVEANACCOUNT":"Already Have an Account",
+    "DONTHAVEANACCOUNT":"Don't Have an Account",
+    "LOGIN":"Log In",
+    "REMEMBERME":"Remember Me",
+    "EXJOHNPERERA":"Ex:- John Perera",
+    "EXEMAIL":"Ex:- johnperera@gmail.com",
+    "EXPASSWORD":"Ex:- Jone123@",
+    "EXPHONE":"Ex:- 07xxxxxxxx",
+    "EXADDRESS":"Ex:- 378/2,Pragathi Mawatha,Kahathuduwa",
+    "FOGOTPASSWORD":"Fogot Password",
+
+    "CREATEHOME":"නිවස නිර්මාණය කරන්න",
+    "HOMENAME": "Home Name",
+    "OWNERNAME":"Owner Name",
+    "HOMEPHONENUMBER":"Home Mobile Number",
+    "HOMEADDRESS":"Home Address",
+    "HOMEMEMBERS":"Home Members"
 }
