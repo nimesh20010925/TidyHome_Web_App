@@ -188,3 +188,71 @@ export const getHomeMembersController = async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching home members", error });
   }
 };
+
+export const deleteHomeMemberController = async (req, res) => {
+  try {
+    const { memberID } = req.params;
+    const homeownerID = req.user._id; // Extracted from authentication middleware
+
+    // Check if the user is the homeowner
+    const home = await homeModel.findOne({ ownerID: homeownerID });
+    if (!home) {
+      return res.status(403).json({ success: false, message: "Unauthorized: Only the homeowner can remove members" });
+    }
+
+    // Find the member to delete
+    const member = await userModel.findById(memberID);
+    if (!member || member.homeID.toString() !== home._id.toString()) {
+      return res.status(404).json({ success: false, message: "Member not found or does not belong to your home" });
+    }
+
+    // Delete the member
+    await userModel.findByIdAndDelete(memberID);
+
+    res.status(200).json({ success: true, message: "Home member removed successfully" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error deleting home member", error });
+  }
+};
+
+
+
+export const updateHomeMemberController = async (req, res) => {
+  try {
+    const { memberID } = req.params;
+    const { name, email, phone, address } = req.body;
+    const requestingUserID = req.user._id; // Extracted from authentication middleware
+
+    // Find the member to update
+    const member = await userModel.findById(memberID);
+    if (!member) {
+      return res.status(404).json({ success: false, message: "Member not found" });
+    }
+
+    // Find the home of the requesting user
+    const home = await homeModel.findOne({ ownerID: requestingUserID });
+
+    // Allow updates if the requester is either:
+    // 1. The homeowner (can update any member)
+    // 2. The member themselves (can only update their own details)
+    if (!home && requestingUserID.toString() !== memberID.toString()) {
+      return res.status(403).json({ success: false, message: "Unauthorized: You can only update your own details" });
+    }
+
+    // Update member details
+    member.name = name || member.name;
+    member.email = email || member.email;
+    member.phone = phone || member.phone;
+    member.address = address || member.address;
+
+    await member.save();
+
+    res.status(200).json({ success: true, message: "Home member updated successfully", member });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error updating home member", error });
+  }
+};
