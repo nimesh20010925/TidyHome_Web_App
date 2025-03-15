@@ -658,3 +658,49 @@ td.inventory-actions-cell {
   }
 }
 
+/* Add Home Member Modal Styles */
+.add-home-member-modal {
+  min-width: 35vw !important;
+  padding-right: 0px !important;
+}
+
+.add-home-member-modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  margin: 0px 18px 10px 18px;
+  scrollbar-width: thin;
+  scrollbar-color: #d8b8ff #f8f6f6;
+}
+
+.custom-add-home-member-form-group {
+  position: relative;
+  margin-bottom: 32px;
+}
+
+.custom-add-home-member-form-group label {
+  position: absolute;
+  top: -14.5px;
+  left: 12px;
+  background: white;
+  padding: 0px 6px;
+  font-size: 14px;
+  color: #49494a;
+  font-weight: bold;
+}
+
+.custom-add-home-member-form-group input,
+.custom-add-home-member-form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #d8b8ff;
+  border-radius: 30px;
+  outline: none;
+  font-size: 14px;
+  background: white;
+  appearance: none;
+}
+
+.custom-add-home-member-form-group input:focus,
+.custom-add-home-member-form-group select:focus {
+  border-color: #6a5acd !important;
+}

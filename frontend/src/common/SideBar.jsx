@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Dropdown, ListGroup, Button, Modal } from "react-bootstrap";
 import { FaPlus, FaBox, FaTruck, FaFileExport } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; 
+import axios from "axios";
 import userAvatar from "../assets/navBar/dummy-user.png";
 import addNotification from "../assets/sideBar/add-notification.png";
 import addShopping from "../assets/sideBar/add-shopping.png";
@@ -11,15 +11,18 @@ import AddHomeMembers from "../components/Home/AddHomeMembers";
 
 const SideBar = () => {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  const [familyMembers, setFamilyMembers] = useState([]); 
-  const [userRole, setUserRole] = useState(""); 
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [userRole, setUserRole] = useState("");
   const [loading, setLoading] = useState(true);
+  const [addHomeMembersModal, setAddHomeMembersModal] = useState(false);
+
+  const addHomeMembersToggle = () =>
+    setAddHomeMembersModal(!addHomeMembersModal);
 
   useEffect(() => {
     // Get user data from localStorage
     const storedUser = localStorage.getItem("user");
-    
+
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser); // Convert string to object
       setUserRole(parsedUser.role); // Set role (e.g., "homeOwner")
@@ -27,11 +30,14 @@ const SideBar = () => {
 
     const fetchHomeMembers = async () => {
       try {
-        const token = localStorage.getItem("token"); 
-        const response = await axios.get("http://localhost:3500/api/auth/home/members", {
-          headers: { Authorization: `Bearer ${token}` }, 
-        });
-        setFamilyMembers(response.data.members); 
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          "http://localhost:3500/api/auth/home/members",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setFamilyMembers(response.data.members);
       } catch (error) {
         console.error("Error fetching members:", error);
       } finally {
@@ -52,10 +58,17 @@ const SideBar = () => {
       <Card className="mb-3 border-0 shadow-none">
         <Card.Body className="d-flex align-items-center justify-content-between pb-0">
           <div className="d-flex align-items-center">
-            <img src={userAvatar} alt="User Avatar" className="rounded-circle me-2" width="40" />
+            <img
+              src={userAvatar}
+              alt="User Avatar"
+              className="rounded-circle me-2"
+              width="40"
+            />
             <div>
               <h6 className="mb-0">User</h6>
-              <small>{userRole === "homeOwner" ? "Home Owner" : "Member"}</small>
+              <small>
+                {userRole === "homeOwner" ? "Home Owner" : "Member"}
+              </small>
             </div>
           </div>
           <Dropdown className="ms-2">
@@ -75,16 +88,37 @@ const SideBar = () => {
 
       <ListGroup variant="flush">
         <ListGroup.Item action className="border-0">
-          <img src={categories} className="me-2" width="22px" height="22px" alt="Categories" /> Categories
+          <img
+            src={categories}
+            className="me-2"
+            width="22px"
+            height="22px"
+            alt="Categories"
+          />{" "}
+          Categories
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
           <FaPlus className="me-2" /> Create Consumption
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
-          <img src={addNotification} className="me-2" width="22px" height="22px" alt="Add Notification" /> Create Custom Notification
+          <img
+            src={addNotification}
+            className="me-2"
+            width="22px"
+            height="22px"
+            alt="Add Notification"
+          />{" "}
+          Create Custom Notification
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
-          <img src={addShopping} className="me-2" width="22px" height="22px" alt="Create Shopping List" /> Create New Shopping List
+          <img
+            src={addShopping}
+            className="me-2"
+            width="22px"
+            height="22px"
+            alt="Create Shopping List"
+          />{" "}
+          Create New Shopping List
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
           <FaBox className="me-2" /> Add New Inventory
@@ -101,7 +135,12 @@ const SideBar = () => {
       <div className="d-flex align-items-center justify-content-between mt-3 ms-3">
         <h6 className="fw-bold">FAMILY MEMBERS</h6>
         {userRole === "homeOwner" && (
-          <Button variant="" size="sm" className="me-3" onClick={() => setShowModal(true)}>
+          <Button
+            variant=""
+            size="sm"
+            className="me-3"
+            onClick={setAddHomeMembersModal}
+          >
             <FaPlus />
           </Button>
         )}
@@ -112,8 +151,16 @@ const SideBar = () => {
           <p className="ms-3 mt-2">Loading...</p>
         ) : familyMembers.length > 0 ? (
           familyMembers.map((member) => (
-            <ListGroup.Item key={member._id} className="d-flex align-items-center border-0">
-              <img src={member.avatar || userAvatar} alt="Member Avatar" className="rounded-circle me-2" width="30" />
+            <ListGroup.Item
+              key={member._id}
+              className="d-flex align-items-center border-0"
+            >
+              <img
+                src={member.avatar || userAvatar}
+                alt="Member Avatar"
+                className="rounded-circle me-2"
+                width="30"
+              />
               {member.name}
             </ListGroup.Item>
           ))
@@ -123,14 +170,10 @@ const SideBar = () => {
       </ListGroup>
 
       {/* Modal for Adding Home Members */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-        <Modal.Header closeButton className="border-0">
-          <Modal.Title>Add Home Member</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <AddHomeMembers />
-        </Modal.Body>
-      </Modal>
+      <AddHomeMembers
+        isOpen={addHomeMembersModal}
+        toggle={addHomeMembersToggle}
+      />
     </div>
   );
 };
