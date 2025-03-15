@@ -7,10 +7,11 @@ import {
   Routes,
 } from "react-router-dom";
 import NavBar from "./common/NavBar";
+import Footer from "./common/Footer";
 import HomePage from "./components/Home/Home.jsx";
 import InventoryPage from "./components/Inventory/Inventory.jsx";
 import ShoppingListPage from "./components/ShoppingList/ShoppingList.jsx";
-import ConsumptionPage from "./components/ShoppingList/ShoppingList.jsx";
+import ConsumptionHome from "./pages/consumption_home.jsx";
 import { ToastContainer } from "react-toastify";
 import SideBar from "./common/SideBar.jsx";
 import SignUp from "./components/Login/SignUp.jsx";
@@ -30,6 +31,7 @@ const MainLayout = () => (
         <SideBar />
       </div>
     </div>
+    <Footer />
   </div>
 );
 
@@ -63,6 +65,7 @@ const App = () => {
             <Route path="/home" element={<HomePage />} />
             <Route path="/shopping-list" element={<ShoppingListPage />} />
             <Route path="/suppliers" element={<HomePage />} />
+            <Route path="/consumption_home" element={<ConsumptionHome />} />
           </Route>
         </Route>
       </Routes>

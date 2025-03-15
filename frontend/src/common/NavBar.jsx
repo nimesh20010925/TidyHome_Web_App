@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Row, Col } from "reactstrap";
@@ -24,7 +24,6 @@ import LanguageSelector from "../translations/languageSelector.jsx";
 const NavBar = () => {
   const navigate = useNavigate();
   const [activeNavTab, setActiveNavTab] = useState("HOME");
-  const dropdownRef = useRef(null);
   const { t } = useTranslation();
 
   const handleNavTab = (tab, route) => {
@@ -37,16 +36,12 @@ const NavBar = () => {
       <div className="position-relative">
         <img
           src={HomeDummyImg}
-          className="me-3 rounded-circle"
+          className="me-2 rounded-circle"
           alt="User"
-          width="40"
-          height="40"
+          width="44"
+          height="44"
           style={{ cursor: "pointer" }}
         />
-      </div>
-      <div className="d-flex flex-column justify-content-center">
-        <div className="avatar-head-txt">{"User"}</div>
-        <div className="avatar-role-txt">{"Role"}</div>
       </div>
     </div>
   );
@@ -93,7 +88,7 @@ const NavBar = () => {
     <Navbar expand="lg" className="custom-navbar fixed-top ">
       <Container fluid>
         <Navbar.Brand href="/home" className="logo-container">
-          <img src={TidyHomeLogo} alt="Logo" className="nav-logo" />
+          <img src={TidyHomeLogo} alt="Logo" className="logo" />
         </Navbar.Brand>
         <Nav className="nav-links">
           {buttonsData.map(({ tab, route, icon, activeIcon, label }) => (
@@ -112,18 +107,18 @@ const NavBar = () => {
           ))}
         </Nav>
         <Row className="d-flex align-items-center justify-content-end">
-          <Col className="d-flex align-items-center gap-2 me-1">
-            <FaBell className="bell-icon" />
-            <div className="d-flex align-items-center">
-              <img src={Language} width="28px" height="28px" alt="Language" />
-              <LanguageSelector />
-            </div>
-          </Col>
-
-          <Col className="d-flex align-items-center mt-1">
-            {renderProfileSection()}
-          </Col>
-        </Row>
+           <Col className="d-flex align-items-center gap-2 me-1">
+             <FaBell className="bell-icon" />
+             <div className="d-flex align-items-center">
+               <img src={Language} width="32px" height="32px" alt="Language" />
+               <LanguageSelector />
+             </div>
+           </Col>
+ 
+           <Col className="d-flex align-items-center mt-1">
+             {renderProfileSection()}
+           </Col>
+         </Row>
       </Container>
     </Navbar>
   );

@@ -1,11 +1,11 @@
-import React from "react";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import Form from "react-bootstrap/Form";
 import { useTranslation } from "react-i18next";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
 import { InventoryService } from "../../../services/InventoryServices.jsx";
+import mongoose from "mongoose";
+import PropTypes from "prop-types";
 
 const AddInventoryModal = ({ isOpen, toggle }) => {
   const { t } = useTranslation();
@@ -43,11 +43,11 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
           : null,
         manufacturedDate: values.manufacturedDate
           ? new Date(values.manufacturedDate)
-          : null, 
+          : null,
       };
 
       try {
-        await InventoryService.createInventoryItem(transformedValues); 
+        await InventoryService.createInventoryItem(transformedValues);
         alert(t("INVENTORY_ITEM_ADDED_SUCCESS"));
         resetForm();
         toggle();
@@ -293,6 +293,11 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
       </ModalBody>
     </Modal>
   );
+};
+
+AddInventoryModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  toggle: PropTypes.func.isRequired,
 };
 
 export default AddInventoryModal;

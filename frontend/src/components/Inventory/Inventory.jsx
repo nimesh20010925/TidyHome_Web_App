@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Button, Card, Row, Col, Alert } from "react-bootstrap";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import {
@@ -48,129 +48,6 @@ const categories = [
     name: "Condiments & Spices",
     image: DummyCategoryImage,
     itemCount: 12,
-  },
-];
-
-const inventoryData = [
-  {
-    id: 1,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 2,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 3,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 4,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 5,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 6,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 7,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 8,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 9,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 10,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 11,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 12,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
   },
 ];
 
@@ -518,7 +395,7 @@ const Inventory = () => {
           </Card>
         </Col>
       </Row>
-      <Row className="mt-4">
+      <Row className="mt-4 mb-2">
         {/* Pie Chart */}
         <Col md={5}>
           <Card className="inventory-pie-chart p-3 shadow-sm">

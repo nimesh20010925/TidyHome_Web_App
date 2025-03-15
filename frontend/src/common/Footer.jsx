@@ -1,58 +1,102 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { FaFacebook, FaInstagram, FaTwitter } from 'react-icons/fa'; // Import icons
+import { Row, Col } from "react-bootstrap";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import TidyHomeLogo from "../assets/logo/TidyHome_Logo.png";
 
 const Footer = () => {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  const handleNavigation = (route) => {
+    navigate(route);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <footer className="footer bg-light text-dark py-5">
-      <div className="container">
-        <div className="row">
-          {/* Company Info Section */}
-          <div className="col-md-6 mb-4">
-            <h4 className="fw-bold mb-2">Cultivating Efficiency, Tracking Excellence</h4>
-            <p className="mb-0">Your Trusted Inventory Management Partner</p>
+    <footer className="footer">
+      <Row className="footer-nav">
+        <Col className="logo-container">
+          <img src={TidyHomeLogo} alt="Logo" className="logo" />
+        </Col>
+        <Col className="d-flex justify-content-end gap-4">
+          <div
+            className="footer-tab-links"
+            onClick={() => handleNavigation("/home")}
+          >
+            {t("HOME")}
           </div>
+          <div
+            className="footer-tab-links"
+            onClick={() => handleNavigation("/inventory")}
+          >
+            {t("INVENTORY")}
+          </div>
+          <div
+            className="footer-tab-links"
+            onClick={() => handleNavigation("/shopping-list")}
+          >
+            {t("SHOPPING_LIST")}
+          </div>
+          <div
+            className="footer-tab-links"
+            onClick={() => handleNavigation("/consumption_home")}
+          >
+            {t("CONSUMPTION")}
+          </div>
+          <div
+            className="footer-tab-links"
+            onClick={() => handleNavigation("/suppliers")}
+          >
+            {t("SUPPLIERS")}
+          </div>
+          <div
+            className="footer-tab-links"
+            onClick={() => handleNavigation("/contact-us")}
+          >
+            {t("CONTACTUS")}
+          </div>
+        </Col>
+      </Row>
 
-          {/* Navigation Links Section */}
-          <div className="col-md-6 d-flex justify-content-md-end justify-content-center align-items-center mb-4" style={{paddingLeft: '0px'}}>
-            <nav className="nav" style={{justifyContent: 'flex-end', padding: '0px'}} >
-              <a href="#dashboard" className="nav-link text-dark" style={{paddingRight: '0px', margin:'0px'}} >Dashboard</a>
-              <a href="#inventory" className="nav-link text-dark" style={{paddingRight: '0px', margin:'0px'}} >Inventory</a>
-              <a href="#shopping-list" className="nav-link text-dark" style={{paddingRight: '0px', margin:'0px'}} >Shopping List</a>
-              <a href="#suppliers" className="nav-link text-dark" style={{paddingRight: '0px', margin:'0px'}} >Suppliers</a>
-              <a href="#consumption" className="nav-link text-dark" style={{paddingRight: '0px', margin:'0px'}} >Consumptions</a>
-              <a href="#contact" className="nav-link text-dark" style={{paddingRight: '0px', margin:'0px'}} >Custom Notifications</a>
-            </nav>
-          </div>
-        </div>
+      <Row className="d-flex justify-content-between align-items-center my-3">
+        <Col className="text-start">
+          <p className="footer-text">
+            {t("CULTIVATING_EFFICIENCY")} —<br />
+            {t("YOUR_THRUSTED_INVENTORY_MANAGEMENT_PARTNER")}
+          </p>
+        </Col>
 
-        {/* Footer Bottom Section */}
-        <div className="row mt-4">
-          <div className="col-md-4 text-center text-md-start mb-3">
-            <a href="#privacy" className="text-dark text-decoration-none">Privacy Policy</a>
-          </div>
-          <div className="col-md-4 text-center mb-3">
-            <p className="mb-0">© 2023 Tidy Home Technologies, Inc.</p>
-          </div>
-          <div className="col-md-4 text-center text-md-end mb-3">
-            <a href="#terms" className="text-dark text-decoration-none">Terms & Conditions</a>
-          </div>
-        </div>
+        <Col className="text-end">
+          <FaFacebook className="social-icon" />
+          <FaInstagram className="social-icon" />
+          <FaTwitter className="social-icon" />
+        </Col>
+      </Row>
 
-        {/* Social Media Links */}
-        <div className="d-flex justify-content-center gap-4">
-          <a href="#facebook" className="social-icon">
-            <FaFacebook size={30} />
+      <hr className="footer-divider" />
+
+      <Row className="align-items-center footer-bottom">
+        <Col className="text-start">
+          <a href="/privacy-policy" className="footer-link">
+            Privacy Policy
           </a>
-          <a href="#instagram" className="social-icon">
-            <FaInstagram size={30} />
+        </Col>
+
+        <Col className="text-center">
+          <span className="footer-copyright">
+            © 2025 Tidy Home Technologies.
+          </span>
+        </Col>
+
+        <Col className="text-end">
+          <a href="/terms-conditions" className="footer-link">
+            Terms & Conditions
           </a>
-          <a href="#twitter" className="social-icon">
-            <FaTwitter size={30} />
-          </a>
-        </div>
-      </div>
+        </Col>
+      </Row>
     </footer>
   );
-}
+};
 
 export default Footer;

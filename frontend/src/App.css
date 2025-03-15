@@ -5,58 +5,47 @@
   justify-content: center;
   text-align: center;
   gap: 26px;
-  margin-left: 6vh;
+  margin-left: 4vh;
   margin-top: 6px;
-  flex-grow: 1;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Poppins", sans-serif;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-}
 .nav-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   text-align: center;
   cursor: pointer;
   padding: 10px;
+  padding-top: 2px;
   transition: color 0.3s ease-in-out;
   position: relative;
-  gap: 8px;
+  gap: 12px;
 }
 
 .nav-item .nav-icon {
-  width: 15px;
-  height: 15px;
-  transition: transform 0.3s ease-in-out;
+  width: 28px;
+  height: 28px;
 }
 
-.nav-item:hover .nav-icon {
-  transform: scale(1.2);
-}
 .nav-item .nav-label {
-  font-size: 12px;
+  font-size: 16px;
   color: #6c757d;
 }
 
 .nav-item.active .nav-label {
-  color: #c799ff;
+  color: #832ae3;
   font-weight: bold;
 }
 
 .nav-item.active::after {
   content: "";
   position: absolute;
-  bottom: -4px;
+  bottom: 0px;
   left: 50%;
-  width: 90%;
+  width: 96%;
   height: 3px;
-  background-color: #c799ff;
+  background-color: #832ae3;
   transform: translateX(-50%);
   border-radius: 2px;
 }
@@ -73,18 +62,17 @@ body {
 }
 
 .profile-picture-preview {
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   object-fit: cover;
   border: none;
   margin-right: 10px;
 }
 
-.avatar-head-txt,
-.avatar-role-txt {
+.avatar-head-txt {
   font-weight: bold;
-  font-size: 0.8rem;
+  font-size: 1.2rem;
   color: #252525 !important;
 }
 
@@ -92,13 +80,10 @@ body {
   background-color: white;
   padding: 0px 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.logo-container .nav-logo {
-  width: 78px;
+.logo-container .logo {
+  width: 70px;
   height: 60px;
 }
 
@@ -136,7 +121,73 @@ body {
   color: #ffffff;
 }
 
-/*sign up page*/
+/* Footer Styles*/
+.footer {
+  background-color: #ffffff;
+  padding: 20px 4vw;
+  border-top: 2px solid #e6e6e6;
+}
+
+.footer-nav {
+  margin-bottom: 15px;
+  font-size: 15px;
+  color: #333;
+}
+
+.footer-text {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 0;
+}
+
+.footer-divider {
+  border-top: 2px solid #757575;
+  margin: 15px 0;
+}
+
+.footer-bottom {
+  font-size: 15px;
+  color: #666;
+}
+
+.footer-link {
+  text-decoration: none;
+  color: #666;
+  font-size: 15px;
+}
+
+.footer-link:hover {
+  color: #a367e4;
+  font-weight: 500;
+}
+
+.footer-copyright {
+  color: #666;
+  font-size: 15px;
+}
+
+.social-icon {
+  color: #bb87fa;
+  font-size: 22px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.social-icon:hover {
+  color: #a367e4;
+}
+
+.footer-tab-links {
+  cursor: pointer;
+}
+
+.footer-tab-links:hover {
+  color: #a367e4;
+  font-weight: 500;
+}
+
+/*sign-Up Page Styles*/
 .section .imgBx::before {
   content: "";
   position: absolute;
@@ -208,9 +259,9 @@ body {
 }
 
 .loginlogo {
-  width: 150px; 
+  width: 150px;
   display: block;
-  margin: 0 auto; 
+  margin: 0 auto;
 }
 
 .signuph2 {
@@ -219,19 +270,19 @@ body {
   font-weight: 600;
   font-size: 1.5em;
   text-transform: uppercase;
-  border-bottom: 4px solid #c799FF;
+  border-bottom: 4px solid #c799ff;
   display: inline-block;
   letter-spacing: 1px;
 }
 .loginh2 {
-  text-align: left; 
+  text-align: left;
   margin-top: 10px;
   font-weight: 600;
   font-size: 1.5em;
   text-transform: uppercase;
-  border-bottom: 4px solid #c799FF;
+  border-bottom: 4px solid #c799ff;
   letter-spacing: 1px;
-  width: fit-content; 
+  width: fit-content;
   margin-bottom: 30px;
 }
 
@@ -301,7 +352,7 @@ body {
   color: #bb87fa;
 }
 
-/* Inventory Page */
+/* Inventory Page Styles*/
 .inventory-body {
   background-color: #f8f9fa;
 }
@@ -582,7 +633,7 @@ td.inventory-actions-cell {
 
 .text-danger {
   font-size: 13px;
-  color: #c799FF;
+  color: #c799ff;
 }
 
 .fogotpasswordlink {
