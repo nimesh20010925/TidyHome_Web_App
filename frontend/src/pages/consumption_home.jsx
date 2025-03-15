@@ -2,6 +2,7 @@ import { HelmetProvider } from "react-helmet-async";
 import PropTypes from "prop-types";
 import ConsumptionHome from "../components/consumption/consumption_home";
 import ConsumptionTable from "../components/consumption/consumptionTable/consumptionTable";
+import BarChart from "../components/consumption/consumptionChart/barChart/barChart";
 
 const ContactPage = ({ image }) => {
   const defaultDescription =
@@ -47,6 +48,7 @@ const ContactPage = ({ image }) => {
 
           <ConsumptionHome />
           <ConsumptionTable />
+          <BarChart />
         </div>
       </div>
     </div>
