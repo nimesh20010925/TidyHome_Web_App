@@ -1,3 +1,4 @@
+
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -5,6 +6,7 @@ import cors from "cors";
 import inventoryRoutes from "./Routes/inventoryRoute.js";
 import authRoutes from "./Routes/authRoutes.js"
 import homeRoutes from "./Routes/homeRoutes.js"
+import consumptionRoutes from "./Routes/consumptionRoutes.js"
 // Load environment variables
 dotenv.config();
 
@@ -30,6 +32,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/home", homeRoutes);
 app.use("/api/inventory", inventoryRoutes);
+app.use("/api/consumption", consumptionRoutes);
 
 // Connect to MongoDB
 mongoose
@@ -45,3 +48,7 @@ app.get("/", (req, res) => {
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+

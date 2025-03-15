@@ -33,3 +33,7 @@ const consumptionSchema = new mongoose.Schema(
 );
 
 export const consumption = mongoose.model("consumptions", consumptionSchema);
+
+
+
+
