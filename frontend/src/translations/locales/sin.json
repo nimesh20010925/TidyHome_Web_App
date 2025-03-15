@@ -54,5 +54,31 @@
     "CANCEL": "අවලංගු කරන්න",
     "DELETE": "මකන්න",
 
-    "USERNAME": "පරිශීලක නාමය"
+    "NOTIFICATIONS": "දැනුම්දීම්",
+    "Search": "සොයන්න",
+
+    "USERNAME": "පරිශීලක නාමය",
+    "EMAIL": "විද්‍යුත් ලිපිනය",
+    "PASSWORD":"මුර පදය",
+    "PHONE":"දුරකතන අංකය",
+    "ADDRESS":"ලිපිනය",
+    "SIGNUP":"ලියාපදිංචි වන්න",
+    "ALREADYHAVEANACCOUNT":"දැනටමත් ගිණුමක් ඇත",
+    "DONTHAVEANACCOUNT":"ගිණුමක් නැත",
+    "LOGIN":"ඇතුල් වන්න",
+    "REMEMBERME":"මතක තබා ගන්න",
+    "EXJOHNPERERA":"උදා:- ජොන් පෙරේරා",
+    "EXEMAIL":"උදා:- johnperera@gmail.com",
+    "EXPASSWORD":"උදා:- Jone123@",
+    "EXPHONE":"උදා:- 07xxxxxxxx",
+    "EXADDRESS":"උදා:- 378/2,ප්‍රගති මාවත,කහතුඩුව",
+    "FOGOTPASSWORD":"මුරපදය අමතක වුණා ද",
+
+    "CREATEHOME":"නිවස නිර්මාණය කරන්න",
+    "HOMENAME": "ගෙදර නම",
+    "OWNERNAME":"හිමිකරුගේ නම",
+    "HOMEPHONENUMBER":"නිවසේ ජංගම දුරකථන අංකය",
+    "HOMEADDRESS":"නිවසේ ලිපිනය",
+    "HOMEMEMBERS":"නිවසේ සාමාජිකයින් සංඛ්යාව"
+
 }

@@ -14,50 +14,56 @@ import ConsumptionPage from "./components/ShoppingList/ShoppingList.jsx";
 import { ToastContainer } from "react-toastify";
 import SideBar from "./common/SideBar.jsx";
 import SignUp from "./components/Login/SignUp.jsx";
+import Login from "./components/Login/Login.jsx";
+import CreateHome from "./components/Home/CreateHome.jsx";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
 
-const MainLayout = () => {
-  return (
-    <div className="d-flex flex-column vh-100">
-      <ToastContainer />
-      <NavBar />
-      <div className="d-flex flex-grow-1">
-        <div className="app-body flex-grow-1 p-3">
-          <Outlet />
-        </div>
-        <div className="app-sidebar">
-          <SideBar />
-        </div>
+const MainLayout = () => (
+  <div className="d-flex flex-column vh-100">
+    <ToastContainer />
+    <NavBar />
+    <div className="d-flex flex-grow-1">
+      <div className="app-body flex-grow-1 p-3">
+        <Outlet />
+      </div>
+      <div className="app-sidebar">
+        <SideBar />
       </div>
     </div>
-  );
-};
+  </div>
+);
 
 // Separate layout for authentication pages (No NavBar, No SideBar)
-const AuthLayout = () => {
-  return (
-    <div className="d-flex flex-column vh-100 justify-content-center align-items-center">
-      <ToastContainer />
-      <Outlet />
-    </div>
-  );
-};
+const AuthLayout = () => (
+  <div className="d-flex flex-column vh-100 justify-content-center align-items-center">
+    <ToastContainer />
+    <Outlet />
+  </div>
+);
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        {/* Routes with Sidebar & Navbar */}
-        <Route path="/" element={<MainLayout />}>
-          <Route path="/inventory" element={<InventoryPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/shopping-list" element={<ShoppingListPage />} />
-          <Route path="/suppliers" element={<HomePage />} />
-          <Route path="/consumption_home" element={<HomePage />} />
-        </Route>
-
-        {/* Routes without Sidebar & Navbar */}
+        {/* Public Routes */}
         <Route path="/" element={<AuthLayout />}>
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/create-home" element={<CreateHome />} />
+        </Route>
+
+        {/* Protected Routes */}
+        <Route
+          element={
+            <ProtectedRoute allowedRoles={["homeOwner", "homeMember"]} />
+          }
+        >
+          <Route path="/" element={<MainLayout />}>
+            <Route path="/inventory" element={<InventoryPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/shopping-list" element={<ShoppingListPage />} />
+            <Route path="/suppliers" element={<HomePage />} />
+          </Route>
         </Route>
       </Routes>
     </Router>
