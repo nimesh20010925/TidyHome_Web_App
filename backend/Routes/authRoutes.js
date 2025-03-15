@@ -1,5 +1,5 @@
 import express from "express";
-import { homeOwnerRegisterController, loginController, addHomeMemberController } from "../Controllers/authControler.js";
+import { homeOwnerRegisterController, loginController, addHomeMemberController, getHomeMembersController } from "../Controllers/authControler.js";
 import { authenticateUser, authorizeHomeOwner } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -12,5 +12,7 @@ router.post("/login", loginController);
 
 // Add Home Member (Only Home Owner can add)
 router.post("/add-home-member", authenticateUser, authorizeHomeOwner, addHomeMemberController);
+
+router.get("/home/members", authenticateUser, getHomeMembersController);
 
 export default router;

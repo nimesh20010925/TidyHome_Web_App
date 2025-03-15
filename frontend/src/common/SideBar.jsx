@@ -1,43 +1,61 @@
-import React from "react";
-import { Card, Dropdown, ListGroup } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Card, Dropdown, ListGroup, Button, Modal } from "react-bootstrap";
 import { FaPlus, FaBox, FaTruck, FaFileExport } from "react-icons/fa";
-import { MdCategory } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
+import axios from "axios"; 
 import userAvatar from "../assets/navBar/dummy-user.png";
 import addNotification from "../assets/sideBar/add-notification.png";
 import addShopping from "../assets/sideBar/add-shopping.png";
 import categories from "../assets/sideBar/categories.png";
+import AddHomeMembers from "../components/Home/AddHomeMembers";
 
 const SideBar = () => {
-  const user = {
-    name: "Himasha Sendanayaka",
-    role: "Daughter",
-    avatar: userAvatar, // Use variable instead of string
-  };
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const [familyMembers, setFamilyMembers] = useState([]); 
+  const [userRole, setUserRole] = useState(""); 
+  const [loading, setLoading] = useState(true);
 
-  const familyMembers = [
-    { id: 1, name: "USER 1", avatar: userAvatar },
-    { id: 2, name: "USER 2", avatar: userAvatar },
-    { id: 3, name: "USER 3", avatar: userAvatar },
-    { id: 4, name: "USER 4", avatar: userAvatar },
-    { id: 5, name: "USER 5", avatar: userAvatar },
-    { id: 6, name: "USER 6", avatar: userAvatar },
-    { id: 7, name: "USER 7", avatar: userAvatar },
-  ];
+  useEffect(() => {
+    // Get user data from localStorage
+    const storedUser = localStorage.getItem("user");
+    
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser); // Convert string to object
+      setUserRole(parsedUser.role); // Set role (e.g., "homeOwner")
+    }
+
+    const fetchHomeMembers = async () => {
+      try {
+        const token = localStorage.getItem("token"); 
+        const response = await axios.get("http://localhost:3500/api/auth/home/members", {
+          headers: { Authorization: `Bearer ${token}` }, 
+        });
+        setFamilyMembers(response.data.members); 
+      } catch (error) {
+        console.error("Error fetching members:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHomeMembers();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
 
   return (
     <div className="sidebar border-start h-100">
       <Card className="mb-3 border-0 shadow-none">
         <Card.Body className="d-flex align-items-center justify-content-between pb-0">
           <div className="d-flex align-items-center">
-            <img
-              src={user.avatar}
-              alt="User Avatar"
-              className="rounded-circle me-2"
-              width="40"
-            />
+            <img src={userAvatar} alt="User Avatar" className="rounded-circle me-2" width="40" />
             <div>
-              <h6 className="mb-0">{user.name}</h6>
-              <small>{user.role}</small>
+              <h6 className="mb-0">User</h6>
+              <small>{userRole === "homeOwner" ? "Home Owner" : "Member"}</small>
             </div>
           </div>
           <Dropdown className="ms-2">
@@ -46,47 +64,27 @@ const SideBar = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item>Profile</Dropdown.Item>
-              <Dropdown.Item>Logout</Dropdown.Item>
+              <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Card.Body>
       </Card>
+
       <div className="border-top m-2 mt-3"></div>
       <h6 className="fw-bold mt-2 pt-1 ms-3">QUICK ACTIONS</h6>
 
       <ListGroup variant="flush">
         <ListGroup.Item action className="border-0">
-          <img
-            src={categories}
-            className="me-2 add-notification-icon"
-            width="22px"
-            height="22px"
-            alt="Categories"
-          />{" "}
-          Categories
+          <img src={categories} className="me-2" width="22px" height="22px" alt="Categories" /> Categories
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
           <FaPlus className="me-2" /> Create Consumption
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
-          <img
-            src={addNotification}
-            className="me-2 add-notification-icon"
-            width="22px"
-            height="22px"
-            alt="Add Notification"
-          />{" "}
-          Create Custom Notification
+          <img src={addNotification} className="me-2" width="22px" height="22px" alt="Add Notification" /> Create Custom Notification
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
-          <img
-            src={addShopping}
-            className="me-2 add-notification-icon"
-            width="22px"
-            height="22px"
-            alt="Create Shopping List"
-          />{" "}
-          Create New Shopping List
+          <img src={addShopping} className="me-2" width="22px" height="22px" alt="Create Shopping List" /> Create New Shopping List
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
           <FaBox className="me-2" /> Add New Inventory
@@ -98,24 +96,41 @@ const SideBar = () => {
           <FaFileExport className="me-2" /> Export Reports
         </ListGroup.Item>
       </ListGroup>
-      <div className="border-top m-2 mt-2 pt-1"></div>
-      <h6 className="fw-bold mt-2 ms-3">FAMILY MEMBERS</h6>
+
+      {/* Family Members Section */}
+      <div className="d-flex align-items-center justify-content-between mt-3 ms-3">
+        <h6 className="fw-bold">FAMILY MEMBERS</h6>
+        {userRole === "homeOwner" && (
+          <Button variant="" size="sm" className="me-3" onClick={() => setShowModal(true)}>
+            <FaPlus />
+          </Button>
+        )}
+      </div>
+
       <ListGroup variant="flush">
-        {familyMembers.map((member) => (
-          <ListGroup.Item
-            key={member.id}
-            className="d-flex align-items-center border-0"
-          >
-            <img
-              src={member.avatar}
-              alt="Member Avatar"
-              className="rounded-circle me-2"
-              width="30"
-            />
-            {member.name}
-          </ListGroup.Item>
-        ))}
+        {loading ? (
+          <p className="ms-3 mt-2">Loading...</p>
+        ) : familyMembers.length > 0 ? (
+          familyMembers.map((member) => (
+            <ListGroup.Item key={member._id} className="d-flex align-items-center border-0">
+              <img src={member.avatar || userAvatar} alt="Member Avatar" className="rounded-circle me-2" width="30" />
+              {member.name}
+            </ListGroup.Item>
+          ))
+        ) : (
+          <p className="ms-3 mt-2">No family members found.</p>
+        )}
       </ListGroup>
+
+      {/* Modal for Adding Home Members */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title>Add Home Member</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <AddHomeMembers />
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };

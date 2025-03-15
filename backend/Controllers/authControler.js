@@ -132,18 +132,20 @@ export const loginController = async (req, res) => {
 };
 
 // Add Home Member
+
 export const addHomeMemberController = async (req, res) => {
   try {
-    const { name, email, password, phone, address, answer, homeID, ownerID } = req.body;
+    const { name, email, password, phone, address } = req.body;
+    const homeownerID = req.user._id; // Extracted from authentication middleware
 
-    if (!name || !email || !password || !phone || !address || !answer || !homeID || !ownerID) {
+    if (!name || !email || !password || !phone || !address) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
-    // Check if home exists
-    const home = await homeModel.findById(homeID);
-    if (!home || home.ownerID.toString() !== ownerID) {
-      return res.status(400).json({ success: false, message: "Home not found or unauthorized" });
+    // Check if the user is the homeowner
+    const home = await homeModel.findOne({ ownerID: homeownerID });
+    if (!home) {
+      return res.status(403).json({ success: false, message: "Unauthorized: Only the homeowner can add members" });
     }
 
     // Hash password and create member
@@ -154,9 +156,8 @@ export const addHomeMemberController = async (req, res) => {
       phone,
       address,
       password: hashedPassword,
-      answer,
       role: "homeMember",
-      homeID,
+      homeID: home._id,
     }).save();
 
     res.status(201).json({ success: true, message: "Home member added successfully", member });
@@ -164,5 +165,26 @@ export const addHomeMemberController = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Error in adding member", error });
+  }
+};
+
+export const getHomeMembersController = async (req, res) => {
+  try {
+    const userID = req.user._id;
+
+    // Find the user's home (whether they are a homeowner or a home member)
+    const user = await userModel.findById(userID);
+    if (!user || !user.homeID) {
+      return res.status(403).json({ success: false, message: "Unauthorized: You do not belong to any home" });
+    }
+
+    // Fetch all home members of the same home
+    const members = await userModel.find({ homeID: user.homeID }).select("-password");
+
+    res.status(200).json({ success: true, members });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error fetching home members", error });
   }
 };

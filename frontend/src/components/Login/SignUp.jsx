@@ -36,7 +36,7 @@ const SignUp = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/register", formData);
+      const response = await axios.post("http://localhost:3500/api/auth/register", formData);
       if (response.data.success) {
         navigate("/login"); // Redirect on success
       }
