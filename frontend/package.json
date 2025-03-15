@@ -37,7 +37,8 @@
     "react-whatsapp": "^0.3.0",
     "reactstrap": "^9.2.3",
     "recharts": "^2.15.1",
-    "simplebar-react": "^3.3.0"
+    "simplebar-react": "^3.3.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

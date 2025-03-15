@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Row, Col } from "reactstrap";
@@ -7,13 +7,15 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import { FaBell } from "react-icons/fa";
 import TidyHomeLogo from "../assets/logo/TidyHome_Logo.png";
-import UserDummyImg from "../assets/navBar/dummy-user.png";
+import HomeDummyImg from "../assets/navBar/dummy-home.jpg";
 import Language from "../assets/navBar/language.png";
 import Home from "../assets/navBar/home.png";
 import ShoppingList from "../assets/navBar/shopping.png";
 import Inventory from "../assets/navBar/inventory.png";
 import Supplier from "../assets/navBar/supplier.png";
 import HomeActive from "../assets/navBar/home-purple.png";
+import Consumption from "../assets/navBar/consumption.png";
+import ConsumptionActive from "../assets/navBar/consumption-purple.png";
 import InventoryActive from "../assets/navBar/inventory-purple.png";
 import SupplierActive from "../assets/navBar/supplier-purple.png";
 import ShoppingListActive from "../assets/navBar/shopping-purple.png";
@@ -22,6 +24,7 @@ import LanguageSelector from "../translations/languageSelector.jsx";
 const NavBar = () => {
   const navigate = useNavigate();
   const [activeNavTab, setActiveNavTab] = useState("HOME");
+  const dropdownRef = useRef(null);
   const { t } = useTranslation();
 
   const handleNavTab = (tab, route) => {
@@ -31,11 +34,16 @@ const NavBar = () => {
 
   const renderProfileSection = () => (
     <div className="d-flex align-items-center mb-1">
-      <img
-        src={UserDummyImg}
-        className="mr-3 profile-picture-preview"
-        alt="User"
-      />
+      <div className="position-relative">
+        <img
+          src={HomeDummyImg}
+          className="me-3 rounded-circle"
+          alt="User"
+          width="40"
+          height="40"
+          style={{ cursor: "pointer" }}
+        />
+      </div>
       <div className="d-flex flex-column justify-content-center">
         <div className="avatar-head-txt">{"User"}</div>
         <div className="avatar-role-txt">{"Role"}</div>
@@ -64,6 +72,13 @@ const NavBar = () => {
       icon: ShoppingList,
       activeIcon: ShoppingListActive,
       label: t("SHOPPING_LIST"),
+    },
+    {
+      tab: "CONSUMPTION",
+      route: "/consumption_home",
+      icon: Consumption,
+      activeIcon: ConsumptionActive,
+      label: t("CONSUMPTION"),
     },
     {
       tab: "SUPPLIERS",

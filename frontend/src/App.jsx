@@ -10,6 +10,7 @@ import NavBar from "./common/NavBar";
 import HomePage from "./components/Home/Home.jsx";
 import InventoryPage from "./components/Inventory/Inventory.jsx";
 import ShoppingListPage from "./components/ShoppingList/ShoppingList.jsx";
+import ConsumptionPage from "./components/ShoppingList/ShoppingList.jsx";
 import { ToastContainer } from "react-toastify";
 import SideBar from "./common/SideBar.jsx";
 import SignUp from "./components/Login/SignUp.jsx";
@@ -51,6 +52,7 @@ const App = () => {
           <Route path="/home" element={<HomePage />} />
           <Route path="/shopping-list" element={<ShoppingListPage />} />
           <Route path="/suppliers" element={<HomePage />} />
+          <Route path="/consumption_home" element={<HomePage />} />
         </Route>
 
         {/* Routes without Sidebar & Navbar */}

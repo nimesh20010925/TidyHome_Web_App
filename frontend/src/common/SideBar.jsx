@@ -1,9 +1,11 @@
 import React from "react";
 import { Card, Dropdown, ListGroup } from "react-bootstrap";
 import { FaPlus, FaBox, FaTruck, FaFileExport } from "react-icons/fa";
+import { MdCategory } from "react-icons/md";
 import userAvatar from "../assets/navBar/dummy-user.png";
 import addNotification from "../assets/sideBar/add-notification.png";
 import addShopping from "../assets/sideBar/add-shopping.png";
+import categories from "../assets/sideBar/categories.png";
 
 const SideBar = () => {
   const user = {
@@ -50,9 +52,19 @@ const SideBar = () => {
         </Card.Body>
       </Card>
       <div className="border-top m-2 mt-3"></div>
-      <h6 className="fw-bold mt-2 pt-1">QUICK ACTIONS</h6>
+      <h6 className="fw-bold mt-2 pt-1 ms-3">QUICK ACTIONS</h6>
 
       <ListGroup variant="flush">
+        <ListGroup.Item action className="border-0">
+          <img
+            src={categories}
+            className="me-2 add-notification-icon"
+            width="22px"
+            height="22px"
+            alt="Categories"
+          />{" "}
+          Categories
+        </ListGroup.Item>
         <ListGroup.Item action className="border-0">
           <FaPlus className="me-2" /> Create Consumption
         </ListGroup.Item>
@@ -63,7 +75,7 @@ const SideBar = () => {
             width="22px"
             height="22px"
             alt="Add Notification"
-          />
+          />{" "}
           Create Custom Notification
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
@@ -73,11 +85,11 @@ const SideBar = () => {
             width="22px"
             height="22px"
             alt="Create Shopping List"
-          />
+          />{" "}
           Create New Shopping List
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
-          <FaBox className="me-2" /> Add Product
+          <FaBox className="me-2" /> Add New Inventory
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
           <FaTruck className="me-2" /> Add Supplier
@@ -87,7 +99,7 @@ const SideBar = () => {
         </ListGroup.Item>
       </ListGroup>
       <div className="border-top m-2 mt-2 pt-1"></div>
-      <h6 className="fw-bold mt-2">FAMILY MEMBERS</h6>
+      <h6 className="fw-bold mt-2 ms-3">FAMILY MEMBERS</h6>
       <ListGroup variant="flush">
         {familyMembers.map((member) => (
           <ListGroup.Item

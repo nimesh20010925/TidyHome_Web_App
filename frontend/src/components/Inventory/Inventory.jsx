@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Button, Card, Row, Col, Alert } from "react-bootstrap";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import {
@@ -11,11 +11,15 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+import { Modal, ModalBody, ModalHeader } from "reactstrap";
 import DummyCategoryImage from "../../assets/inventory/dummy-category.png";
 import viewIcon from "../../assets/inventory/eye-purple.png";
 import editIcon from "../../assets/inventory/edit-purple.png";
 import deleteIcon from "../../assets/inventory/delete-red.png";
 import addIcon from "../../assets/inventory/image.png";
+import AddInventoryModal from "./Modals/addInventoryModal.jsx";
+import { InventoryService } from "../../services/InventoryServices.jsx";
+import { useTranslation } from "react-i18next";
 
 const categories = [
   { id: 1, name: "Grains & Cereals", image: DummyCategoryImage, itemCount: 10 },
@@ -79,7 +83,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 4,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -89,7 +93,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 5,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -99,7 +103,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 6,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -109,7 +113,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 7,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -119,7 +123,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 8,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -129,7 +133,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 9,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -139,7 +143,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 10,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -149,7 +153,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 11,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -159,7 +163,7 @@ const inventoryData = [
     supplier: "FoodCity",
   },
   {
-    id: 3,
+    id: 12,
     name: "Samba Rice",
     category: "Grains & Cereals",
     quantity: 20,
@@ -171,11 +175,27 @@ const inventoryData = [
 ];
 
 const pieData = {
-  labels: ["Household Items", "Beverages", "Dairy Products", "Food", "Bakery", "Fruits & Vegetables", "Other"],
+  labels: [
+    "Household Items",
+    "Beverages",
+    "Dairy Products",
+    "Food",
+    "Bakery",
+    "Fruits & Vegetables",
+    "Other",
+  ],
   datasets: [
     {
       data: [7, 22.5, 37.5, 27.5, 5, 12, 4.5],
-      backgroundColor: ["#1E90FF", "#FFD700", "#FF4500", "#8A2BE2", "#32CD32", "#FFC688", "#FF3458"],
+      backgroundColor: [
+        "#1E90FF",
+        "#FFD700",
+        "#FF4500",
+        "#8A2BE2",
+        "#32CD32",
+        "#FFC688",
+        "#FF3458",
+      ],
     },
   ],
 };
@@ -218,6 +238,56 @@ const lowInventoryData = [
 ];
 
 const Inventory = () => {
+  const [addInventoryModal, setAddInventoryModal] = useState(false);
+  const [inventories, setInventories] = useState([]);
+  const [deleteItemModal, setDeleteItemModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState();
+
+  const { t } = useTranslation();
+
+  const addInventoryToggle = () => setAddInventoryModal(!addInventoryModal);
+
+  const deleteItemToggle = () => {
+    setDeleteItemModal(!deleteItemModal);
+  };
+
+  const getAllInventoryItems = async () => {
+    const data = await InventoryService.getAllInventoryItems();
+    setInventories(data);
+  };
+
+  useEffect(() => {
+    getAllInventoryItems();
+  }, []);
+
+  const handleDeleteInventory = async (id) => {
+    try {
+      await InventoryService.deleteInventoryItem(id);
+      alert("Inventory item deleted successfully!");
+      deleteItemToggle();
+      getAllInventoryItems();
+    } catch (error) {
+      console.error("Failed to delete inventory item:", error);
+      alert("Failed to delete inventory item.");
+    }
+  };
+
+  const handleDeleteInventoryModal = (itemId) => {
+    setSelectedItem(itemId);
+    deleteItemToggle();
+  };
+
+  const closeDeleteItemBtn = (
+    <button className="close-btn" onClick={deleteItemToggle} type="button">
+      <img
+        width="20"
+        height="20"
+        src="https://img.icons8.com/ios/20/cancel.png"
+        alt="cancel"
+      />
+    </button>
+  );
+
   const pieChartData = pieData.labels.map((label, index) => ({
     name: label,
     value: pieData.datasets[0].data[index],
@@ -241,7 +311,7 @@ const Inventory = () => {
     <div className="inventory-container mt-2">
       {/* Categories Section */}
       <div className="inventory-category-section">
-        <h5 className="ms-2 mb-2 fw-bold">Inventory Categories</h5>
+        <h5 className="ms-2 mb-2 fw-bold">{t("INVENTORY_CATEGORIES")}</h5>
         <div className="inventory-categories-container">
           {categories.map((category) => (
             <Card
@@ -266,8 +336,11 @@ const Inventory = () => {
       {/* Inventory List */}
       <Card className="p-3 shadow-sm mt-3">
         <div className="d-flex justify-content-between align-items-center">
-          <h5 className="ms-1 fw-bold">Inventory List</h5>
-          <Button className="add-inventory-button fw-bold">
+          <h5 className="ms-1 fw-bold">{t("INVENTORY_LIST")}</h5>
+          <Button
+            onClick={addInventoryToggle}
+            className="rounded-pill border-0 add-inventory-button fw-bold"
+          >
             <img
               src={addIcon}
               alt="Add Item"
@@ -275,44 +348,62 @@ const Inventory = () => {
               height={16}
               className="mb-1 me-1"
             />{" "}
-            Add Inventory
+            {t("ADD_INVENTORY")}
           </Button>
         </div>
+
+        <AddInventoryModal
+          isOpen={addInventoryModal}
+          toggle={addInventoryToggle}
+        />
 
         <div className="inventory-table-wrapper">
           <Table striped bordered hover className="mt-3">
             <thead>
               <tr>
-                <th>Item Name</th>
-                <th>Category</th>
-                <th>Quantity</th>
-                <th>Item Type</th>
-                <th>Manfactured</th>
-                <th>Expiry Date</th>
-                <th>Supplier</th>
-                <th>Actions</th>
+                <th>{t("PRODUCT_NAME")}</th>
+                <th>{t("CATEGORY")}</th>
+                <th>{t("QUANTITY")}</th>
+                <th>{t("ITEM_TYPE")}</th>
+                <th>{t("MANUFACTURED")}</th>
+                <th>{t("EXPIRY_DATE")}</th>
+                <th>{t("SUPPLIER")}</th>
+                <th>{t("ACTIONS")}</th>
               </tr>
             </thead>
             <tbody className="inventory-table-body">
-              {inventoryData.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.name}</td>
-                  <td>{item.category}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.itemType}</td>
-                  <td>{item.expiryDate}</td>
-                  <td>{item.createdDate}</td>
-                  <td>{item.supplier}</td>
-                  <td className="inventory-actions-row">
-                    <Button className="inventory-actions-no-bg">
-                      <img src={viewIcon} alt="View" />
-                    </Button>
-                    <Button className="inventory-actions-no-bg">
-                      <img src={editIcon} alt="Edit" />
-                    </Button>
-                    <Button className="inventory-actions-no-bg">
-                      <img src={deleteIcon} alt="Delete" />
-                    </Button>
+              {inventories.map((item) => (
+                <tr key={item._id}>
+                  <td>{item.itemName}</td>
+                  <td>{item.categoryId ? item.categoryId.name : "-"}</td>
+                  <td>{item.quantity || "-"}</td>
+                  <td>{item.itemType || "-"}</td>
+                  <td>
+                    {item.manufacturedDate
+                      ? new Date(item.manufacturedDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>
+                    {item.expiryDate
+                      ? new Date(item.expiryDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>{item.supplierId ? item.supplierId.name : "-"}</td>
+                  <td className="inventory-actions-cell">
+                    <div className="inventory-actions-row">
+                      <Button className="inventory-actions-no-bg">
+                        <img src={viewIcon} alt="View" />
+                      </Button>
+                      <Button className="inventory-actions-no-bg">
+                        <img src={editIcon} alt="Edit" />
+                      </Button>
+                      <Button
+                        className="inventory-actions-no-bg"
+                        onClick={() => handleDeleteInventoryModal(item._id)}
+                      >
+                        <img src={deleteIcon} alt="Delete" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -321,12 +412,57 @@ const Inventory = () => {
         </div>
       </Card>
 
+      <Modal
+        isOpen={deleteItemModal}
+        toggle={deleteItemToggle}
+        centered
+        scrollable
+      >
+        <ModalHeader
+          toggle={deleteItemToggle}
+          close={closeDeleteItemBtn}
+          className="border-0 pb-0 pr-4 pl-4 ms-2 mr-2 fw-bold"
+        >
+          {t("INVENTORY_DELETION_CONFIRMATION")}
+        </ModalHeader>
+        <ModalBody>
+          <div className="d-flex flex-column">
+            <div className="form-group mb-4 ms-3 justify-content-center align-items-center">
+              {t("ARE_YOU_SURE_INVENTORY_DELETION")}
+            </div>
+            <Row className="form-group mb-2 mr-1 d-flex justify-content-end">
+              <Col xs="auto">
+                <Button
+                  style={{ cursor: "pointer" }}
+                  onClick={deleteItemToggle}
+                  className="ps-4 pe-4 border-0 rounded-pill bg-black fw-bold"
+                >
+                  {t("CANCEL")}
+                </Button>
+              </Col>
+              <Col xs="auto">
+                <Button
+                  style={{
+                    backgroundColor: "#ff0000",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleDeleteInventory(selectedItem)}
+                  className="ps-4 pe-4 border-0 rounded-pill ms-3 fw-bold"
+                >
+                  {t("DELETE")}
+                </Button>
+              </Col>
+            </Row>
+          </div>
+        </ModalBody>
+      </Modal>
+
       {/* Charts */}
       <Row className="justify-content-center mt-4">
         {/* Bar Chart */}
         <Col md={11}>
           <Card className="p-3 shadow-sm">
-            <h5 className="mb-4">Low Inventory Items</h5>
+            <h5 className="mb-4">{t("LOW_INVENTORY_ITEMS")}</h5>
             <ResponsiveContainer width="90%" height={400}>
               <BarChart data={lowInventoryData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -336,13 +472,17 @@ const Inventory = () => {
                 <Legend
                   payload={[
                     {
-                      value: "Existing Level",
+                      value: t("EXISTING_QUANTITY"),
                       type: "square",
                       color: "#000000",
                     },
-                    { value: "Low Level", type: "square", color: "#BB87FA" },
                     {
-                      value: "Critical Level",
+                      value: t("LOW_LEVEL"),
+                      type: "square",
+                      color: "#BB87FA",
+                    },
+                    {
+                      value: t("CRITICAL_LEVEL"),
                       type: "square",
                       color: "#FF0000",
                     },
@@ -351,7 +491,7 @@ const Inventory = () => {
 
                 <Bar
                   dataKey="existingLevel"
-                  name="Existing Level"
+                  name={t("EXISTING_QUANTITY")}
                   fill="#8884d8"
                 >
                   {lowInventoryData.map((entry, index) => (
@@ -366,13 +506,13 @@ const Inventory = () => {
                   ))}
                 </Bar>
 
-                <Bar dataKey="lowLevel" fill="#BB87FA" name="Low Level" />
+                <Bar dataKey="lowLevel" fill="#BB87FA" name={t("LOW_LEVEL")} />
               </BarChart>
             </ResponsiveContainer>
 
             {hasCriticalItems && (
               <Alert variant="danger" className="mt-3 text-center">
-                ⚠️ You must immediately restore the lowest inventory items.
+                ⚠️ {t("YOU_MUST_RESTORE_ITEMS")}
               </Alert>
             )}
           </Card>
@@ -382,7 +522,7 @@ const Inventory = () => {
         {/* Pie Chart */}
         <Col md={5}>
           <Card className="inventory-pie-chart p-3 shadow-sm">
-            <h5>Inventory Items Summary by Categories</h5>
+            <h5>{t("INVENTORY_ITEMS_SUMMARY_BY_CATEGORIES")}</h5>
             <PieChart width={400} height={400}>
               <Pie
                 data={pieChartData}
@@ -406,7 +546,7 @@ const Inventory = () => {
         {/* Line Chart */}
         <Col md={7}>
           <Card className="inventory-line-chart p-3 shadow-sm">
-            <h5 className="mb-4">Monthly Inventory Cost Summary</h5>
+            <h5 className="mb-4">{t("MONTHLY_INVENTORY_COST_SUMMARY")}</h5>
             <ResponsiveContainer width="100%" height={380}>
               <LineChart data={lineChartData}>
                 <CartesianGrid strokeDasharray="3 3" />

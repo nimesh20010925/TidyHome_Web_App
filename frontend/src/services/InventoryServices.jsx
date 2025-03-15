@@ -1,9 +1,50 @@
-import React from 'react'
+import axios from "axios";
 
-const InventoryServices = () => {
-  return (
-    <div>InventoryServices</div>
-  )
+const API_URL = "http://localhost:3500/api/inventory";
+
+export class InventoryService {
+  static async getAllInventoryItems() {
+    try {
+      const response = await axios.get(`${API_URL}/getAllInventories`);
+
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        console.error("Error:", response.data.message);
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching inventories:", error);
+      return [];
+    }
+  }
+
+  static async createInventoryItem(inventoryData) {
+    try {
+      const response = await axios.post(
+        `${API_URL}/createNewInventory`,
+        inventoryData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error creating inventory item:", error);
+      throw error;
+    }
+  }
+
+  static async deleteInventoryItem(id) {
+    try {
+      const response = await axios.delete(`${API_URL}/deleteInventory/${id}`);
+
+      if (response.data.success) {
+        return response.data;
+      } else {
+        console.error("Error:", response.data.message);
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting inventory item:", error);
+      throw error;
+    }
+  }
 }
-
-export default InventoryServices
