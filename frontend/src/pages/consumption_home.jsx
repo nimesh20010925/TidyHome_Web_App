@@ -1,6 +1,7 @@
 import { HelmetProvider } from "react-helmet-async";
 import PropTypes from "prop-types";
 import ConsumptionHome from "../components/consumption/consumption_home";
+import ConsumptionTable from "../components/consumption/consumptionTable/consumptionTable";
 
 const ContactPage = ({ image }) => {
   const defaultDescription =
@@ -45,6 +46,7 @@ const ContactPage = ({ image }) => {
           </HelmetProvider>
 
           <ConsumptionHome />
+          <ConsumptionTable />
         </div>
       </div>
     </div>
