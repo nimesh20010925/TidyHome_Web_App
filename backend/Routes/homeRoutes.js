@@ -7,4 +7,5 @@ const router = express.Router();
 // Create Home - Only Home Owners can create a home
 router.post("/create", authenticateUser, authorizeHomeOwner, createHomeController);
 
+
 export default router;

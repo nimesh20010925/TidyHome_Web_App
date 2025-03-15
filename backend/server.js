@@ -10,6 +10,18 @@ dotenv.config();
 
 const app = express();
 
+
+
+const corsOptions = {
+  origin: 'http://localhost:5173',  // No trailing slash here
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+
+app.use(cors(corsOptions));
+
 // Middleware
 app.use(express.json());
 app.use(cors());

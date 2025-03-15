@@ -3,40 +3,89 @@ import userModel from "../Models/userModel.js";
 import homeModel from "../Models/homeModel.js";
 
 
+
 // Home Owner Registration
 export const homeOwnerRegisterController = async (req, res) => {
   try {
-    const { name, email, password, phone, address, answer } = req.body;
+    const { name, email, password, phone, address } = req.body;
 
-    if (!name || !email || !password || !phone || !address || !answer) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+    // Validate inputs
+    if (!name || !email || !password || !phone || !address) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format",
+      });
+    }
+
+    // Validate password strength
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long and contain at least one number",
+      });
     }
 
     // Check if user already exists
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ success: false, message: "User already exists, please login." });
+      return res.status(400).json({
+        success: false,
+        message: "User already exists, please login.",
+      });
     }
 
     // Hash password and create user
     const hashedPassword = await hashPassword(password);
-    const user = await new userModel({
+    const newUser = new userModel({
       name,
       email,
       phone,
       address,
       password: hashedPassword,
-      answer,
       role: "homeOwner",
-    }).save();
+    });
 
-    res.status(201).json({ success: true, message: "User registered successfully", user });
+    // Save new user to the database
+    await newUser.save();
 
+    // Send success response
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: {
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Error in registration", error });
+    console.error("Registration Error:", error);
+
+    // Sending a more detailed error response for debugging
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        success: false,
+        message: `Validation error: ${error.message}`,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred during registration. Please try again later.",
+    });
   }
 };
+
 
 // Login Controller
 export const loginController = async (req, res) => {
@@ -62,7 +111,19 @@ export const loginController = async (req, res) => {
     // Generate JWT token
     const token = generateToken(user);
 
-    res.status(200).json({ success: true, message: "Login successful", token, user });
+    // Determine redirection path
+    let redirectTo = "/home";
+    if (user.role === "homeOwner" && !user.homeID) {
+      redirectTo = "/create-home";
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Login successful", 
+      token, 
+      user, 
+      redirectTo 
+    });
 
   } catch (error) {
     console.error(error);
