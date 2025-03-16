@@ -5,8 +5,8 @@ import Stores_table from './store_table/store_table';
 export default () => (
   <Tabs>
     <TabList>
-      <Tab>Title 1</Tab>
-      <Tab>Title 2</Tab>
+      <Tab>Suppliers</Tab>
+      <Tab>Stores</Tab>
     </TabList>
 
     <TabPanel>
