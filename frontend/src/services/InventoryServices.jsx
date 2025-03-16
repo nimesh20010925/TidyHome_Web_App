@@ -47,4 +47,23 @@ export class InventoryService {
       throw error;
     }
   }
+
+  static async updateInventoryItem(id, updateData) {
+    try {
+      const response = await axios.put(
+        `${API_URL}/updateInventory/${id}`,
+        updateData
+      );
+
+      if (response.data.success) {
+        return response.data;
+      } else {
+        console.error("Error:", response.data.message);
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating inventory item:", error);
+      throw error;
+    }
+  }
 }

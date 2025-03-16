@@ -12,7 +12,7 @@ import HomePage from "./components/Home/Home.jsx";
 import InventoryPage from "./components/Inventory/Inventory.jsx";
 import ShoppingListPage from "./components/ShoppingList/ShoppingList.jsx";
 import ConsumptionHome from "./pages/consumption_home.jsx";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "react-hot-toast";
 import SideBar from "./common/SideBar.jsx";
 import SignUp from "./components/Login/SignUp.jsx";
 import Login from "./components/Login/Login.jsx";
@@ -21,7 +21,6 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
 
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
-    <ToastContainer />
     <NavBar />
     <div className="d-flex flex-grow-1">
       <div className="app-body flex-grow-1 p-3">
@@ -35,10 +34,8 @@ const MainLayout = () => (
   </div>
 );
 
-// Separate layout for authentication pages (No NavBar, No SideBar)
 const AuthLayout = () => (
   <div className="d-flex flex-column vh-100 justify-content-center align-items-center">
-    <ToastContainer />
     <Outlet />
   </div>
 );
@@ -46,15 +43,15 @@ const AuthLayout = () => (
 const App = () => {
   return (
     <Router>
+      <Toaster position="top-right" reverseOrder={false} />
+
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<AuthLayout />}>
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/create-home" element={<CreateHome />} />
         </Route>
 
-        {/* Protected Routes */}
         <Route
           element={
             <ProtectedRoute allowedRoles={["homeOwner", "homeMember"]} />

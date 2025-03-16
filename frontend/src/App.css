@@ -1,20 +1,14 @@
 /* Nav Bar Styles */
 .nav-links {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   gap: 26px;
-  margin-left: 4vh;
+  margin-right: 24vh;
   margin-top: 6px;
 }
 
 .nav-item {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   cursor: pointer;
   padding: 10px;
   padding-top: 2px;
@@ -185,6 +179,33 @@
 .footer-tab-links:hover {
   color: #a367e4;
   font-weight: 500;
+}
+
+.footer-logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+  font-size: 4vh;
+  color: #666;
+}
+
+.footer-logo {
+  width: 70px;
+  height: 60px;
+}
+
+.custom-font {
+  font-family: "Roboto", sans-serif;
+}
+
+.large-letter {
+  font-size: 5.5vh;
+  color: #a367e4;
+}
+
+.normal-text {
+  font-size: 3.5vh;
 }
 
 /*sign-Up Page Styles*/

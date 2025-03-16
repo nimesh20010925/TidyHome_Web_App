@@ -18,8 +18,10 @@ import editIcon from "../../assets/inventory/edit-purple.png";
 import deleteIcon from "../../assets/inventory/delete-red.png";
 import addIcon from "../../assets/inventory/image.png";
 import AddInventoryModal from "./Modals/addInventoryModal.jsx";
+import UpdateInventoryModal from "./Modals/updateInventoryModal.jsx";
 import { InventoryService } from "../../services/InventoryServices.jsx";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-hot-toast";
 
 const categories = [
   { id: 1, name: "Grains & Cereals", image: DummyCategoryImage, itemCount: 10 },
@@ -118,7 +120,9 @@ const Inventory = () => {
   const [addInventoryModal, setAddInventoryModal] = useState(false);
   const [inventories, setInventories] = useState([]);
   const [deleteItemModal, setDeleteItemModal] = useState(false);
+  const [updateItemModal, setUpdateItemModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState();
+  const [selectedItemToUpdate, setSelectedItemToUpdate] = useState();
 
   const { t } = useTranslation();
 
@@ -126,6 +130,10 @@ const Inventory = () => {
 
   const deleteItemToggle = () => {
     setDeleteItemModal(!deleteItemModal);
+  };
+
+  const updateItemToggle = () => {
+    setUpdateItemModal(!updateItemModal);
   };
 
   const getAllInventoryItems = async () => {
@@ -140,18 +148,34 @@ const Inventory = () => {
   const handleDeleteInventory = async (id) => {
     try {
       await InventoryService.deleteInventoryItem(id);
-      alert("Inventory item deleted successfully!");
+      toast.success(t("INVENTORY_ITEM_DELETED_SUCCESS"), {
+        style: {
+          background: "#4caf50",
+          color: "#fff",
+        },
+      });
       deleteItemToggle();
       getAllInventoryItems();
     } catch (error) {
       console.error("Failed to delete inventory item:", error);
-      alert("Failed to delete inventory item.");
+      toast.error(t("INVENTORY_ITEM_DELETE_FAILED"), {
+        style: {
+          background: "#f44336",
+          color: "#fff",
+        },
+      });
     }
   };
 
   const handleDeleteInventoryModal = (itemId) => {
     setSelectedItem(itemId);
     deleteItemToggle();
+  };
+
+  const handleUpdateInventoryModal = (item) => {
+    console.log(item);
+    setSelectedItemToUpdate(item);
+    updateItemToggle();
   };
 
   const closeDeleteItemBtn = (
@@ -271,7 +295,10 @@ const Inventory = () => {
                       <Button className="inventory-actions-no-bg">
                         <img src={viewIcon} alt="View" />
                       </Button>
-                      <Button className="inventory-actions-no-bg">
+                      <Button
+                        className="inventory-actions-no-bg"
+                        onClick={() => handleUpdateInventoryModal(item)}
+                      >
                         <img src={editIcon} alt="Edit" />
                       </Button>
                       <Button
@@ -333,6 +360,12 @@ const Inventory = () => {
           </div>
         </ModalBody>
       </Modal>
+
+      <UpdateInventoryModal
+        isOpen={updateItemModal}
+        toggle={updateItemToggle}
+        selectedItem={selectedItemToUpdate}
+      />
 
       {/* Charts */}
       <Row className="justify-content-center mt-4">

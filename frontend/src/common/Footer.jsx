@@ -16,8 +16,14 @@ const Footer = () => {
   return (
     <footer className="footer">
       <Row className="footer-nav">
-        <Col className="logo-container">
-          <img src={TidyHomeLogo} alt="Logo" className="logo" />
+        <Col className="footer-logo-container">
+          <img src={TidyHomeLogo} alt="Logo" className="footer-logo" />
+          <div className="fw-bold custom-font">
+            <span className="large-letter">T</span>
+            <span className="normal-text">IDY</span>
+            <span className="large-letter">H</span>
+            <span className="normal-text">OME</span>
+          </div>
         </Col>
         <Col className="d-flex justify-content-end gap-4">
           <div
@@ -59,7 +65,7 @@ const Footer = () => {
         </Col>
       </Row>
 
-      <Row className="d-flex justify-content-between align-items-center my-3">
+      <Row className="d-flex justify-content-between align-items-center my-3 mb-4">
         <Col className="text-start">
           <p className="footer-text">
             {t("CULTIVATING_EFFICIENCY")} —<br />
