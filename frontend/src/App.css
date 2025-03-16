@@ -936,7 +936,7 @@ td.inventory-actions-cell {
   z-index: 100;
 }
 
-.social-icon {
+.socialmedia-icon {
   background-color: #fff;
   border-radius: 50%;
   padding: 20px;
@@ -946,23 +946,23 @@ td.inventory-actions-cell {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.social-icon:hover {
+.socialmedia-icon:hover {
   background-color: #0073e6;
   color: #000000;
 }
 
-.social-icon.facebook {
+.socialmedia-icon.facebook {
   background-color: #3b5998;
 }
 
-.social-icon.twitter {
+.socialmedia-icon.twitter {
   background-color: #1da1f2;
 }
 
-.social-icon.instagram {
+.socialmedia-icon.instagram {
   background-color: #e4405f;
 }
 
-.social-icon.linkedin {
+.socialmedia-icon.linkedin {
   background-color: #0077b5;
 }

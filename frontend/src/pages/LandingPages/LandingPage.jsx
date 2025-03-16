@@ -27,25 +27,25 @@ const LandingPage = () => {
 
       {/* Social Media Icons */}
       <div className="social-media-icons">
-        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon facebook">
+        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="socialmedia-icon facebook">
           <span className="icon-container">
             <FaFacebookF size={24} />
             <span className="icon-name">Facebook</span>
           </span>
         </a>
-        <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon twitter">
+        <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer" className="socialmedia-icon twitter">
           <span className="icon-container">
             <FaTwitter size={24} />
             <span className="icon-name">Twitter</span>
           </span>
         </a>
-        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon instagram">
+        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="socialmedia-icon instagram">
           <span className="icon-container">
             <FaInstagram size={24} />
             <span className="icon-name">Instagram</span>
           </span>
         </a>
-        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon linkedin">
+        <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="socialmedia-icon linkedin">
           <span className="icon-container">
             <FaLinkedinIn size={24} />
             <span className="icon-name">LinkedIn</span>

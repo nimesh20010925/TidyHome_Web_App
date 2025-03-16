@@ -28,37 +28,37 @@ const Footer = () => {
         <Col className="d-flex justify-content-end gap-4">
           <div
             className="footer-tab-links"
-            onClick={() => handleNavigation("/home")}
+            onClick={() => handleNavigation("/app/home")}
           >
             {t("HOME")}
           </div>
           <div
             className="footer-tab-links"
-            onClick={() => handleNavigation("/inventory")}
+            onClick={() => handleNavigation("/app/inventory")}
           >
             {t("INVENTORY")}
           </div>
           <div
             className="footer-tab-links"
-            onClick={() => handleNavigation("/shopping-list")}
+            onClick={() => handleNavigation("/app/shopping-list")}
           >
             {t("SHOPPING_LIST")}
           </div>
           <div
             className="footer-tab-links"
-            onClick={() => handleNavigation("/consumption_home")}
+            onClick={() => handleNavigation("/app/consumption_home")}
           >
             {t("CONSUMPTION")}
           </div>
           <div
             className="footer-tab-links"
-            onClick={() => handleNavigation("/suppliers")}
+            onClick={() => handleNavigation("/app/suppliers")}
           >
             {t("SUPPLIERS")}
           </div>
           <div
             className="footer-tab-links"
-            onClick={() => handleNavigation("/contact-us")}
+            onClick={() => handleNavigation("/app/contact-us")}
           >
             {t("CONTACTUS")}
           </div>

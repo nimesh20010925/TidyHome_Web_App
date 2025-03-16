@@ -55,7 +55,7 @@ const inventorySchema = new mongoose.Schema({
     ref: "User",
     required: false,
   },
-});
+}, { timestamps: true });
 
 const Inventory = mongoose.model("Inventory", inventorySchema);
 
