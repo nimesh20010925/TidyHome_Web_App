@@ -46,7 +46,7 @@ const ContactPage = ({ image }) => {
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
 
-          <ConsumptionHome />
+          {/* <ConsumptionHome /> */}
           <ConsumptionTable />
           <BarChart />
         </div>
