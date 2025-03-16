@@ -5,7 +5,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
   const user = JSON.parse(localStorage.getItem("user")); // Assuming user data is stored in localStorage
 
   if (!token || !user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth/login" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {

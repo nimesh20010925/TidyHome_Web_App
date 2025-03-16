@@ -7,7 +7,7 @@ import {
   Routes,
 } from "react-router-dom";
 import NavBar from "./common/NavBar";
-import Footer from "./common/Footer.jsx"
+import Footer from "./common/Footer.jsx";
 import HomePage from "./components/Home/Home.jsx";
 import InventoryPage from "./components/Inventory/Inventory.jsx";
 import ShoppingListPage from "./components/ShoppingList/ShoppingList.jsx";
@@ -18,7 +18,7 @@ import SignUp from "./components/Login/SignUp.jsx";
 import Login from "./components/Login/Login.jsx";
 import CreateHome from "./components/Home/CreateHome.jsx";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
-
+import LandingPage from "./pages/LandingPages/LandingPage.jsx";
 
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
@@ -31,9 +31,8 @@ const MainLayout = () => (
       <div className="app-sidebar">
         <SideBar />
       </div>
-      
     </div>
-    <Footer/>
+    <Footer />
   </div>
 );
 
@@ -49,26 +48,28 @@ const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Landing Page as Default */}
+        <Route path="/" element={<LandingPage />} />
+
         {/* Public Routes */}
-        <Route path="/" element={<AuthLayout />}>
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/create-home" element={<CreateHome />} />
-          
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route path="signup" element={<SignUp />} />
+          <Route path="login" element={<Login />} />
+          <Route path="create-home" element={<CreateHome />} />
         </Route>
 
         {/* Protected Routes */}
         <Route
+          path="/app"
           element={
             <ProtectedRoute allowedRoles={["homeOwner", "homeMember"]} />
           }
         >
-          <Route path="/" element={<MainLayout />}>
-            <Route path="/inventory" element={<InventoryPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/shopping-list" element={<ShoppingListPage />} />
-            <Route path="/suppliers" element={<HomePage />} />
-            
+          <Route element={<MainLayout />}>
+            <Route path="inventory" element={<InventoryPage />} />
+            <Route path="home" element={<HomePage />} />
+            <Route path="shopping-list" element={<ShoppingListPage />} />
+            <Route path="suppliers" element={<HomePage />} />
           </Route>
         </Route>
       </Routes>

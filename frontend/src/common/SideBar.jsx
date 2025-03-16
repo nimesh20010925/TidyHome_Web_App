@@ -8,6 +8,8 @@ import addNotification from "../assets/sideBar/add-notification.png";
 import addShopping from "../assets/sideBar/add-shopping.png";
 import categories from "../assets/sideBar/categories.png";
 import AddHomeMembers from "../components/Home/AddHomeMembers";
+import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
+import { TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
 
 const SideBar = () => {
   const navigate = useNavigate();
@@ -50,7 +52,7 @@ const SideBar = () => {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/auth/login");
   };
 
   return (

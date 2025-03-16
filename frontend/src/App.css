@@ -102,15 +102,7 @@ body {
   height: 60px;
 }
 
-.sidebar {
-  width: 300px;
-  height: 100vh;
-  top: 0;
-  right: 0;
-  overflow-y: auto;
-  padding: 10px;
-  background: transparent !important;
-}
+
 
 .add-notification-icon {
   margin-left: -4px;
@@ -134,6 +126,15 @@ body {
 .navbar-logout:hover {
   background-color: red;
   color: #ffffff;
+}
+.sidebar {
+  width: 300px;
+  height: 100vh;
+  top: 0;
+  right: 0;
+  overflow-y: auto;
+  padding: 10px;
+  background: transparent !important;
 }
 
 /*sign up page*/
@@ -703,4 +704,193 @@ td.inventory-actions-cell {
 .custom-add-home-member-form-group input:focus,
 .custom-add-home-member-form-group select:focus {
   border-color: #6a5acd !important;
+}
+
+.landingnavbarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 50px;
+  background: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
+  z-index: 1;
+  position: fixed;
+  width: 100%;
+}
+
+.landingnavbarlogo {
+  cursor: pointer;
+  width: 10vh;
+}
+
+.landingpagenavlink {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  padding: 0;
+}
+
+.landingpagenavlink li {
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 14px;
+}
+
+.landingpagenavlink li a {
+
+  text-decoration: none;
+  color: #a367e4;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.landingpagenavlink li a:hover {
+  color: #832ae3;
+}
+
+.landingpagebutton {
+  padding: 9px 25px;
+  background-color: rgb(187, 3, 163);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: #fff;
+  font-weight: bold;
+}
+
+.landingpagebutton:hover {
+  background-color: rgb(127, 0, 110);
+}
+
+
+.landingpage-container {
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+              url('./assets/LandingPage/landingbg.jpg'); /* Background image */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 95vh; /* Full height */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main Content Layout */
+.landingpage-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10%;
+  flex-grow: 1; /* Takes up remaining space */
+}
+
+/* Left Side Text */
+.landingpage-text {
+  color: white;
+  max-width: 50%;
+}
+
+.landingpage-text h1 {
+  font-size: 4rem;
+  margin-bottom: 10px;
+}
+
+.landingpage-text p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.get-started-btn {
+  padding: 10px 30px;
+  background-color: rgb(187, 3, 163);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.get-started-btn:hover {
+  background-color: rgb(127, 0, 110);
+}
+
+/* Right Side Image */
+.landingpage-image img {
+  width: 100%;
+  max-width: 520px;
+}
+
+/* Container for the icon and text */
+.icon-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Hidden tooltip text */
+.icon-name {
+  visibility: hidden;
+  width: 100px;
+  background-color: #832ae3;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  padding: 10px;
+  position: absolute;
+  right: 100%;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 15px;
+  z-index: 1;
+}
+
+/* Show tooltip text on hover */
+.icon-container:hover .icon-name {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Styling for the social media icons */
+.social-media-icons {
+  position: fixed;
+  right: 30px;
+  top: 75%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 100;
+}
+
+.social-icon {
+  background-color: #fff;
+  border-radius: 50%;
+  padding: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  font-size: 20px;
+  color: #ffffff;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.social-icon:hover {
+  background-color: #0073e6;
+  color: #000000;
+}
+
+.social-icon.facebook {
+  background-color: #3b5998;
+}
+
+.social-icon.twitter {
+  background-color: #1da1f2;
+}
+
+.social-icon.instagram {
+  background-color: #e4405f;
+}
+
+.social-icon.linkedin {
+  background-color: #0077b5;
 }

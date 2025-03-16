@@ -112,7 +112,7 @@ export const loginController = async (req, res) => {
     const token = generateToken(user);
 
     // Determine redirection path
-    let redirectTo = "/home";
+    let redirectTo = "/app/home";
     if (user.role === "homeOwner" && !user.homeID) {
       redirectTo = "/create-home";
     }
