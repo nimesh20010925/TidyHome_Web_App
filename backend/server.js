@@ -7,6 +7,7 @@ import inventoryRoutes from "./Routes/inventoryRoute.js";
 import authRoutes from "./Routes/authRoutes.js"
 import homeRoutes from "./Routes/homeRoutes.js"
 import consumptionRoutes from "./Routes/consumptionRoutes.js"
+import customNotificationRoutes from "./Routes/customNotificationRoutes.js"
 // Load environment variables
 dotenv.config();
 
@@ -33,7 +34,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/home", homeRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/consumption", consumptionRoutes);
-
+app.use("/api/customNotification", customNotificationRoutes);
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
