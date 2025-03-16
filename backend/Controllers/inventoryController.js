@@ -23,16 +23,21 @@ class InventoryController {
         homeId,
         itemImage,
         itemName,
-        categoryId,
+        categoryId: mongoose.Types.ObjectId.isValid(categoryId)
+          ? new mongoose.Types.ObjectId(categoryId)
+          : null,
+        supplierId: mongoose.Types.ObjectId.isValid(supplierId)
+          ? new mongoose.Types.ObjectId(supplierId)
+          : null,
         quantity,
         price,
         itemType,
-        supplierId,
         lowStockLevel,
-        manufacturedDate,
+        manufacturedDate: manufacturedDate ? new Date(manufacturedDate) : null,
         brandName,
         createdBy,
       });
+
       await inventoryItem.save();
 
       res.status(201).send("New inventory item added successfully!");

@@ -45,7 +45,7 @@ const CreateHome = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/home/create",
+        "http://localhost:3500/api/home/create",
         formData,
         {
           headers: {

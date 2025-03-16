@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import Form from "react-bootstrap/Form";
 import { useTranslation } from "react-i18next";
@@ -7,8 +8,14 @@ import { InventoryService } from "../../../services/InventoryServices.jsx";
 import PropTypes from "prop-types";
 import { toast } from "react-hot-toast";
 
-const AddInventoryModal = ({ isOpen, toggle }) => {
+const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
+  const [updatedItem, setUpdatedItem] = useState(selectedItem);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    console.log(selectedItem);
+    setUpdatedItem(selectedItem);
+  });
 
   const today = new Date();
   const twoYearsAgo = new Date(today);
@@ -104,23 +111,11 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
         close={closeBtn}
         className="border-0 poppins-medium mx-4 mt-2 fw-bold"
       >
-        {t("ADD_INVENTORY_ITEM_FORM")}
+        {t("UPDATE_INVENTORY_ITEM_FORM")}
       </ModalHeader>
 
       <ModalBody className="add-inventory-modal-body">
         <Form onSubmit={formik.handleSubmit}>
-          <Form.Group className="custom-inventory-form-group">
-            <Form.Control
-              className="custom-inventory-form-input"
-              type="file"
-              name="itemImage"
-              onChange={(e) =>
-                formik.setFieldValue("itemImage", e.target.files[0])
-              }
-            />
-            <Form.Label>{t("ITEM_IMAGE")}</Form.Label>
-          </Form.Group>
-
           <Form.Group className="custom-inventory-form-group">
             <Form.Control
               className="custom-inventory-form-input"
@@ -406,7 +401,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
                 style={{ width: "1rem", height: "1rem", borderWidth: "2px" }}
               />
             )}
-            {formik.isSubmitting ? t("ADDING_ITEM") : t("ADD_ITEM")}
+            {formik.isSubmitting ? t("UPDATING_ITEM") : t("UPDATE_ITEM")}
           </Button>
         </Form>
       </ModalBody>
@@ -414,9 +409,10 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
   );
 };
 
-AddInventoryModal.propTypes = {
+UpdateInventoryModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
+  selectedItem: PropTypes.any.isRequired,
 };
 
-export default AddInventoryModal;
+export default UpdateInventoryModal;

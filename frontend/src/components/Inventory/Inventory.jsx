@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Button, Card, Row, Col, Alert } from "react-bootstrap";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import {
@@ -18,8 +18,10 @@ import editIcon from "../../assets/inventory/edit-purple.png";
 import deleteIcon from "../../assets/inventory/delete-red.png";
 import addIcon from "../../assets/inventory/image.png";
 import AddInventoryModal from "./Modals/addInventoryModal.jsx";
+import UpdateInventoryModal from "./Modals/updateInventoryModal.jsx";
 import { InventoryService } from "../../services/InventoryServices.jsx";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-hot-toast";
 
 const categories = [
   { id: 1, name: "Grains & Cereals", image: DummyCategoryImage, itemCount: 10 },
@@ -48,129 +50,6 @@ const categories = [
     name: "Condiments & Spices",
     image: DummyCategoryImage,
     itemCount: 12,
-  },
-];
-
-const inventoryData = [
-  {
-    id: 1,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 2,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 3,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 4,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 5,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 6,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 7,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 8,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 9,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 10,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 11,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
-  },
-  {
-    id: 12,
-    name: "Samba Rice",
-    category: "Grains & Cereals",
-    quantity: 20,
-    itemType: "Kg",
-    expiryDate: "2026-05-12",
-    createdDate: "2025-02-26",
-    supplier: "FoodCity",
   },
 ];
 
@@ -241,7 +120,9 @@ const Inventory = () => {
   const [addInventoryModal, setAddInventoryModal] = useState(false);
   const [inventories, setInventories] = useState([]);
   const [deleteItemModal, setDeleteItemModal] = useState(false);
+  const [updateItemModal, setUpdateItemModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState();
+  const [selectedItemToUpdate, setSelectedItemToUpdate] = useState();
 
   const { t } = useTranslation();
 
@@ -249,6 +130,10 @@ const Inventory = () => {
 
   const deleteItemToggle = () => {
     setDeleteItemModal(!deleteItemModal);
+  };
+
+  const updateItemToggle = () => {
+    setUpdateItemModal(!updateItemModal);
   };
 
   const getAllInventoryItems = async () => {
@@ -263,18 +148,34 @@ const Inventory = () => {
   const handleDeleteInventory = async (id) => {
     try {
       await InventoryService.deleteInventoryItem(id);
-      alert("Inventory item deleted successfully!");
+      toast.success(t("INVENTORY_ITEM_DELETED_SUCCESS"), {
+        style: {
+          background: "#4caf50",
+          color: "#fff",
+        },
+      });
       deleteItemToggle();
       getAllInventoryItems();
     } catch (error) {
       console.error("Failed to delete inventory item:", error);
-      alert("Failed to delete inventory item.");
+      toast.error(t("INVENTORY_ITEM_DELETE_FAILED"), {
+        style: {
+          background: "#f44336",
+          color: "#fff",
+        },
+      });
     }
   };
 
   const handleDeleteInventoryModal = (itemId) => {
     setSelectedItem(itemId);
     deleteItemToggle();
+  };
+
+  const handleUpdateInventoryModal = (item) => {
+    console.log(item);
+    setSelectedItemToUpdate(item);
+    updateItemToggle();
   };
 
   const closeDeleteItemBtn = (
@@ -394,7 +295,10 @@ const Inventory = () => {
                       <Button className="inventory-actions-no-bg">
                         <img src={viewIcon} alt="View" />
                       </Button>
-                      <Button className="inventory-actions-no-bg">
+                      <Button
+                        className="inventory-actions-no-bg"
+                        onClick={() => handleUpdateInventoryModal(item)}
+                      >
                         <img src={editIcon} alt="Edit" />
                       </Button>
                       <Button
@@ -457,6 +361,12 @@ const Inventory = () => {
         </ModalBody>
       </Modal>
 
+      <UpdateInventoryModal
+        isOpen={updateItemModal}
+        toggle={updateItemToggle}
+        selectedItem={selectedItemToUpdate}
+      />
+
       {/* Charts */}
       <Row className="justify-content-center mt-4">
         {/* Bar Chart */}
@@ -518,7 +428,7 @@ const Inventory = () => {
           </Card>
         </Col>
       </Row>
-      <Row className="mt-4">
+      <Row className="mt-4 mb-2">
         {/* Pie Chart */}
         <Col md={5}>
           <Card className="inventory-pie-chart p-3 shadow-sm">

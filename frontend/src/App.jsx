@@ -7,12 +7,12 @@ import {
   Routes,
 } from "react-router-dom";
 import NavBar from "./common/NavBar";
-import Footer from "./common/Footer.jsx";
+import Footer from "./common/Footer";
 import HomePage from "./components/Home/Home.jsx";
 import InventoryPage from "./components/Inventory/Inventory.jsx";
 import ShoppingListPage from "./components/ShoppingList/ShoppingList.jsx";
-import ConsumptionPage from "./components/ShoppingList/ShoppingList.jsx";
-import { ToastContainer } from "react-toastify";
+import ConsumptionHome from "./pages/consumption_home.jsx";
+import { Toaster } from "react-hot-toast";
 import SideBar from "./common/SideBar.jsx";
 import SignUp from "./components/Login/SignUp.jsx";
 import Login from "./components/Login/Login.jsx";
@@ -22,7 +22,6 @@ import LandingPage from "./pages/LandingPages/LandingPage.jsx";
 
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
-    <ToastContainer />
     <NavBar />
     <div className="d-flex flex-grow-1">
       <div className="app-body flex-grow-1 p-3">
@@ -36,10 +35,8 @@ const MainLayout = () => (
   </div>
 );
 
-// Separate layout for authentication pages (No NavBar, No SideBar)
 const AuthLayout = () => (
   <div className="d-flex flex-column vh-100 justify-content-center align-items-center">
-    <ToastContainer />
     <Outlet />
   </div>
 );
@@ -47,6 +44,8 @@ const AuthLayout = () => (
 const App = () => {
   return (
     <Router>
+      <Toaster position="top-right" reverseOrder={false} />
+
       <Routes>
         {/* Landing Page as Default */}
         <Route path="/" element={<LandingPage />} />
@@ -58,7 +57,6 @@ const App = () => {
           <Route path="create-home" element={<CreateHome />} />
         </Route>
 
-        {/* Protected Routes */}
         <Route
           path="/app"
           element={
@@ -70,6 +68,7 @@ const App = () => {
             <Route path="home" element={<HomePage />} />
             <Route path="shopping-list" element={<ShoppingListPage />} />
             <Route path="suppliers" element={<HomePage />} />
+            <Route path="/consumption_home" element={<ConsumptionHome />} />
           </Route>
         </Route>
       </Routes>
