@@ -18,6 +18,7 @@ import Login from "./components/Login/Login.jsx";
 import CreateHome from "./components/Home/CreateHome.jsx";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
 import Supplier_home from "./pages/supplier_home.jsx";
+import Category_home from "./pages/category_home.jsx";
 
 
 const MainLayout = () => (
@@ -65,6 +66,7 @@ const App = () => {
             <Route path="/home" element={<HomePage />} />
             <Route path="/shopping-list" element={<ShoppingListPage />} />
             <Route path="/supplier-home" element={<Supplier_home />} />
+            <Route path="/category-home" element={<Category_home />} />
           </Route>
         </Route>
       </Routes>

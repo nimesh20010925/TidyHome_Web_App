@@ -1,13 +1,16 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'; // Import translation hook
+import './store_table.css'
 
 const supplier_table = () => {
+  const { t } = useTranslation(); // Initialize translation function
   return (
     <div>
       <table class="table">
   <thead>
     <tr>
-      <th scope="col">#</th>
-      <th scope="col">irst</th>
+      <th scope="col" className='ttt'>#</th>
+      <th scope="col" className='ttt' >irst</th>
       <th scope="col">ast</th>
       <th scope="col">andle</th>
     </tr>
@@ -15,7 +18,7 @@ const supplier_table = () => {
   <tbody>
     <tr>
       <th scope="row">1</th>
-      <td>Mark</td>
+      <td className='text-danger'>Mark</td>
       <td>Otto</td>
       <td>@mdo</td>
     </tr>

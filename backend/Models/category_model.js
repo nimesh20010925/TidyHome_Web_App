@@ -25,7 +25,7 @@ const categorySchema = new mongoose.Schema(
 
   },
   {
-    timestamps: true,
+    timestamps: true,  /* To save created time in data base */
   }
 );
 
