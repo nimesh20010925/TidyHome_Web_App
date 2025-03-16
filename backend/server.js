@@ -5,6 +5,9 @@ import cors from "cors";
 import inventoryRoutes from "./Routes/inventoryRoute.js";
 import authRoutes from "./Routes/authRoutes.js"
 import homeRoutes from "./Routes/homeRoutes.js"
+import categoryRoutes from "./Routes/categoryRoutes.js"
+import supplierRoutes from "./Routes/supplierRoute.js"
+
 // Load environment variables
 dotenv.config();
 
@@ -30,6 +33,8 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/home", homeRoutes);
 app.use("/api/inventory", inventoryRoutes);
+app.use("/api/category", categoryRoutes);
+app.use("/api/supplier", supplierRoutes);
 
 // Connect to MongoDB
 mongoose

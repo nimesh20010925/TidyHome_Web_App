@@ -17,6 +17,8 @@ import SignUp from "./components/Login/SignUp.jsx";
 import Login from "./components/Login/Login.jsx";
 import CreateHome from "./components/Home/CreateHome.jsx";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
+import Supplier_home from "./pages/supplier_home.jsx";
+
 
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
@@ -62,7 +64,7 @@ const App = () => {
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/home" element={<HomePage />} />
             <Route path="/shopping-list" element={<ShoppingListPage />} />
-            <Route path="/suppliers" element={<HomePage />} />
+            <Route path="/supplier-home" element={<Supplier_home />} />
           </Route>
         </Route>
       </Routes>
