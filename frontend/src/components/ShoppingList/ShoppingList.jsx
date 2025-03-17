@@ -6,4 +6,4 @@ const ShoppingList = () => {
   )
 }
 
-export default ShoppingList
+export default ShoppingList;

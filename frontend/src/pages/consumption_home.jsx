@@ -1,12 +1,14 @@
 import { HelmetProvider } from "react-helmet-async";
 import PropTypes from "prop-types";
-
 import ConsumptionTable from "../components/consumption/consumptionTable/consumptionTable";
 import BarChart from "../components/consumption/consumptionChart/barChart/barChart";
+import AreaChart from "../components/consumption/consumptionChart/areaChart/areaChart";
+import PieChart from "../components/consumption/consumptionChart/pieChart/pieChart";
+import RadialBarChart  from "../components/consumption/consumptionChart/radialBarChart/radialBarChart";
 import ReactGridLayout from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
-import React, { useState } from 'react';
+import { useState } from 'react';
+import 'react-grid-layout/css/styles.css'; 
+import 'react-resizable/css/styles.css'; 
 
 const ContactPage = ({ image }) => {
   const defaultDescription =
@@ -16,89 +18,160 @@ const ContactPage = ({ image }) => {
   const defaultTitle = "TidyHome | Consumption Home";
   const defaultImage = "https://placehold.co/600x400/png";
 
-  const Dashboard = () => {
-    // Initial state of items
-    const [items, setItems] = useState([
-      { i: '1', x: 0, y: 0, w: 2, h: 2 },
-      { i: '2', x: 2, y: 0, w: 2, h: 2 },
-      { i: '3', x: 0, y: 2, w: 2, h: 2 },
-      { i: '4', x: 2, y: 2, w: 2, h: 2 },
-    ]);
-  
-    // Callback function to update position when an item is moved
-    const onLayoutChange = (layout) => {
-      setItems(layout);
-    };
-  
-    return (
-      <div>
-        <div className="container">
-          <div className="content">
-            <HelmetProvider>
-              {/* Title */}
-              <title>{defaultTitle}</title>
+ 
+  const [layout, setLayout] = useState([
+    { i: 'consumptionTable', x: 0, y: 0, w: 12, h: 4 },
+    { i: 'barChart', x: 0, y: 0, w: 6, h: 4 },
+    { i: 'areaChart', x: 6, y: 0, w: 6, h: 4 },
+    { i: 'pieChart', x: 0, y: 0, w: 6, h: 4 },
+    { i: 'radialBarChart', x: 6, y: 0, w: 6, h: 4 },
+  ]);
 
-              {/* Favicon */}
-              <link
-                rel="icon"
-                type="image/png"
-                href={image || defaultImage}
-                sizes="16x16"
-              />
+ 
+  const onLayoutChange = (newLayout) => {
+    setLayout(newLayout);
+  };
 
-              {/* Meta Description and Keywords */}
-              <meta name="description" content={defaultDescription} />
-              <meta name="keywords" content={defaultKeywords} />
+  return (
+    <div>
+      <style>{`
+        .grid-item {
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
-              {/* Open Graph Meta Tags */}
-              <meta property="og:title" content={defaultTitle} />
-              <meta property="og:description" content={defaultDescription} />
-              <meta property="og:type" content="website" />
-              <meta property="og:image" content={image || defaultImage} />
-              <meta property="og:url" content={window.location.href} />
+        .grid-item:hover {
+          box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+      `}</style>
 
-              {/* Twitter Meta Tags */}
-              <meta name="twitter:title" content={defaultTitle} />
-              <meta name="twitter:description" content={defaultDescription} />
-              <meta name="twitter:image" content={image || defaultImage} />
-              <meta name="twitter:card" content="summary_large_image" />
-            </HelmetProvider>
+      <div className="container">
+        <div className="content">
+          <HelmetProvider>
+            {/* Title */}
+            <title>{defaultTitle}</title>
 
-            <ReactGridLayout
-              className="layout"
-              layout={items}
-              cols={4}  // Number of columns in grid
-              rowHeight={30}  // Height of each row
-              width={1200}  // Total width of grid
-              onLayoutChange={onLayoutChange}  // Callback to update state
-            >
-              <div key="1" className="box" style={{ backgroundColor: 'lightblue' }}>
+            {/* Favicon */}
+            <link
+              rel="icon"
+              type="image/png"
+              href={image || defaultImage}
+              sizes="16x16"
+            />
+
+            {/* Meta Description and Keywords */}
+            <meta name="description" content={defaultDescription} />
+            <meta name="keywords" content={defaultKeywords} />
+
+            {/* Open Graph Meta Tags */}
+            <meta property="og:title" content={defaultTitle} />
+            <meta property="og:description" content={defaultDescription} />
+            <meta property="og:type" content="website" />
+            <meta property="og:image" content={image || defaultImage} />
+            <meta property="og:url" content={window.location.href} />
+
+            {/* Twitter Meta Tags */}
+            <meta name="twitter:title" content={defaultTitle} />
+            <meta name="twitter:description" content={defaultDescription} />
+            <meta name="twitter:image" content={image || defaultImage} />
+            <meta name="twitter:card" content="summary_large_image" />
+          </HelmetProvider>
+
+          <ReactGridLayout
+            className="layout"
+            layout={layout}
+            onLayoutChange={onLayoutChange}
+            cols={12} // Number of columns in the grid
+            rowHeight={100} // Height of each row
+            width={1200} // Width of the grid container
+            isDraggable={true}
+            isResizable={true}
+            draggableHandle=".drag-handle" // Optional: specify a handle for dragging
+          >
+            <div key="consumptionTable" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Consumption Table
+              </div>
+              <div style={{ padding: '20px' }}>
                 <ConsumptionTable />
               </div>
-              <div key="2" className="box" style={{ backgroundColor: 'lightgreen' }}>
+            </div>
+
+            <div key="barChart" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Consumption Chart
+              </div>
+              <div style={{ padding: '20px' }}>
                 <BarChart />
               </div>
-              <div key="3" className="box" style={{ backgroundColor: 'lightcoral' }}>
-                Widget 3
-              </div>
-              <div key="4" className="box" style={{ backgroundColor: 'lightyellow' }}>
-                Widget 4
-              </div>
-            </ReactGridLayout>
+            </div>
 
-          </div>
+            <div key="areaChart" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Area Chart
+              </div>
+              <div style={{ padding: '20px' }}>
+                <AreaChart />
+              </div>
+            </div>
+
+            <div key="pieChart" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Pie Chart
+              </div>
+              <div style={{ padding: '20px' }}>
+                <PieChart />
+              </div>
+            </div>
+
+            <div key="radialBarChart" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Pie Chart
+              </div>
+              <div style={{ padding: '20px' }}>
+                <RadialBarChart />
+              </div>
+            </div>
+          </ReactGridLayout>
         </div>
       </div>
-    );
-  };
 
-  // PropTypes validation
-  ContactPage.propTypes = {
-    image: PropTypes.string,
-  };
+      
+      
+    </div>
+  );
+};
 
-  // Return the Dashboard component from ContactPage
-  return <Dashboard />;
+// PropTypes validation
+ContactPage.propTypes = {
+  image: PropTypes.string,
 };
 
 export default ContactPage;
