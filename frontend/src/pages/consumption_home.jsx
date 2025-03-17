@@ -5,13 +5,13 @@ import BarChart from "../components/consumption/consumptionChart/barChart/barCha
 import AreaChart from "../components/consumption/consumptionChart/areaChart/areaChart";
 import PieChart from "../components/consumption/consumptionChart/pieChart/pieChart";
 import RadialBarChart from "../components/consumption/consumptionChart/radialBarChart/radialBarChart";
-import { Responsive, WidthProvider } from 'react-grid-layout'; // Import Responsive and WidthProvider
+import { Responsive, WidthProvider } from 'react-grid-layout'; 
 import { useState } from 'react';
 import 'react-grid-layout/css/styles.css'; 
 import 'react-resizable/css/styles.css'; 
 import Modal from '../components/consumption/consumptionCreateModel/consumptionCreateModel';
 
-// Wrap ResponsiveGridLayout with WidthProvider for dynamic width handling
+
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const ContactPage = ({ image }) => {
