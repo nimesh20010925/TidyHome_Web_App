@@ -7,6 +7,10 @@ const ConsumptionTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+
+ 
+
+
   useEffect(() => {
     const fetchConsumptions = async () => {
       try {
@@ -58,7 +62,9 @@ const ConsumptionTable = () => {
   }
 
   return (
+    
     <TableContainer component={Paper} sx={{ maxWidth: "90%", margin: "20px auto", padding: "10px" }}>
+      
       <Typography variant="h6" sx={{ margin: "10px" }}>
         Consumption Records
       </Typography>

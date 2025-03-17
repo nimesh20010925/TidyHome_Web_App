@@ -9,6 +9,8 @@ import ReactGridLayout from 'react-grid-layout';
 import { useState } from 'react';
 import 'react-grid-layout/css/styles.css'; 
 import 'react-resizable/css/styles.css'; 
+import Modal from '../components/consumption/consumptionCreateModel/consumptionCreateModel';
+
 
 const ContactPage = ({ image }) => {
   const defaultDescription =
@@ -32,6 +34,17 @@ const ContactPage = ({ image }) => {
     setLayout(newLayout);
   };
 
+
+   const [isModalOpen, setModalOpen] = useState(false);
+  
+    const openModal = () => {
+      setModalOpen(true);
+    };
+  
+    const closeModal = () => {
+      setModalOpen(false);
+    };
+  
   return (
     <div>
       <style>{`
@@ -78,7 +91,9 @@ const ContactPage = ({ image }) => {
             <meta name="twitter:image" content={image || defaultImage} />
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
+          <button onClick={openModal}>Create Consumption</button>
 
+<Modal isOpen={isModalOpen} closeModal={closeModal} />
           <ReactGridLayout
             className="layout"
             layout={layout}
