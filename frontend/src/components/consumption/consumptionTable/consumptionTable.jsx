@@ -1,22 +1,25 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ConsumptionService } from "../../../services/consumptionServices";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Typography, Button } from "@mui/material";
+import ViewModal from "../consumptionViewModel/consumptionViewModel";  
+import EditModal from "../consumptionEditModel/consumptionEditModel";
+import DeleteModal from "../consumptionDeleteModel/consumptionDeleteModel";
 
 const ConsumptionTable = () => {
   const [consumptions, setConsumptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-
- 
-
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [openViewModal, setOpenViewModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchConsumptions = async () => {
       try {
         const data = await ConsumptionService.getAllConsumptions();
         setConsumptions(data);
-      } catch (err) {
+      } catch  {
         setError("Failed to load data");
       } finally {
         setLoading(false);
@@ -25,6 +28,34 @@ const ConsumptionTable = () => {
 
     fetchConsumptions();
   }, []);
+
+  const handleView = (item) => {
+    setSelectedItem(item);
+    setOpenViewModal(true);
+  };
+
+  const handleEdit = (item) => {
+    setSelectedItem(item);
+    setOpenEditModal(true);
+  };
+
+  const handleSave = (editedItem) => {
+    const updatedConsumptions = consumptions.map((item) =>
+      item._id === editedItem._id ? editedItem : item
+    );
+    setConsumptions(updatedConsumptions);
+    setOpenEditModal(false);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await ConsumptionService.deleteConsumption(id);  
+      setConsumptions((prevConsumptions) => prevConsumptions.filter((item) => item._id !== id));  
+      setOpenDeleteModal(false);
+    } catch  {
+      setError("Failed to delete data");
+    }
+  };
 
   let content;
 
@@ -43,6 +74,7 @@ const ConsumptionTable = () => {
             <TableCell><strong>Date</strong></TableCell>
             <TableCell><strong>Remaining Stock</strong></TableCell>
             <TableCell><strong>Notes</strong></TableCell>
+            <TableCell><strong>Action</strong></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -54,6 +86,37 @@ const ConsumptionTable = () => {
               <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
               <TableCell>{item.remaining_stock}</TableCell>
               <TableCell>{item.notes}</TableCell>
+              <TableCell>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  size="small"
+                  onClick={() => handleView(item)}
+                  sx={{ marginRight: 1 }}
+                >
+                  View
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  size="small"
+                  onClick={() => handleEdit(item)}
+                  sx={{ marginRight: 1 }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  onClick={() => {
+                    setSelectedItem(item);
+                    setOpenDeleteModal(true);
+                  }}
+                >
+                  Delete
+                </Button>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -62,13 +125,34 @@ const ConsumptionTable = () => {
   }
 
   return (
-    
-    <TableContainer component={Paper} sx={{ maxWidth: "90%", margin: "20px auto", padding: "10px" }}>
-      
+    <TableContainer component={Paper} sx={{ maxWidth: "100%", padding: "10px" }}>
       <Typography variant="h6" sx={{ margin: "10px" }}>
         Consumption Records
       </Typography>
       {content}
+
+      {/* View Modal */}
+      <ViewModal
+        open={openViewModal}
+        onClose={() => setOpenViewModal(false)}
+        item={selectedItem}
+      />
+
+      {/* Edit Modal */}
+      <EditModal
+        open={openEditModal}
+        onClose={() => setOpenEditModal(false)}
+        item={selectedItem}
+        onSave={handleSave}  // Pass the onSave function here
+      />
+
+      {/* Delete Modal */}
+      <DeleteModal
+        open={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        item={selectedItem}
+        onDelete={() => handleDelete(selectedItem._id)} // Call the delete function with the selected item's ID
+      />
     </TableContainer>
   );
 };

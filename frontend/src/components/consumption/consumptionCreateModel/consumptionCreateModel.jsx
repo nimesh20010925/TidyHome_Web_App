@@ -1,8 +1,8 @@
 // Modal.js
 import  { useState } from 'react';
-import PropTypes from 'prop-types'; // Prop validation for props
-import { ConsumptionService } from '../../../services/consumptionServices'; // Import the service
-import './consumptionCreateModel.css'; // Import the CSS file
+import PropTypes from 'prop-types'; 
+import { ConsumptionService } from '../../../services/consumptionServices'; 
+import './consumptionCreateModel.css'; 
 const Modal = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
     product_name: '',
@@ -109,8 +109,8 @@ const Modal = ({ isOpen, closeModal }) => {
 
 // Add prop validation
 Modal.propTypes = {
-  isOpen: PropTypes.bool.isRequired, // Validate that isOpen is a boolean and required
-  closeModal: PropTypes.func.isRequired, // Validate that closeModal is a function and required
+  isOpen: PropTypes.bool.isRequired, 
+  closeModal: PropTypes.func.isRequired, 
 };
 
 export default Modal;
