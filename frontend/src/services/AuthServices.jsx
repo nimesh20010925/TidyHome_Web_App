@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api/auth'; // Define base URL
+const API_URL = 'http://localhost:3500/api/auth'; // Define base URL
 
 // Login Function
 export const loginUser = async (email, password, navigate) => {
@@ -37,7 +37,7 @@ export const signUpUser = async (username, email, password, phone, address, navi
         throw new Error("All fields are required.");
       }
   
-      const response = await axios.post('http://localhost:3000/api/auth/register', { username, email, password, phone, address });
+      const response = await axios.post('http://localhost:3500/api/auth/register', { username, email, password, phone, address });
   
       // Redirect user to login page after successful signup
       navigate('/login');

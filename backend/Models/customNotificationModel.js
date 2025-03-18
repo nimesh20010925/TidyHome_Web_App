@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 
-const consumptionSchema = new mongoose.Schema(
+const customNotificationSchema = new mongoose.Schema(
   {
-    product_name: {
+    notification: {
       type: String,
       required: true,
     },
-    amount_used: {
+    notification_type: {
       type: String,
       required: true,
     },
-    user: {
+    status: {
       type: String,
       required: true,
     },
@@ -18,11 +18,12 @@ const consumptionSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
-    remaining_stock: {
+    user: {
       type: String,
       required: true,
+
     },
-    notes: {
+    notification_action: {
       type: String,
       required: true,
     },
@@ -32,7 +33,7 @@ const consumptionSchema = new mongoose.Schema(
   }
 );
 
-export const consumption = mongoose.model("consumptions", consumptionSchema);
+export const customNotification = mongoose.model("customNotifications", customNotificationSchema);
 
 
 

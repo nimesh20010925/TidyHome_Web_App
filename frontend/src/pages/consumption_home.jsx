@@ -1,6 +1,18 @@
 import { HelmetProvider } from "react-helmet-async";
 import PropTypes from "prop-types";
-import ConsumptionHome from "../components/consumption/consumption_home";
+import ConsumptionTable from "../components/consumption/consumptionTable/consumptionTable";
+import BarChart from "../components/consumption/consumptionChart/barChart/barChart";
+import AreaChart from "../components/consumption/consumptionChart/areaChart/areaChart";
+import PieChart from "../components/consumption/consumptionChart/pieChart/pieChart";
+import RadialBarChart from "../components/consumption/consumptionChart/radialBarChart/radialBarChart";
+import { Responsive, WidthProvider } from 'react-grid-layout'; 
+import { useState } from 'react';
+import 'react-grid-layout/css/styles.css'; 
+import 'react-resizable/css/styles.css'; 
+import Modal from '../components/consumption/consumptionCreateModel/consumptionCreateModel';
+
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const ContactPage = ({ image }) => {
   const defaultDescription =
@@ -10,41 +22,185 @@ const ContactPage = ({ image }) => {
   const defaultTitle = "TidyHome | Consumption Home";
   const defaultImage = "https://placehold.co/600x400/png";
 
+  // Define layouts for different breakpoints
+  const [layouts, setLayouts] = useState({
+    lg: [
+      { i: 'consumptionTable', x: 0, y: 0, w: 12, h: 4 },
+      { i: 'barChart', x: 0, y: 4, w: 6, h: 4 },
+      { i: 'areaChart', x: 6, y: 4, w: 6, h: 4 },
+      { i: 'pieChart', x: 0, y: 8, w: 6, h: 4 },
+      { i: 'radialBarChart', x: 6, y: 8, w: 6, h: 4 },
+    ],
+    md: [
+      { i: 'consumptionTable', x: 0, y: 0, w: 8, h: 4 },
+      { i: 'barChart', x: 0, y: 4, w: 4, h: 4 },
+      { i: 'areaChart', x: 4, y: 4, w: 4, h: 4 },
+      { i: 'pieChart', x: 0, y: 8, w: 4, h: 4 },
+      { i: 'radialBarChart', x: 4, y: 8, w: 4, h: 4 },
+    ],
+    sm: [
+      { i: 'consumptionTable', x: 0, y: 0, w: 6, h: 4 },
+      { i: 'barChart', x: 0, y: 4, w: 6, h: 4 },
+      { i: 'areaChart', x: 0, y: 8, w: 6, h: 4 },
+      { i: 'pieChart', x: 0, y: 12, w: 6, h: 4 },
+      { i: 'radialBarChart', x: 0, y: 16, w: 6, h: 4 },
+    ],
+  });
+
+  // Define breakpoints and column counts
+  const breakpoints = { lg: 1200, md: 996, sm: 768 };
+  const cols = { lg: 12, md: 8, sm: 6 };
+
+  const onLayoutChange = (layout, allLayouts) => {
+    setLayouts(allLayouts);
+  };
+
+  const [isModalOpen, setModalOpen] = useState(false);
+  
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
+
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
+      <style>{`
+        .grid-item {
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .grid-item:hover {
+          box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .container {
+          width: 100%;
+          max-width: 100%;
+          margin: 0 auto;
+          padding: 0 20px;
+          box-sizing: border-box;
+        }
+
+        .content {
+          width: 100%;
+        }
+      `}</style>
+
       <div className="container">
         <div className="content">
           <HelmetProvider>
-            {/* Title */}
             <title>{defaultTitle}</title>
-
-            {/* Favicon */}
             <link
               rel="icon"
               type="image/png"
               href={image || defaultImage}
               sizes="16x16"
             />
-
-            {/* Meta Description and Keywords */}
             <meta name="description" content={defaultDescription} />
             <meta name="keywords" content={defaultKeywords} />
-
-            {/* Open Graph Meta Tags */}
             <meta property="og:title" content={defaultTitle} />
             <meta property="og:description" content={defaultDescription} />
             <meta property="og:type" content="website" />
             <meta property="og:image" content={image || defaultImage} />
             <meta property="og:url" content={window.location.href} />
-
-            {/* Twitter Meta Tags */}
             <meta name="twitter:title" content={defaultTitle} />
             <meta name="twitter:description" content={defaultDescription} />
             <meta name="twitter:image" content={image || defaultImage} />
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
 
-          <ConsumptionHome />
+          <button onClick={openModal}>Create Consumption</button>
+          <Modal isOpen={isModalOpen} closeModal={closeModal} />
+
+          <ResponsiveGridLayout
+            className="layout"
+            layouts={layouts}
+            onLayoutChange={onLayoutChange}
+            breakpoints={breakpoints}
+            cols={cols}
+            rowHeight={100}
+            isDraggable={true}
+            isResizable={true}
+            draggableHandle=".drag-handle"
+            containerPadding={[20, 20]} // Add padding for better spacing
+            margin={[20, 20]} // Add margin between grid items
+          >
+            <div key="consumptionTable" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Consumption Table
+              </div>
+              <div style={{ padding: '20px' }}>
+                <ConsumptionTable />
+              </div>
+            </div>
+
+            <div key="barChart" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Bar Chart
+              </div>
+              <div style={{ padding: '20px' }}>
+                <BarChart />
+              </div>
+            </div>
+
+            <div key="areaChart" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Area Chart
+              </div>
+              <div style={{ padding: '20px' }}>
+                <AreaChart />
+              </div>
+            </div>
+
+            <div key="pieChart" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Pie Chart
+              </div>
+              <div style={{ padding: '20px' }}>
+                <PieChart />
+              </div>
+            </div>
+
+            <div key="radialBarChart" className="grid-item">
+              <div className="drag-handle" style={{ 
+                padding: '10px', 
+                background: '#f0f0f0', 
+                cursor: 'move',
+                marginBottom: '10px'
+              }}>
+                Radial Bar Chart
+              </div>
+              <div style={{ padding: '20px' }}>
+                <RadialBarChart />
+              </div>
+            </div>
+          </ResponsiveGridLayout>
         </div>
       </div>
     </div>
