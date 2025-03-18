@@ -10,13 +10,25 @@ import categories from "../assets/sideBar/categories.png";
 import AddHomeMembers from "../components/Home/AddHomeMembers";
 import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
 import { TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
-
+import Modal from '../components/consumption/consumptionCreateModel/consumptionCreateModel';
 const SideBar = () => {
   const navigate = useNavigate();
   const [familyMembers, setFamilyMembers] = useState([]);
   const [userRole, setUserRole] = useState("");
   const [loading, setLoading] = useState(true);
   const [addHomeMembersModal, setAddHomeMembersModal] = useState(false);
+
+
+  const [isModalOpen, setModalOpen] = useState(false);
+  
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
+
 
   const addHomeMembersToggle = () =>
     setAddHomeMembersModal(!addHomeMembersModal);
@@ -103,8 +115,10 @@ const SideBar = () => {
           Categories
         </ListGroup.Item>
         </a>
-        <ListGroup.Item action className="border-0">
-          <FaPlus className="me-2" /> Create Consumption
+        <ListGroup.Item onClick={openModal} action className="border-0">
+          <FaPlus className="me-2" /> 
+                    <Modal isOpen={isModalOpen} closeModal={closeModal} />
+          Create Consumption
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
           <img

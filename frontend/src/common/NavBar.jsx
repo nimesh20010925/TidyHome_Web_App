@@ -26,6 +26,8 @@ const NavBar = () => {
   const [activeNavTab, setActiveNavTab] = useState("HOME");
   const { t } = useTranslation();
 
+
+  
   const handleNavTab = (tab, route) => {
     setActiveNavTab(tab);
     navigate(route);
