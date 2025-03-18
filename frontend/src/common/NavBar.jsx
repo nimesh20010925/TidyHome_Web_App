@@ -77,7 +77,11 @@ const NavBar = () => {
     },
     {
       tab: "SUPPLIERS",
+<<<<<<< HEAD
       route: "/app/suppliers",
+=======
+      route: "/supplier-home",
+>>>>>>> susiru
       icon: Supplier,
       activeIcon: SupplierActive,
       label: t("SUPPLIERS"),

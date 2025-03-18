@@ -19,6 +19,9 @@ import Login from "./components/Login/Login.jsx";
 import CreateHome from "./components/Home/CreateHome.jsx";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
 import LandingPage from "./pages/LandingPages/LandingPage.jsx";
+import Supplier_home from "./pages/supplier_home.jsx";
+import Category_home from "./pages/category_home.jsx";
+
 
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
@@ -69,6 +72,9 @@ const App = () => {
             <Route path="shopping-list" element={<ShoppingListPage />} />
             <Route path="suppliers" element={<HomePage />} />
             <Route path="consumption_home" element={<ConsumptionHome />} />
+            <Route path="supplier-home" element={<Supplier_home />} />
+            <Route path="category-home" element={<Category_home />} />
+
           </Route>
         </Route>
       </Routes>
