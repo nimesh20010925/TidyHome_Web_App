@@ -97,12 +97,34 @@ class InventoryController {
 
   static async updateInventoryItem(req, res, next) {
     const { id } = req.params;
-    const updateData = req.body;
+    let updateData = req.body;
 
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: "Invalid inventory ID format" });
       }
+
+      // Convert string IDs to ObjectId if they are valid
+      if (updateData.categoryId) {
+        updateData.categoryId = mongoose.Types.ObjectId.isValid(
+          updateData.categoryId
+        )
+          ? new mongoose.Types.ObjectId(updateData.categoryId)
+          : undefined; // Remove invalid categoryId
+      }
+
+      if (updateData.supplierId) {
+        updateData.supplierId = mongoose.Types.ObjectId.isValid(
+          updateData.supplierId
+        )
+          ? new mongoose.Types.ObjectId(updateData.supplierId)
+          : undefined; // Remove invalid supplierId
+      }
+
+      // Filter out undefined fields to avoid overwriting with `undefined`
+      updateData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, value]) => value !== undefined)
+      );
 
       const updatedInventory = await Inventory.findByIdAndUpdate(
         id,

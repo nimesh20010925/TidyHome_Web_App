@@ -9,13 +9,14 @@ import PropTypes from "prop-types";
 import { toast } from "react-hot-toast";
 
 const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
-  const [updatedItem, setUpdatedItem] = useState(selectedItem);
+  const [updatedItem, setUpdatedItem] = useState(selectedItem || {});
   const { t } = useTranslation();
 
   useEffect(() => {
-    console.log(selectedItem);
-    setUpdatedItem(selectedItem);
-  });
+    if (selectedItem) {
+      setUpdatedItem(selectedItem);
+    }
+  }, [selectedItem]);
 
   const today = new Date();
   const twoYearsAgo = new Date(today);
@@ -24,16 +25,17 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
   const formik = useFormik({
     initialValues: {
       itemImage: null,
-      itemName: "",
-      categoryId: "",
-      quantity: "",
-      price: "",
-      itemType: "",
-      supplierId: "",
-      lowStockLevel: "",
-      manufacturedDate: "",
-      brandName: "",
+      itemName: selectedItem?.itemName || "",
+      categoryId: selectedItem?.categoryId || undefined,
+      quantity: selectedItem?.quantity || "",
+      price: selectedItem?.price || "",
+      itemType: selectedItem?.itemType || "",
+      supplierId: selectedItem?.supplierId || undefined,
+      lowStockLevel: selectedItem?.lowStockLevel || "",
+      manufacturedDate: selectedItem?.manufacturedDate || "",
+      brandName: selectedItem?.brandName || "",
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       itemName: Yup.string().required(t("PRODUCT_NAME_REQUIRED")),
       quantity: Yup.number()
@@ -60,8 +62,11 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
       };
 
       try {
-        await InventoryService.createInventoryItem(transformedValues);
-        toast.success(t("INVENTORY_ITEM_ADDED_SUCCESS"), {
+        await InventoryService.updateInventoryItem(
+          selectedItem._id,
+          transformedValues
+        );
+        toast.success(t("INVENTORY_ITEM_UPDATED_SUCCESS"), {
           style: {
             background: "#4caf50",
             color: "#fff",
@@ -70,8 +75,8 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
         resetForm();
         toggle();
       } catch (error) {
-        console.error("Error adding inventory item:", error);
-        toast.error(t("INVENTORY_ITEM_ADD_FAILED"), {
+        console.error("Error updating inventory item:", error);
+        toast.error(t("INVENTORY_ITEM_UPDATE_FAILED"), {
           style: {
             background: "#f44336",
             color: "#fff",

@@ -65,6 +65,11 @@
     "ADDING_ITEM": "Adding Item",
     "INVENTORY_ITEM_DELETED_SUCCESS": "Inventory Item Deleted Successfully!",
     "INVENTORY_ITEM_DELETE_FAILED": "Inventory Item Deleted Failed. Please Try Again!",
+    "INVENTORY_ITEM_UPDATED_SUCCESS": "Inventory Item Updated Successfully!",
+    "INVENTORY_ITEM_UPDATED_FAILED": "Inventory Item Updated Failed. Please Try Again!",
+    "UPDATING_ITEM": "Updating Item",
+    "UPDATE_ITEM": "Update Item",
+    "UPDATE_INVENTORY_ITEM_FORM": "Update Inventory Items Form",
 
     "NOTIFICATIONS": "Notifications",
     "Search": "Search",

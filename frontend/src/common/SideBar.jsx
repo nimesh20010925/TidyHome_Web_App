@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Dropdown, ListGroup, Button, Modal } from "react-bootstrap";
+import { Card, Dropdown, ListGroup, Button } from "react-bootstrap";
 import { FaPlus, FaBox, FaTruck, FaFileExport } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -79,7 +79,9 @@ const SideBar = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item>Profile</Dropdown.Item>
-              <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+              <Dropdown.Item onClick={handleLogout} className="sidebar-logout">
+                Logout
+              </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
         </Card.Body>

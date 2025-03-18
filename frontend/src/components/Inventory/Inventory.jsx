@@ -276,7 +276,7 @@ const Inventory = () => {
               {inventories.map((item) => (
                 <tr key={item._id}>
                   <td>{item.itemName}</td>
-                  <td>{item.categoryId ? item.categoryId.name : "-"}</td>
+                  <td>{item.categoryId ? item.categoryId : "-"}</td>
                   <td>{item.quantity || "-"}</td>
                   <td>{item.itemType || "-"}</td>
                   <td>
