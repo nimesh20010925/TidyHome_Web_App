@@ -19,7 +19,7 @@ const ConsumptionTable = () => {
       try {
         const data = await ConsumptionService.getAllConsumptions();
         setConsumptions(data);
-      } catch  {
+      } catch {
         setError("Failed to load data");
       } finally {
         setLoading(false);
@@ -52,7 +52,7 @@ const ConsumptionTable = () => {
       await ConsumptionService.deleteConsumption(id);  
       setConsumptions((prevConsumptions) => prevConsumptions.filter((item) => item._id !== id));  
       setOpenDeleteModal(false);
-    } catch  {
+    } catch {
       setError("Failed to delete data");
     }
   };
@@ -125,7 +125,15 @@ const ConsumptionTable = () => {
   }
 
   return (
-    <TableContainer component={Paper} sx={{ maxWidth: "100%", padding: "10px" }}>
+    <TableContainer 
+      component={Paper} 
+      sx={{
+        maxWidth: "100%", 
+        padding: "10px", 
+        maxHeight: 350,  
+        overflowY: "auto", 
+      }}
+    >
       <Typography variant="h6" sx={{ margin: "10px" }}>
         Consumption Records
       </Typography>
