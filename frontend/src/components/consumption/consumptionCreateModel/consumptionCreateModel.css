@@ -32,7 +32,7 @@
     margin: 10px 0;
   }
   
-  button[type="button"] {
+  button{
     background-color: #f44336;
   }
   
