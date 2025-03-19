@@ -91,17 +91,17 @@ const SideBar = () => {
       <h6 className="fw-bold mt-2 pt-1 ms-3">QUICK ACTIONS</h6>
 
       <ListGroup variant="flush">
-        <a href="/category-home">
-        <ListGroup.Item action className="border-0">
-          <img
-            src={categories}
-            className="me-2"
-            width="22px"
-            height="22px"
-            alt="Categories"
-          />{" "}
-          Categories
-        </ListGroup.Item>
+        <a href="/category-home" style={{ textDecoration: "none" }}>
+          <ListGroup.Item action className="border-0">
+            <img
+              src={categories}
+              className="me-2"
+              width="22px"
+              height="22px"
+              alt="Categories"
+            />{" "}
+            Categories
+          </ListGroup.Item>
         </a>
         <ListGroup.Item action className="border-0">
           <FaPlus className="me-2" /> Create Consumption
@@ -129,10 +129,10 @@ const SideBar = () => {
         <ListGroup.Item action className="border-0">
           <FaBox className="me-2" /> Add New Inventory
         </ListGroup.Item>
-        <a href="/supplier-home">
-        <ListGroup.Item action className="border-0">
-          <FaTruck className="me-2" /> Add Supplier
-        </ListGroup.Item>
+        <a href="/supplier-home" style={{ textDecoration: "none" }}>
+          <ListGroup.Item action className="border-0">
+            <FaTruck className="me-2" /> Add Supplier
+          </ListGroup.Item>
         </a>
         <ListGroup.Item action className="border-0">
           <FaFileExport className="me-2" /> Export Reports
