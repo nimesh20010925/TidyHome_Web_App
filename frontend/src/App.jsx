@@ -21,8 +21,9 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
 import LandingPage from "./pages/LandingPages/LandingPage.jsx";
 import Supplier_home from "./pages/supplier_home.jsx";
 import Category_home from "./pages/category_home.jsx";
-
-
+import CustomNotification from "./pages/custom_notification_home.jsx";
+import Notification from "./components/notifications/notification.jsx";
+import SingleNotification from "./components/notifications/SingleNotificationPage.jsx";
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
     <NavBar />
@@ -74,6 +75,9 @@ const App = () => {
             <Route path="consumption_home" element={<ConsumptionHome />} />
             <Route path="supplier-home" element={<Supplier_home />} />
             <Route path="category-home" element={<Category_home />} />
+            <Route path="custom-notification" element={<CustomNotification />} />
+            <Route path="notification" element={<Notification />} />
+            <Route path="single-notification" element={< SingleNotification/>} />
 
           </Route>
         </Route>

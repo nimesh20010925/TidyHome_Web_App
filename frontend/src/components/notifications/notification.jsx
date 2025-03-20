@@ -1,86 +1,172 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Bell } from 'lucide-react';
+import  { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { NotificationService } from "../../services/NotificationService";
+import { Dropdown } from "react-bootstrap";
+import { FaBell } from "react-icons/fa";
+import "./notification.css";
 
-const Notification = () => {
+const NotificationDropdown = () => {
   const [notifications, setNotifications] = useState([]);
-  const [history, setHistory] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
+  const ITEMS_PER_PAGE = 5;
 
-  const fetchNotifications = async () => {
-    const res = await axios.get('/api/notifications');
-    setNotifications(res.data);
-  };
-
-  const fetchHistory = async () => {
-    const res = await axios.get('/api/notifications/history');
-    setHistory(res.data);
-  };
-
-  const markAsRead = async (id) => {
-    await axios.post(`/api/notifications/mark-as-read/${id}`);
-    fetchNotifications();
-    fetchHistory();
-  };
-
+  // Fetch notifications
   useEffect(() => {
+    const fetchNotifications = async () => {
+      const latestNotifications = await NotificationService.getLatestNotifications();
+      console.log("Raw API response:", latestNotifications);
+      if (Array.isArray(latestNotifications)) {
+        setNotifications(latestNotifications);
+
+        // Calculate unread notifications count globally
+        const unreadNotificationsCount = notifications.filter(n => !n.read).length;
+        setUnreadCount(unreadNotificationsCount);
+        console.log("Total notifications:", latestNotifications.length);
+        console.log("Unread notifications count:", unreadNotificationsCount);
+      } else {
+        console.error("API did not return an array:", latestNotifications);
+        setNotifications([]);
+        setUnreadCount(0);
+      }
+    };
+
     fetchNotifications();
-    fetchHistory();
-  }, []);
+  }, [showDropdown]);
+
+  // Handle marking a notification as read
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      await NotificationService.markAsRead(notificationId);
+      setNotifications(prevNotifications => {
+        const updatedNotifications = prevNotifications.map(notif =>
+          (notif._id === notificationId || notif.id === notificationId)
+            ? { ...notif, read: true }
+            : notif
+        );
+        
+        // Recalculate unread count after updating the notifications state
+        const unreadNotificationsCount = notifications.filter(n => !n.read).length;
+        setUnreadCount(unreadNotificationsCount);
+        console.log("Updated unread count after marking as read:", unreadNotificationsCount);
+        
+        return updatedNotifications;
+      });
+    } catch (error) {
+      console.error("Error marking notification as read", error);
+    }
+  };
+
+  // Toggle the dropdown
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  // Navigate to the full notifications page
+  const handleShowAll = () => {
+    console.log("Navigating to full notifications page");
+    navigate("/app/single-notification");
+    setShowDropdown(false);
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(notifications.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const displayedNotifications = notifications.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const goToPreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(prev => prev - 1);
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+  };
 
   return (
-    <div className="relative">
-      <button
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2"
-      >
-        <Bell />
-        {notifications.length > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 rounded-full text-white text-xs w-4 h-4 flex items-center justify-center">
-            {notifications.length}
-          </span>
+    <div className="notification-wrapper">
+      <div className="bell-container" onClick={toggleDropdown}>
+        <FaBell className="bell-icon" />
+        {unreadCount > 0 && (
+          <span className="notification-badge">{unreadCount}</span>
         )}
-      </button>
+      </div>
 
-      {showDropdown && (
-        <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg rounded-lg p-4 z-50">
-          <h4 className="font-bold mb-2">Notifications</h4>
-          {notifications.length > 0 ? (
-            notifications.map((item) => (
-              <div key={item._id} className="border-b py-2 flex justify-between items-center">
-                <span>{item.message}</span>
-                <button
-                  onClick={() => markAsRead(item._id)}
-                  className="text-blue-500 text-xs"
-                >
-                  Mark as read
-                </button>
-              </div>
-            ))
-          ) : (
-            <p>No new notifications</p>
-          )}
-
-          <hr className="my-3" />
-          <h4 className="font-bold mb-2">Notification History</h4>
-          <div className="max-h-40 overflow-y-auto">
-            {history.length > 0 ? (
-              history.map((item) => (
-                <div key={item._id} className="text-sm text-gray-700 py-1">
-                  {item.message}
-                  <span className="block text-gray-400 text-xs">
-                    {new Date(item.createdAt).toLocaleString()}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p>No history found</p>
+      <Dropdown show={showDropdown} onToggle={toggleDropdown} align="end">
+        <Dropdown.Menu className="notification-dropdown shadow-lg">
+          <Dropdown.Header className="notification-header">
+            <span>Notifications</span>
+            {unreadCount > 0 && (
+              <span className="unread-count">({unreadCount} unread)</span>
             )}
-          </div>
-        </div>
-      )}
+          </Dropdown.Header>
+
+          {notifications.length === 0 ? (
+            <Dropdown.Item className="empty-state" disabled>
+              <span>No new notifications</span>
+            </Dropdown.Item>
+          ) : (
+            <>
+              {displayedNotifications.map((notification) => (
+                <Dropdown.Item
+                  key={notification._id || notification.id}
+                  className={`notification-item ${notification.read ? "read" : "unread"}`}
+                >
+                  <div className="notification-content">
+                    <span className="notification-message">{notification.message}</span>
+                    <small className="notification-time">
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </small>
+                  </div>
+                  {!notification.read && (
+                    <button
+                      className="mark-read-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkAsRead(notification._id || notification.id);
+                      }}
+                    >
+                      Mark as Read
+                    </button>
+                  )}
+                </Dropdown.Item>
+              ))}
+
+              {totalPages > 1 && (
+                <div className="pagination-controls" style={{ padding: '10px', textAlign: 'center' }}>
+                  <button
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                    style={{ marginRight: '10px' }}
+                  >
+                    Previous
+                  </button>
+                  <span>
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    style={{ marginLeft: '10px' }}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+
+              <Dropdown.Item className="show-all" onClick={handleShowAll}>
+                Show All Notifications ({notifications.length})
+              </Dropdown.Item>
+            </>
+          )}
+        </Dropdown.Menu>
+      </Dropdown>
     </div>
   );
 };
 
-export default Notification;
+export default NotificationDropdown;

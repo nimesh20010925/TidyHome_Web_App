@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { API_BASE_URL } from "../config/config";
-
+import { NotificationService } from "./NotificationService";
 export class ConsumptionService {
 
     static async getAllConsumptions() {
@@ -38,13 +38,22 @@ export class ConsumptionService {
 
   static async createConsumption(consumptionData) {
     try {
+      console.log("Consuming Data:", consumptionData);  // Log the data to check the content
+  
       const response = await axios.post(`${API_BASE_URL}/consumption/create`, consumptionData);
+  
+      // Ensure you are using the correct field name: 'product_name'
+      NotificationService.sendNotification({
+        message: `New consumption created for ${consumptionData.product_name}`,
+      });
+  
       return response.data;
     } catch (error) {
       console.error("Error creating consumption:", error);
       throw error;
     }
   }
+
 
   static async updateConsumption(id, updatedData) {
     try {

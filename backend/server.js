@@ -42,6 +42,7 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)

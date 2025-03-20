@@ -1,39 +1,62 @@
-import Notification from '../models/notificationModel.js';
+// controllers/NotificationController.js
 
-export const getNotifications = async (req, res) => {
+import Notification from "../Models/notificationModel.js";
+
+// Get the latest notifications
+const getLatestNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find({ isRead: false }).sort({ createdAt: -1 });
-    res.json(notifications);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const notifications = await Notification.find()
+      .sort({ createdAt: -1 }) // Sort by newest first
+      
+
+    res.status(200).json({ notifications });
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    res.status(500).json({ message: "Error fetching notifications" });
   }
 };
 
-export const markAsRead = async (req, res) => {
+// Create a new notification
+const createNotification = async (req, res) => {
   try {
-    await Notification.findByIdAndUpdate(req.params.id, { isRead: true });
-    res.json({ message: 'Notification marked as read' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const { message } = req.body; // Assume message is passed in the body
+    const newNotification = new Notification({ message });
+
+    await newNotification.save();
+
+    res.status(201).json({
+      message: "Notification created successfully",
+      notification: newNotification,
+    });
+  } catch (error) {
+    console.error("Error creating notification:", error);
+    res.status(500).json({ message: "Error creating notification" });
   }
 };
 
-export const getNotificationHistory = async (req, res) => {
+// Mark a notification as read
+const markAsRead = async (req, res) => {
   try {
-    const notifications = await Notification.find().sort({ createdAt: -1 });
-    res.json(notifications);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const { id } = req.params; // Notification ID
+
+    const notification = await Notification.findByIdAndUpdate(id, {
+      read: true,
+    });
+
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    res.status(200).json({ message: "Notification marked as read" });
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+    res.status(500).json({ message: "Error marking notification as read" });
   }
 };
 
-export const createNotification = async (req, res) => {
-  try {
-    const { message, productId } = req.body;
-    const notification = new Notification({ message, productId });
-    await notification.save();
-    res.json(notification);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+// Exporting the functions
+export {
+  getLatestNotifications,
+  createNotification,
+  markAsRead
 };

@@ -1,16 +1,17 @@
-import express from 'express';
-import {
-  getNotifications,
-  markAsRead,
-  getNotificationHistory,
-  createNotification,
-} from '../controllers/noificationController.js';
+// Routes/notificationRoute.js
+
+import express from "express";
+import { getLatestNotifications, createNotification, markAsRead } from "../Controllers/noificationController.js"; // Named imports
 
 const router = express.Router();
 
-router.get('/', getNotifications);
-router.post('/mark-as-read/:id', markAsRead);
-router.get('/history', getNotificationHistory);
-router.post('/create', createNotification); // (optional: you can call this from stock check)
+// Route to fetch latest notifications
+router.get("/", getLatestNotifications);
+
+// Route to create a new notification
+router.post("/create", createNotification);
+
+// Route to mark notification as read
+router.post("/:id/read", markAsRead);
 
 export default router;

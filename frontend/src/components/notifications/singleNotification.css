@@ -1,0 +1,48 @@
+
+.notification-page {
+    max-width: 800px;
+  }
+  
+  .page-header {
+    background: linear-gradient(90deg, #007bff, #00b4db);
+    color: white;
+    font-weight: 600;
+  }
+  
+  .notification-item {
+    padding: 15px;
+    transition: background 0.2s ease;
+  }
+  
+  .notification-item.read {
+    background-color: #f8f9fa;
+    color: #6c757d;
+  }
+  
+  .notification-item.unread {
+    background-color: #fff;
+    border-left: 4px solid #007bff;
+  }
+  
+  .notification-item:hover {
+    background-color: #f1f3f5;
+  }
+  
+  .notification-message {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  .notification-time {
+    font-size: 13px;
+    color: #adb5bd;
+    margin-top: 5px;
+  }
+  
+  .empty-state {
+    padding: 30px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 16px;
+    font-style: italic;
+  }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { Card, Dropdown, ListGroup, Button } from "react-bootstrap";
 import { FaPlus, FaBox, FaTruck, FaFileExport } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -8,8 +8,9 @@ import addNotification from "../assets/sideBar/add-notification.png";
 import addShopping from "../assets/sideBar/add-shopping.png";
 import categories from "../assets/sideBar/categories.png";
 import AddHomeMembers from "../components/Home/AddHomeMembers";
-import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
-import { TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
+// import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
+// import { TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
+import { Link } from "react-router-dom";
 import Modal from '../components/consumption/consumptionCreateModel/consumptionCreateModel';
 const SideBar = () => {
   const navigate = useNavigate();
@@ -120,16 +121,18 @@ const SideBar = () => {
                     <Modal isOpen={isModalOpen} closeModal={closeModal} />
           Create Consumption
         </ListGroup.Item>
-        <ListGroup.Item action className="border-0">
-          <img
-            src={addNotification}
-            className="me-2"
-            width="22px"
-            height="22px"
-            alt="Add Notification"
-          />{" "}
-          Create Custom Notification
-        </ListGroup.Item>
+        <Link to="/app/custom-notification">
+  <ListGroup.Item action className="border-0">
+    <img
+      src={addNotification}
+      className="me-2"
+      width="22px"
+      height="22px"
+      alt="Add Notification"
+    />{" "}
+    Create Custom Notification
+  </ListGroup.Item>
+</Link>
         <ListGroup.Item action className="border-0">
           <img
             src={addShopping}
