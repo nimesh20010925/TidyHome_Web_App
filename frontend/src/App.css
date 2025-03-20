@@ -104,14 +104,69 @@
   background-color: red;
   color: #ffffff;
 }
+/* Sidebar Styles */
 .sidebar {
   width: 300px;
-  height: 100vh;
-  top: 0;
+  height: calc(
+    100vh - 63px
+  ); /* Ensures sidebar height adjusts based on header */
+  top: 63px;
   right: 0;
-  overflow-y: auto;
+  overflow-y: auto; /* Enables scrolling inside the sidebar */
   padding: 10px;
-  background: transparent !important;
+  background: white !important;
+  z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.hidden {
+  transform: translateX(100%); /* Hides sidebar off-screen */
+}
+
+@media (max-width: 991px) {
+  .sidebar {
+    transform: translateX(100%); /* Initially hidden on small screens */
+  }
+  .sidebar.visible {
+    transform: translateX(0); /* Show sidebar when toggled */
+  }
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  position: fixed;
+  top: 60px;
+  right: 10px;
+  z-index: 1100; /* Higher than sidebar */
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+@media (min-width: 992px) {
+  .sidebar-toggle-btn {
+    display: none; /* Hide toggle button on larger screens */
+  }
+}
+
+/* Sidebar Logout Button */
+.sidebar-logout:hover {
+  background-color: red;
+  color: #ffffff;
+}
+
+/* Main Content Area */
+main {
+  margin-right: 300px; /* Ensures content doesn't go under sidebar */
+  padding: 20px;
+}
+
+@media (max-width: 991px) {
+  main {
+    margin-right: 0; /* Remove margin on smaller screens */
+  }
 }
 
 /* Footer Styles*/
@@ -460,13 +515,11 @@
 }
 
 .inventory-table-wrapper {
-  max-height: 50vh;
   overflow: hidden;
 }
 
 .inventory-table-body {
   display: block;
-  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -776,191 +829,157 @@ td.inventory-actions-cell {
   border-color: #6a5acd !important;
 }
 
-.landingnavbarHeader {
+.navbar-landing {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 50px;
-  background: white;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
-  z-index: 1;
+  padding: 8px 60px;
   position: fixed;
   width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  background: transparent;
+  align-items: center;
+  text-align: center;
 }
 
-.landingnavbarlogo {
-  cursor: pointer;
-  width: 10vh;
+.navbar-landing.scrolled {
+  background: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.landingpagenavlink {
+.logo-landing {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.logo-image {
+  width: 84px;
+  height: 70px;
+}
+
+.nav-links-landing {
   list-style: none;
   display: flex;
-  gap: 20px;
-  padding: 0;
+  gap: 60px;
+  margin-left: 22%;
+  margin-right: 14%;
+  margin-top: 1%;
 }
 
-.landingpagenavlink li {
-  display: inline-block;
-  align-items: center;
-  justify-content: center;
+.nav-links-landing li a {
   text-align: center;
-  margin-top: 14px;
-}
-
-.landingpagenavlink li a {
-
+  align-items: center;
   text-decoration: none;
-  color: #a367e4;
-  font-weight: bold;
-  transition: color 0.3s ease;
+  color: #333;
+  font-size: 20px;
 }
 
-.landingpagenavlink li a:hover {
-  color: #832ae3;
-}
-
-.landingpagebutton {
-  padding: 9px 25px;
-  background-color: rgb(187, 3, 163);
+.get-started {
+  background: #bb87fa;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 20px;
   border: none;
-  border-radius: 50px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  color: #fff;
+  font-size: 16px;
+  text-decoration: none;
   font-weight: bold;
 }
 
-.landingpagebutton:hover {
-  background-color: rgb(127, 0, 110);
-}
-
-
-.landingpage-container {
-  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-              url('./assets/LandingPage/landingbg.jpg'); /* Background image */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  height: 95vh; /* Full height */
-  display: flex;
-  flex-direction: column;
-}
-
-/* Main Content Layout */
-.landingpage-content {
+.hero {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10%;
-  flex-grow: 1; /* Takes up remaining space */
+  padding: 0px 50px;
+  overflow: hidden; /* Prevents shapes from overflowing */
 }
 
-/* Left Side Text */
-.landingpage-text {
-  color: white;
-  max-width: 50%;
-}
-
-.landingpage-text h1 {
-  font-size: 4rem;
-  margin-bottom: 10px;
-}
-
-.landingpage-text p {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-}
-
-.get-started-btn {
-  padding: 10px 30px;
-  background-color: rgb(187, 3, 163);
-  border: none;
-  border-radius: 50px;
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.get-started-btn:hover {
-  background-color: rgb(127, 0, 110);
-}
-
-/* Right Side Image */
-.landingpage-image img {
-  width: 100%;
-  max-width: 520px;
-}
-
-/* Container for the icon and text */
-.icon-container {
-  position: relative;
-  display: inline-block;
-}
-
-/* Hidden tooltip text */
-.icon-name {
-  visibility: hidden;
-  width: 100px;
-  background-color: #832ae3;
-  color: #fff;
-  text-align: center;
-  border-radius: 5px;
-  padding: 10px;
+.hero::before,
+.hero::after {
+  content: "";
   position: absolute;
-  right: 100%;
-  opacity: 0;
-  transition: opacity 0.3s;
-  font-size: 15px;
+  width: 600px; /* Adjust size */
+  height: 600px; /* Adjust size */
+  background: linear-gradient(135deg, #6c33ff, #9c4dff); /* Purple gradient */
+  border-radius: 50%;
+  opacity: 0.2;
+  z-index: -1;
+}
+
+.hero::before {
+  top: -150px;
+  left: -50px;
+}
+
+.hero::after {
+  bottom: -120px;
+  right: -50px;
+}
+
+.hero-text {
+  max-width: 50%;
   z-index: 1;
 }
 
-/* Show tooltip text on hover */
-.icon-container:hover .icon-name {
-  visibility: visible;
-  opacity: 1;
+.hero-text h1 {
+  font-size: 40px;
+  font-weight: 700;
+  color: #6a6a6a;
+  font-size: 46px;
+  margin-left: 10px;
 }
 
-/* Styling for the social media icons */
-.social-media-icons {
-  position: fixed;
-  right: 30px;
-  top: 75%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  z-index: 100;
+.landing-ul {
+  margin-top: 60px;
+  margin-bottom: 40px;
+  font-size: 22px;
+  font-weight: 400;
+  list-style-type: square;
 }
 
-.socialmedia-icon {
-  background-color: #fff;
-  border-radius: 50%;
-  padding: 20px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  font-size: 20px;
-  color: #ffffff;
-  transition: background-color 0.3s, color 0.3s;
+.hero-p {
+  margin-bottom: 30px;
+  font-weight: 400;
+  width: 80%;
+  margin-bottom: 40px;
 }
 
-.socialmedia-icon:hover {
-  background-color: #0073e6;
-  color: #000000;
+.learn-more {
+  background: #bb87fa;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: none;
+  margin-top: 50px;
+  font-weight: 500;
 }
 
-.socialmedia-icon.facebook {
-  background-color: #3b5998;
+.hero-image img {
+  width: 800px;
+  height: 900px;
+  z-index: -1;
+  margin-right: -40px;
+}
+@keyframes moveVertically {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(50px); /* Adjust the vertical movement */
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 
-.socialmedia-icon.twitter {
-  background-color: #1da1f2;
-}
-
-.socialmedia-icon.instagram {
-  background-color: #e4405f;
-}
-
-.socialmedia-icon.linkedin {
-  background-color: #0077b5;
+.hero-img {
+  animation: moveVertically 5s infinite ease-in-out;
+  margin-top: -50px;
 }
