@@ -1,0 +1,79 @@
+.home-summary {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .smooth-slider {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow: hidden;
+    background: #fafafa;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  
+  .slide-content {
+    width: 100%;
+  }
+  
+  .summary-cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  
+  .card {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    width: 200px;
+    transition: transform 0.3s;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  .card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 22px;
+  }
+  .card-content h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #333;
+  }
+  .card-content p {
+    margin: 5px 0 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .slider-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .slider-buttons button {
+    padding: 8px 20px;
+    border: none;
+    background: #007bff;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .slider-buttons button:hover {
+    background: #0056b3;
+  }

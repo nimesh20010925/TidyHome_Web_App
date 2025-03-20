@@ -1,6 +1,19 @@
+'use client'; // If using Next.js App Router
 import { PureComponent } from 'react';
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
-import { ConsumptionService } from '../../../../services/consumptionServices'; // Import the service
+import { ConsumptionService } from '../../../../services/consumptionServices';
+
+// Function to generate a random color variant based on #8884d8
+const generateColorVariant = () => {
+  const baseColor = { r: 136, g: 132, b: 216 }; // RGB equivalent of #8884d8
+  const variation = 50; // Max variation range for each RGB component
+
+  const r = Math.min(255, Math.max(0, baseColor.r + Math.floor(Math.random() * variation) - variation / 2));
+  const g = Math.min(255, Math.max(0, baseColor.g + Math.floor(Math.random() * variation) - variation / 2));
+  const b = Math.min(255, Math.max(0, baseColor.b + Math.floor(Math.random() * variation) - variation / 2));
+
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
 
 class Example extends PureComponent {
   state = {
@@ -17,13 +30,25 @@ class Example extends PureComponent {
       // Fetch data from the service
       const consumptions = await ConsumptionService.getAllConsumptions();
 
-      // Format data for Pie chart (assuming the data has a `product_name` and `amount_used`)
-      const pieData = consumptions.map(consumption => ({
-        name: consumption.product_name,
-        value: parseInt(consumption.amount_used, 10), // Ensure value is a number
-      }));
+      // Aggregate data by product_name and assign random color variants
+      const aggregatedData = consumptions.reduce((acc, consumption) => {
+        const productName = consumption.product_name;
+        const amountUsed = parseFloat(consumption.amount_used) || 0;
 
-      this.setState({ pieData });
+        const existingProduct = acc.find(item => item.name === productName);
+        if (existingProduct) {
+          existingProduct.value += amountUsed;
+        } else {
+          acc.push({
+            name: productName,
+            value: amountUsed,
+            fill: generateColorVariant(), // Assign a random variant of #8884d8
+          });
+        }
+        return acc;
+      }, []);
+
+      this.setState({ pieData: aggregatedData });
     } catch (error) {
       console.error('Error fetching consumption data:', error);
     }
@@ -52,7 +77,7 @@ class Example extends PureComponent {
           fill={fill}
         />
         <text x={cx} y={cy + 20} textAnchor="middle" fill="#999">
-          {`(Value: ${value}, ${(percent * 100).toFixed(2)}%)`}
+          {`(Value: ${value.toFixed(2)}, ${(percent * 100).toFixed(2)}%)`}
         </text>
       </g>
     );
@@ -67,13 +92,12 @@ class Example extends PureComponent {
           <PieChart>
             <Pie
               activeIndex={this.state.activeIndex}
-              activeShape={this.renderActiveShape} // Use the defined renderActiveShape function
+              activeShape={this.renderActiveShape}
               data={pieData}
               cx="50%"
               cy="50%"
               innerRadius={60}
               outerRadius={80}
-              fill="#8884d8"
               dataKey="value"
               onMouseEnter={this.onPieEnter}
             />

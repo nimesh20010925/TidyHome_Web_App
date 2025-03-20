@@ -10,7 +10,7 @@ import { useState } from 'react';
 import 'react-grid-layout/css/styles.css'; 
 import 'react-resizable/css/styles.css'; 
 import Modal from '../components/consumption/consumptionCreateModel/consumptionCreateModel';
-
+import ConsumptionSummery from "../components/consumption/consumptionSummery/consumptionSummery";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -114,7 +114,7 @@ const ContactPage = ({ image }) => {
             <meta name="twitter:image" content={image || defaultImage} />
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
-
+<ConsumptionSummery />
           <button onClick={openModal}>Create Consumption</button>
           <Modal isOpen={isModalOpen} closeModal={closeModal} />
 
