@@ -22,6 +22,9 @@ import UpdateInventoryModal from "./Modals/updateInventoryModal.jsx";
 import { InventoryService } from "../../services/InventoryServices.jsx";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-hot-toast";
+import { Responsive, WidthProvider } from "react-grid-layout";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 
 const categories = [
   { id: 1, name: "Grains & Cereals", image: DummyCategoryImage, itemCount: 10 },
@@ -116,6 +119,8 @@ const lowInventoryData = [
   { name: "Item F", unit: "metre", existingLevel: 5, lowLevel: 8 },
 ];
 
+const ResponsiveGridLayout = WidthProvider(Responsive);
+
 const Inventory = () => {
   const [addInventoryModal, setAddInventoryModal] = useState(false);
   const [inventories, setInventories] = useState([]);
@@ -123,6 +128,7 @@ const Inventory = () => {
   const [updateItemModal, setUpdateItemModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState();
   const [selectedItemToUpdate, setSelectedItemToUpdate] = useState();
+  const [cardHeight, setCardHeight] = useState();
 
   const { t } = useTranslation();
 
@@ -208,6 +214,56 @@ const Inventory = () => {
     (item) => item.existingLevel <= 1
   );
 
+  // Function to calculate the card height based on the number of rows in the table
+  const calculateCardHeight = () => {
+    const rowHeight = 1.75;
+    const headerHeight = 1.8;
+
+    const totalRows = inventories.length;
+
+    const calculatedHeight = totalRows * rowHeight + headerHeight;
+
+    console.log(totalRows);
+
+    setCardHeight(calculatedHeight);
+
+    console.log(cardHeight);
+  };
+
+  // Recalculate the card height whenever the number of inventories changes
+  useEffect(() => {
+    calculateCardHeight();
+  }, [inventories]);
+
+  // Handle resizing of the card and update table height
+  const onResizeStop = (layout, oldItem, newItem) => {
+    if (newItem.i === "inventoryList") {
+      const rowHeight = 1.75;
+      const headerHeight = 1.8;
+      const totalRows = inventories.length;
+      const maxHeight = totalRows * rowHeight + headerHeight;
+      const calculatedHeight = Math.min(newItem.h * rowHeight, maxHeight);
+      setCardHeight(calculatedHeight);
+    }
+  };
+
+  // Layout configuration
+  const layout = [
+    {
+      i: "inventoryList",
+      x: 0,
+      y: 0,
+      w: 12,
+      h: 13,
+      minW: 11,
+      minH: 13,
+      maxH: cardHeight,
+    },
+    { i: "barChart", x: 0, y: 0, w: 12, h: 4 },
+    { i: "pieChart", x: 0, y: 0, w: 4.9, h: 3.05 },
+    { i: "lineChart", x: 9, y: 0, w: 6.9, h: 3.05 },
+  ];
+
   return (
     <div className="inventory-container mt-2">
       {/* Categories Section */}
@@ -235,86 +291,103 @@ const Inventory = () => {
       </div>
 
       {/* Inventory List */}
-      <Card className="p-3 shadow-sm mt-3">
-        <div className="d-flex justify-content-between align-items-center">
-          <h5 className="ms-1 fw-bold">{t("INVENTORY_LIST")}</h5>
-          <Button
-            onClick={addInventoryToggle}
-            className="rounded-pill border-0 add-inventory-button fw-bold"
-          >
-            <img
-              src={addIcon}
-              alt="Add Item"
-              width={16}
-              height={16}
-              className="mb-1 me-1"
-            />{" "}
-            {t("ADD_INVENTORY")}
-          </Button>
-        </div>
+      <ResponsiveGridLayout
+        className="layout"
+        layouts={{ lg: layout }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480 }}
+        cols={{ lg: 12, md: 12, sm: 6, xs: 4 }}
+        rowHeight={30}
+        isResizable={true}
+        isDraggable={true}
+        margin={[0, 0]}
+        containerPadding={[0, 0]}
+        onResizeStop={onResizeStop}
+      >
+        <Card
+          key="inventoryList"
+          className="p-3 shadow-sm mt-3"
+          style={{ mixHeight: cardHeight }}
+        >
+          <div className="d-flex justify-content-between align-items-center">
+            <h5 className="ms-1 fw-bold">Inventory List</h5>
+            <Button
+              onClick={addInventoryToggle}
+              className="rounded-pill border-0 add-inventory-button fw-bold"
+            >
+              <img
+                src={addIcon}
+                alt="Add Item"
+                width={16}
+                height={16}
+                className="mb-1 me-1"
+              />{" "}
+              Add Inventory
+            </Button>
+          </div>
 
-        <AddInventoryModal
-          isOpen={addInventoryModal}
-          toggle={addInventoryToggle}
-        />
+          <AddInventoryModal
+            isOpen={addInventoryModal}
+            toggle={addInventoryToggle}
+          />
 
-        <div className="inventory-table-wrapper">
-          <Table striped bordered hover className="mt-3">
-            <thead>
-              <tr>
-                <th>{t("PRODUCT_NAME")}</th>
-                <th>{t("CATEGORY")}</th>
-                <th>{t("QUANTITY")}</th>
-                <th>{t("ITEM_TYPE")}</th>
-                <th>{t("MANUFACTURED")}</th>
-                <th>{t("EXPIRY_DATE")}</th>
-                <th>{t("SUPPLIER")}</th>
-                <th>{t("ACTIONS")}</th>
-              </tr>
-            </thead>
-            <tbody className="inventory-table-body">
-              {inventories.map((item) => (
-                <tr key={item._id}>
-                  <td>{item.itemName}</td>
-                  <td>{item.categoryId ? item.categoryId : "-"}</td>
-                  <td>{item.quantity || "-"}</td>
-                  <td>{item.itemType || "-"}</td>
-                  <td>
-                    {item.manufacturedDate
-                      ? new Date(item.manufacturedDate).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td>
-                    {item.expiryDate
-                      ? new Date(item.expiryDate).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td>{item.supplierId ? item.supplierId.name : "-"}</td>
-                  <td className="inventory-actions-cell">
-                    <div className="inventory-actions-row">
-                      <Button className="inventory-actions-no-bg">
-                        <img src={viewIcon} alt="View" />
-                      </Button>
-                      <Button
-                        className="inventory-actions-no-bg"
-                        onClick={() => handleUpdateInventoryModal(item)}
-                      >
-                        <img src={editIcon} alt="Edit" />
-                      </Button>
-                      <Button
-                        className="inventory-actions-no-bg"
-                        onClick={() => handleDeleteInventoryModal(item._id)}
-                      >
-                        <img src={deleteIcon} alt="Delete" />
-                      </Button>
-                    </div>
-                  </td>
+          <div className="inventory-table-wrapper">
+            <Table striped bordered hover className="mt-4">
+              <thead>
+                <tr>
+                  <th>{t("PRODUCT_NAME")}</th>
+                  <th>{t("CATEGORY")}</th>
+                  <th>{t("QUANTITY")}</th>
+                  <th>{t("ITEM_TYPE")}</th>
+                  <th>{t("MANUFACTURED")}</th>
+                  <th>{t("EXPIRY_DATE")}</th>
+                  <th>{t("SUPPLIER")}</th>
+                  <th>{t("ACTIONS")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      </Card>
+              </thead>
+              <tbody className="inventory-table-body">
+                {inventories.map((item) => (
+                  <tr key={item._id}>
+                    <td>{item.itemName}</td>
+                    <td>{item.categoryId ? item.categoryId : "-"}</td>
+                    <td>{item.quantity || "-"}</td>
+                    <td>{item.itemType || "-"}</td>
+                    <td>
+                      {item.manufacturedDate
+                        ? new Date(item.manufacturedDate).toLocaleDateString()
+                        : "-"}
+                    </td>
+                    <td>
+                      {item.expiryDate
+                        ? new Date(item.expiryDate).toLocaleDateString()
+                        : "-"}
+                    </td>
+                    <td>{item.supplierId ? item.supplierId.name : "-"}</td>
+                    <td className="inventory-actions-cell">
+                      <div className="inventory-actions-row">
+                        <Button className="inventory-actions-no-bg">
+                          <img src={viewIcon} alt="View" />
+                        </Button>
+                        <Button
+                          className="inventory-actions-no-bg"
+                          onClick={() => handleUpdateInventoryModal(item)}
+                        >
+                          <img src={editIcon} alt="Edit" />
+                        </Button>
+                        <Button
+                          className="inventory-actions-no-bg"
+                          onClick={() => handleDeleteInventoryModal(item._id)}
+                        >
+                          <img src={deleteIcon} alt="Delete" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </Card>
+      </ResponsiveGridLayout>
 
       <Modal
         isOpen={deleteItemModal}
@@ -368,10 +441,19 @@ const Inventory = () => {
       />
 
       {/* Charts */}
-      <Row className="justify-content-center mt-4">
-        {/* Bar Chart */}
-        <Col md={11}>
-          <Card className="p-3 shadow-sm">
+      <ResponsiveGridLayout
+        className="layout"
+        layouts={{ lg: layout }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480 }}
+        cols={{ lg: 12, md: 12, sm: 6, xs: 4 }}
+        rowHeight={150}
+        isResizable={false}
+        isDraggable={true}
+        margin={[0, 0]}
+        containerPadding={[0, 0]}
+      >
+        <div key="barChart" style={{ marginTop: "42px" }}>
+          <Card className="barChart p-3 shadow-sm justify-content-center">
             <h5 className="mb-4">{t("LOW_INVENTORY_ITEMS")}</h5>
             <ResponsiveContainer width="90%" height={400}>
               <BarChart data={lowInventoryData}>
@@ -406,7 +488,7 @@ const Inventory = () => {
                 >
                   {lowInventoryData.map((entry, index) => (
                     <Cell
-                      key={`cell-${index}`}
+                      key={`cell-${index}`} 
                       fill={
                         entry.existingLevel <= 1
                           ? "#FF0000" // Critical Level
@@ -426,50 +508,52 @@ const Inventory = () => {
               </Alert>
             )}
           </Card>
-        </Col>
-      </Row>
-      <Row className="mt-4 mb-2">
-        {/* Pie Chart */}
-        <Col md={5}>
-          <Card className="inventory-pie-chart p-3 shadow-sm">
-            <h5>{t("INVENTORY_ITEMS_SUMMARY_BY_CATEGORIES")}</h5>
-            <PieChart width={400} height={400}>
-              <Pie
-                data={pieChartData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={120}
-                label
-              >
-                {pieChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
+        </div>
+
+        <Card
+          key="pieChart"
+          className="inventory-pie-chart p-3 shadow-sm"
+          style={{ marginTop: "36px", marginBottom: "36px" }}
+        >
+          <h5>{t("INVENTORY_ITEMS_SUMMARY_BY_CATEGORIES")}</h5>
+          <PieChart width={400} height={400}>
+            <Pie
+              data={pieChartData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={120}
+              label
+            >
+              {pieChartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </Card>
+
+        <Card
+          key="lineChart"
+          className="inventory-line-chart p-3 shadow-sm mb-4"
+          style={{ marginTop: "36px" }}
+        >
+          <h5 className="mb-4">{t("MONTHLY_INVENTORY_COST_SUMMARY")}</h5>
+          <ResponsiveContainer width="100%" height={380}>
+            <LineChart data={lineChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
               <Tooltip />
               <Legend />
-            </PieChart>
-          </Card>
-        </Col>
-
-        {/* Line Chart */}
-        <Col md={7}>
-          <Card className="inventory-line-chart p-3 shadow-sm">
-            <h5 className="mb-4">{t("MONTHLY_INVENTORY_COST_SUMMARY")}</h5>
-            <ResponsiveContainer width="100%" height={380}>
-              <LineChart data={lineChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="Cost" stroke="#8A2BE2" />
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-      </Row>
+              <Line type="monotone" dataKey="Cost" stroke="#8A2BE2" />
+            </LineChart>
+          </ResponsiveContainer>
+        </Card>
+      </ResponsiveGridLayout>
+      <div style={{ height: "48px" }}></div>
     </div>
   );
 };

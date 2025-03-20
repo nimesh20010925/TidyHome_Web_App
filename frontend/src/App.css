@@ -81,8 +81,6 @@
   height: 60px;
 }
 
-
-
 .add-notification-icon {
   margin-left: -4px;
   margin-bottom: 2px;
@@ -109,7 +107,9 @@
 /* Sidebar Styles */
 .sidebar {
   width: 300px;
-  height: calc(100vh - 63px); /* Ensures sidebar height adjusts based on header */
+  height: calc(
+    100vh - 63px
+  ); /* Ensures sidebar height adjusts based on header */
   top: 63px;
   right: 0;
   overflow-y: auto; /* Enables scrolling inside the sidebar */
@@ -168,9 +168,6 @@ main {
     margin-right: 0; /* Remove margin on smaller screens */
   }
 }
-
-
-
 
 /* Footer Styles*/
 .footer {
@@ -518,13 +515,11 @@ main {
 }
 
 .inventory-table-wrapper {
-  max-height: 50vh;
   overflow: hidden;
 }
 
 .inventory-table-body {
   display: block;
-  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -838,7 +833,7 @@ td.inventory-actions-cell {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 60px;
+  padding: 8px 60px;
   position: fixed;
   width: 100%;
   top: 0;
@@ -846,6 +841,8 @@ td.inventory-actions-cell {
   z-index: 1000;
   transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   background: transparent;
+  align-items: center;
+  text-align: center;
 }
 
 .navbar-landing.scrolled {
@@ -859,14 +856,17 @@ td.inventory-actions-cell {
 }
 
 .logo-image {
-  width: 60px;
-  height: auto;
+  width: 84px;
+  height: 70px;
 }
 
 .nav-links-landing {
   list-style: none;
   display: flex;
-  gap: 20px;
+  gap: 60px;
+  margin-left: 22%;
+  margin-right: 14%;
+  margin-top: 1%;
 }
 
 .nav-links-landing li a {
@@ -878,14 +878,15 @@ td.inventory-actions-cell {
 }
 
 .get-started {
-  background: #6c33ff;
+  background: #bb87fa;
   color: white;
-  padding: 10px 20px;
+  padding: 10px 24px;
   border-radius: 20px;
   border: none;
   cursor: pointer;
   font-size: 16px;
   text-decoration: none;
+  font-weight: bold;
 }
 
 /* Hero Section */
@@ -927,53 +928,47 @@ td.inventory-actions-cell {
 }
 
 .hero-text h1 {
-  font-size: 36px;
+  font-size: 40px;
   font-weight: 700;
-  color: #4a4a4a;
+  color: #6a6a6a;
+  font-size: 46px;
+  margin-left: 10px;
 }
 
 .landing-ul {
-  margin-top: 30px;
-  margin-bottom: 30px;
-  font-size: 18px;
+  margin-top: 60px;
+  margin-bottom: 40px;
+  font-size: 22px;
   font-weight: 400;
   list-style-type: square;
   line-height: 1.6;
 }
 
 .hero-p {
-  margin-bottom: 20px;
-  font-weight: 300;
+  margin-bottom: 30px;
+  font-weight: 400;
+  width: 80%;
+  margin-bottom: 40px;
 }
 
 .learn-more {
-  background: #6c33ff;
+  background: #bb87fa;
   color: white;
-  padding: 15px 25px;
-  border-radius: 10px;
+  padding: 12px 22px;
+  border-radius: 20px;
   border: none;
   cursor: pointer;
   font-size: 16px;
   text-decoration: none;
-  transition: background 0.3s ease-in-out;
-}
-
-.learn-more:hover {
-  background: #9c4dff;
-}
-
-/* Hero Image */
-.hero-image {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-top: 50px;
+  font-weight: 500;
 }
 
 .hero-img {
   width: 800px;
   height: 900px;
-  animation: moveVertically 7s infinite ease-in-out;
-  z-index: 1;
+  z-index: -1;
+  margin-right: -40px;
 }
 
 @keyframes moveVertically {
@@ -988,92 +983,7 @@ td.inventory-actions-cell {
   }
 }
 
-/* About Section */
-.landing-about {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 40px 5%;
-  flex-wrap: wrap;
-}
-
-.landing-about-left {
-  position: relative;
-  width: 100%;
-  max-width: 450px;
-}
-
-.landing-about-left img {
-  position: absolute;
-  width: 100%;
-  object-fit: cover;
-}
-
-.landing-about-backimg {
-  z-index: 0;
-}
-
-.landing-about-frontimg {
-  z-index: 1;
-  opacity: 0.9;
-}
-
-.landing-about-right {
-  max-width: 50%;
-}
-
-.landing-about-right p {
-  font-size: 18px;
-  line-height: 1.6;
-  color: #444;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .hero {
-    flex-direction: column;
-    text-align: center;
-    padding: 30px 5%;
-  }
-
-  .hero-text {
-    max-width: 90%;
-  }
-
-  .hero-image img {
-    max-width: 80%;
-  }
-
-  .landing-about {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .landing-about-left {
-    max-width: 80%;
-    margin-bottom: 30px;
-  }
-
-  .landing-about-right {
-    max-width: 90%;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-text h1 {
-    font-size: 28px;
-  }
-
-  .landing-ul {
-    font-size: 16px;
-  }
-
-  .learn-more {
-    padding: 12px 20px;
-    font-size: 14px;
-  }
-
-  .hero-img {
-    max-width: 350px;
-  }
+.hero-img {
+  animation: moveVertically 5s infinite ease-in-out;
+  margin-top: -50px;
 }
