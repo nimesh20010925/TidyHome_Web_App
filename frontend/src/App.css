@@ -987,3 +987,273 @@ td.inventory-actions-cell {
   animation: moveVertically 5s infinite ease-in-out;
   margin-top: -50px;
 }
+
+
+/* 🔹Home summary */
+.home-summary {
+  padding: 20px;
+  background-color: #f7f6fc;
+}
+
+.home-summary-h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.summary-cards {
+  display: flex;
+width: 100%;
+  justify-content: space-between;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.summary-value {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: gray;
+}
+
+/* specal Notices */
+.special-notices {
+  padding: 20px;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.notice {
+  background-color: #e74c3c;
+  color: white;
+  padding: 15px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border: 1px dashed black;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/*ShoppingDashboard*/
+.dashboard {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.chart-container {
+  width: 50%;
+}
+
+.calendar-container {
+  width: 30%;
+  text-align: center;
+}
+
+.month-header {
+  font-size: 18px;
+  font-weight: bold;
+  background: black;
+  color: white;
+  padding: 5px 10px;
+  display: inline-block;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.day-label {
+  font-weight: bold;
+  text-align: center;
+}
+
+.date {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #e5e5e5;
+  cursor: pointer;
+}
+
+.shopping {
+  background: #9166cc;
+  color: white;
+  font-weight: bold;
+}
+
+/*ShoppingListDisplay*/
+.shopping-container {
+  width: 80%;
+  margin: 20px auto;
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+.create-btn {
+  background-color: #c8a2c8;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: white;
+  margin-bottom: 15px;
+}
+
+.shopping-card {
+  background-color: #e6d2f0;
+  padding: 15px;
+  border: 1px dashed black;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shopping-header {
+  flex: 2;
+  font-size: 16px;
+}
+
+.shopping-members {
+  flex: 2;
+  text-align: left;
+}
+
+.shopping-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #4a3aff;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #b22222;
+}
+
+
+/* Shopping List Container */
+.shopping-list-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.create-list-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.create-list-btn:hover {
+  background-color: #45a049;
+}
+
+/* Shopping List Card */
+.shopping-list-card {
+  background-color: white;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.shopping-card-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.shopping-card-members {
+  margin-bottom: 10px;
+}
+
+.shopping-card-members p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.shopping-card-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.edit-btn,
+.delete-btn {
+  background-color: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+.edit-btn:hover,
+.delete-btn:hover {
+  color: #0056b3;
+}
