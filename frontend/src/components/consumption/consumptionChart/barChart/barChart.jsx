@@ -6,8 +6,12 @@ import PropTypes from 'prop-types';
 
 // Extended color palette
 const COLORS = [
-  '#C799FF', '#8884d8', '#82ca9d', '#ff7300', 
-  '#ffc658', '#00C4B4', '#ff6f61', '#d4a5a5'
+  '#00C4B4',
+  '#8884d8',
+  '#ff7300',
+  '#82ca9d',
+  '#ffc658',
+  '#ff6f61',
 ];
 
 function BarChartComponent() {
@@ -93,7 +97,7 @@ function BarChartComponent() {
       )}
       
       {!loading && !error && chartData.length > 0 && (
-        <div style={{ width: '100%', height: 350 }}>
+        <div style={{ width: '100%', height: 310 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={chartData} 

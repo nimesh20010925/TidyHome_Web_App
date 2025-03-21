@@ -77,7 +77,7 @@ const ContactPage = ({ image }) => {
         }
 
         .grid-item:hover {
-          box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+          box-shadow: 0 4px 8px rgba(191, 191, 191, 0.55);
           transition: box-shadow 0.3s ease;
         }
 
@@ -150,7 +150,7 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  // background: '#f0f0f0',
+                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}
@@ -167,7 +167,7 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  background: "#f0f0f0",
+                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}
@@ -184,7 +184,7 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  background: "#f0f0f0",
+                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}
@@ -201,7 +201,7 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  background: "#f0f0f0",
+                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}
@@ -218,7 +218,7 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  background: "#f0f0f0",
+                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}

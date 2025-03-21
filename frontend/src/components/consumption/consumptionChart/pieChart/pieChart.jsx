@@ -107,7 +107,7 @@ class EnhancedPieChart extends PureComponent {
     }
 
     return (
-      <div style={{ width: '100%', height: 330,  }}>
+      <div style={{ width: '100%', height: 310,  }}>
         <h5 style={{ textAlign: 'left', color: '#333' }}>
           Product Consumption Distribution
         </h5>

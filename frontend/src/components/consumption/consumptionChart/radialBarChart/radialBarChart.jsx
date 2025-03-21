@@ -3,16 +3,31 @@ import { useState, useEffect } from 'react';
 import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts';
 import { ConsumptionService } from '../../../../services/consumptionServices';
 
-// Colors for different products
-const COLORS = ['#C799FF'];
+// Extended color palette for better visual distinction
+const COLORS = [
+  '#00C4B4',
+  '#8884d8',
+  '#ff7300',
+  '#82ca9d',
+  '#ffc658',
+  '#ff6f61',
+];
 
 const legendStyle = {
-  top: '100%',
-  right: 0,
-  transform: 'translate(0, -50%)',
+  top: '90%',
+  left: '50%',
+  transform: 'translateX(-50%)',
   lineHeight: '24px',
+  fontSize: '14px',
+  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  padding: '10px',
+  borderRadius: '8px',
 };
 
+/**
+ * RadialBarChartComponent - A React component that displays consumption data in a radial bar chart format
+ * @description Enhanced version with beautiful styling and heading
+ */
 function RadialBarChartComponent() {
   const [chartData, setChartData] = useState([]);
   const [error, setError] = useState(null);
@@ -22,8 +37,6 @@ function RadialBarChartComponent() {
       try {
         const consumptions = await ConsumptionService.getAllConsumptions();
         console.log("Fetched consumptions:", consumptions);
-
-        // Process the data
         const processedData = processConsumptionData(consumptions);
         setChartData(processedData);
       } catch (err) {
@@ -34,13 +47,10 @@ function RadialBarChartComponent() {
     fetchConsumptions();
   }, []);
 
-  // Process consumption data to aggregate amount_used by product_name
   const processConsumptionData = (consumptions) => {
-    // Get unique product names
     const uniqueProducts = [...new Set(consumptions.map((item) => item.product_name))];
-
-    // Aggregate amount_used for each product_name
-    const processedData = uniqueProducts.map((product, index) => {
+    
+    return uniqueProducts.map((product, index) => {
       const totalAmount = consumptions
         .filter((item) => item.product_name === product)
         .reduce((sum, item) => sum + (parseFloat(item.amount_used) || 0), 0);
@@ -51,42 +61,67 @@ function RadialBarChartComponent() {
         fill: COLORS[index % COLORS.length],
       };
     });
-
-    return processedData;
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="p-4 max-w-2xl w-full">
-        {error && <div className="alert alert-danger">{error}</div>}
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+      <div className=" max-w-2xl w-full  rounded-lg">
+        {/* Chart Heading */}
+        <div className="mb-6 text-center">
+          <h5 style={{textAlign: 'left'}}>
+            Product Consumption Overview
+          </h5>
+          
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-center">
+            {error}
+          </div>
+        )}
+
+        {/* Chart Content */}
         {chartData.length === 0 && !error ? (
-          <div className="text-center">No consumption data available for Radial Chart</div>
+          <div className="text-center py-10 text-gray-600 font-medium">
+            No consumption data available to display
+          </div>
         ) : (
-          <div style={{ width: '100%', height: 300 }}>
+          <div style={{ width: '100%', height: 310 }}>
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart
                 cx="50%"
                 cy="50%"
-                innerRadius="10%"
-                outerRadius="80%"
-                barSize={10}
+                innerRadius="20%"
+                outerRadius="90%"
+                barSize={15}
                 data={chartData}
                 className="radialbarchart"
+                startAngle={90}
+                endAngle={-270}
               >
                 <RadialBar
                   minAngle={15}
-                  label={{ position: 'insideStart', fill: '#fff' }}
-                  background
+                  label={{ 
+                    position: 'insideStart', 
+                    fill: '#fff',
+                    fontSize: 12,
+                    formatter: (value) => `${value.toFixed(1)}`
+                  }}
+                  background={{ fill: '#eee' }}
                   clockWise
                   dataKey="uv"
+                  cornerRadius={5}
                 />
                 <Legend
-                  iconSize={10}
+                  iconSize={12}
                   layout="horizontal"
-                  
-                  verticalAlign="middle"
+                  verticalAlign="bottom"
                   wrapperStyle={legendStyle}
                   className="legendradialbarchart"
+                  formatter={(value) => (
+                    <span className="text-gray-700 font-medium">{value}</span>
+                  )}
                 />
               </RadialBarChart>
             </ResponsiveContainer>
