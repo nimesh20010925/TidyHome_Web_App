@@ -14,19 +14,19 @@ const Home = () => {
       { i: "SpecialNotices", x: 0, y: 0, w: 6, h: 7 },
       { i: "HomeSummary", x: 6, y: 0, w: 6, h: 7 },
       { i: "ShoppingDashboard", x: 0, y: 7, w: 6, h: 12 },
-      { i: "ShoppingListDisplay", x: 6, y: 7, w: 6, h: 15 },
+      
     ],
     md: [
       { i: "SpecialNotices", x: 0, y: 0, w: 8, h: 8 },
       { i: "HomeSummary", x: 4, y: 0, w: 8, h: 7 },
       { i: "ShoppingDashboard", x: 0, y: 7, w: 8, h: 12 },
-      { i: "ShoppingListDisplay", x: 4, y: 7, w: 8, h: 12 },
+      
     ],
     sm: [
       { i: "SpecialNotices", x: 0, y: 0, w: 8, h: 10 },
       { i: "HomeSummary", x: 0, y: 4, w: 4, h: 8 },
       { i: "ShoppingDashboard", x: 0, y: 8, w: 8, h: 15 },
-      { i: "ShoppingListDisplay", x: 0, y: 12, w: 8, h: 15 },
+      
     ],
   };
 
@@ -53,10 +53,11 @@ const Home = () => {
         <div key="ShoppingDashboard" className="p-4 bg-white shadow-lg rounded-lg">
           <ShoppingDashboard />
         </div>
-        <div key="ShoppingListDisplay" className="p-4 bg-white shadow-lg rounded-lg">
+        
+      </ResponsiveGridLayout>
+      <div>
           <ShoppingListDisplay />
         </div>
-      </ResponsiveGridLayout>
     </div>
   );
 };
