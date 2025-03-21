@@ -128,13 +128,13 @@ const ContactPage = ({ image }) => {
             isDraggable={true}
             isResizable={true}
             draggableHandle=".drag-handle"
-            // Add padding for better spacing
-            margin={[20, 20]} // Add margin between grid items
+      
+            margin={[20, 20]} 
           >
             <div key="consumptionTable" className="grid-item">
               <div className="drag-handle" style={{ 
                 padding: '10px', 
-                background: '#f0f0f0', 
+                // background: '#f0f0f0', 
                 cursor: 'move',
                 marginBottom: '10px'
               }}>

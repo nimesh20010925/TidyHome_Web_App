@@ -1,0 +1,65 @@
+.advanced-table {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%; /* Ensure table takes full width */
+  }
+  
+  .advanced-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+  }
+  
+  .advanced-table th.sortable:hover {
+    background-color: #343a40 !important;
+  }
+  
+  .advanced-table td {
+    vertical-align: middle;
+  }
+  
+  .btn-group .btn {
+    margin-right: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .pagination .page-link {
+    color: #007bff;
+  }
+  
+  .pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  
+  .pagination .page-link:hover {
+    background-color: #e9ecef;
+  }
+  
+  /* New styles for scrollable wrapper */
+  .table-wrapper {
+    position: relative;
+  }
+  
+  .table-wrapper::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  .table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
