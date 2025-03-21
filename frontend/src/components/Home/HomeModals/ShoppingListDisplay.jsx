@@ -103,7 +103,7 @@ const ShoppingListDisplay = () => {
   return (
     <div className="shopping-container">
       <h2>Shopping Schedules</h2>
-      <button className="create-btn" onClick={() => setShowModal(true)}>
+      <button className="create-btn"onMouseDown={(e) => e.stopPropagation()} onClick={() => setShowModal(true)}>
         Create Shopping Schedule
       </button>
 
@@ -127,8 +127,8 @@ const ShoppingListDisplay = () => {
                 )}
               </div>
               <div className="shopping-actions">
-                <button className="edit-btn">✏️</button>
-                <button className="delete-btn">🗑️</button>
+                <button className="edit-btn" onMouseDown={(e) => e.stopPropagation()}>✏️</button>
+                <button className="delete-btn" onMouseDown={(e) => e.stopPropagation()}>🗑️</button>
               </div>
             </div>
           ))

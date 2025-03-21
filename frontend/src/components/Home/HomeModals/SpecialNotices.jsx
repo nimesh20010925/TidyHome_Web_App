@@ -20,7 +20,11 @@ const SpecialNotices = () => {
         {notices.map((notice, index) => (
           <div className="notice" key={index}>
             <span>{notice}</span>
-            <button className="close-btn" onClick={() => removeNotice(index)}>
+            <button
+              className="close-btn"
+              onMouseDown={(e) => e.stopPropagation()} // Prevents grid layout interference
+              onClick={() => removeNotice(index)}
+            >
               &times;
             </button>
           </div>
