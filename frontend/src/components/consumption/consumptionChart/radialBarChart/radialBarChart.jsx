@@ -4,10 +4,10 @@ import { RadialBarChart, RadialBar, Legend, ResponsiveContainer } from 'recharts
 import { ConsumptionService } from '../../../../services/consumptionServices';
 
 // Colors for different products
-const COLORS = ['#8884d8', '#83a6ed', '#8dd1e1', '#82ca9d', '#a4de6c', '#d0ed57', '#ffc658'];
+const COLORS = ['#C799FF'];
 
 const legendStyle = {
-  top: '50%',
+  top: '100%',
   right: 0,
   transform: 'translate(0, -50%)',
   lineHeight: '24px',
@@ -47,8 +47,8 @@ function RadialBarChartComponent() {
 
       return {
         name: product,
-        uv: totalAmount, // Using 'uv' as the dataKey for RadialBar, similar to the example
-        fill: COLORS[index % COLORS.length], // Assign a color from COLORS array
+        uv: totalAmount,
+        fill: COLORS[index % COLORS.length],
       };
     });
 
@@ -56,39 +56,43 @@ function RadialBarChartComponent() {
   };
 
   return (
-    <div className="p-4">
-      {error && <div className="alert alert-danger">{error}</div>}
-      {/* <h2 className="text-2xl font-bold mb-4">Total Consumption (Radial Chart)</h2> */}
-      {chartData.length === 0 && !error ? (
-        <div>No consumption data available for Radial Chart</div>
-      ) : (
-        <div style={{ width: '100%', height: 400 }}> {/* Fixed height wrapper */}
-          <ResponsiveContainer width="100%" height="100%">
-            <RadialBarChart
-              cx="50%"
-              cy="50%"
-              innerRadius="10%"
-              outerRadius="80%"
-              barSize={10}
-              data={chartData}
-            >
-              <RadialBar
-                minAngle={15}
-                label={{ position: 'insideStart', fill: '#fff' }}
-                background
-                clockWise
-                dataKey="uv"
-              />
-              <Legend
-                iconSize={10}
-                layout="vertical"
-                verticalAlign="middle"
-                wrapperStyle={legendStyle}
-              />
-            </RadialBarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="p-4 max-w-2xl w-full">
+        {error && <div className="alert alert-danger">{error}</div>}
+        {chartData.length === 0 && !error ? (
+          <div className="text-center">No consumption data available for Radial Chart</div>
+        ) : (
+          <div style={{ width: '100%', height: 300 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <RadialBarChart
+                cx="50%"
+                cy="50%"
+                innerRadius="10%"
+                outerRadius="80%"
+                barSize={10}
+                data={chartData}
+                className="radialbarchart"
+              >
+                <RadialBar
+                  minAngle={15}
+                  label={{ position: 'insideStart', fill: '#fff' }}
+                  background
+                  clockWise
+                  dataKey="uv"
+                />
+                <Legend
+                  iconSize={10}
+                  layout="horizontal"
+                  
+                  verticalAlign="middle"
+                  wrapperStyle={legendStyle}
+                  className="legendradialbarchart"
+                />
+              </RadialBarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

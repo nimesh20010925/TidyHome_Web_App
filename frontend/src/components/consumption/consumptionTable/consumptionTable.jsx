@@ -129,14 +129,12 @@ const ConsumptionTable = () => {
       component={Paper} 
       sx={{
         maxWidth: "100%", 
-        padding: "10px", 
+        // padding: "10px", 
         maxHeight: 350,  
         overflowY: "auto", 
       }}
     >
-      <Typography variant="h6" sx={{ margin: "10px" }}>
-        Consumption Records
-      </Typography>
+
       {content}
 
       {/* View Modal */}

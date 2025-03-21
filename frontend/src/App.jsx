@@ -28,7 +28,7 @@ const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
     <NavBar />
     <div className="d-flex flex-grow-1">
-      <div className="app-body flex-grow-1 p-3">
+      <div className="app-body flex-grow-1 p-1">
         <Outlet />
       </div>
       <div className="app-sidebar">

@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './consumptionSummery.css';
 import { ConsumptionService } from '../../../services/consumptionServices';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const HomeSummary = () => {
   const [items, setItems] = useState({ top: [], less: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [viewMode, setViewMode] = useState('top');
   const [show, setShow] = useState(true);
 
   useEffect(() => {
@@ -52,13 +54,6 @@ const HomeSummary = () => {
     fetchConsumptionData();
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev === 0 ? 1 : 0));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
   const slides = [
     {
       title: 'Top Consumed Items',
@@ -70,64 +65,73 @@ const HomeSummary = () => {
     },
   ];
 
+  const currentData = viewMode === 'top' ? slides[0] : slides[1];
+
   return (
-    <div className="home-summary-container">
+    <div className="summary-wrapper">
       <button
-        onClick={() => setShow(!show)}
-        className="toggle-button"
+        onClick={() => setShow(prev => !prev)}
+        className="visibility-toggle"
+        style={{ fontSize: '1.1rem', padding: '5px 10px' }}
       >
-        {show ? 'Hide Summary' : 'Show Summary'}
+        <FontAwesomeIcon 
+  icon={show ? faEye : faEyeSlash} 
+  color={show ? "#000000" : "#000000"}
+/>
       </button>
 
       <AnimatePresence>
         {show && (
           <motion.div
-            className="home-summary"
+            className="summary-section"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
-            <h2>Consumption Summary - This Month</h2>
             {loading ? (
               <p>Loading...</p>
             ) : error ? (
               <p>{error}</p>
             ) : (
-              <div className="smooth-slider">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentIndex}
-                    initial={{ opacity: 0, x: 100 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -100 }}
-                    transition={{ duration: 0.6, ease: 'easeInOut' }}
-                    className="slide-content"
-                  >
-                    <h3>{slides[currentIndex].title}</h3>
-                    <div className="summary-cards">
-                      {slides[currentIndex].data.map((item, index) => (
-                        <div className="card" key={index}>
-                          <div
-                            className="card-icon"
-                            style={{
-                              backgroundColor: ['#e6f0fa', '#f0e6fa', '#faefe6', '#fae6e6'][index],
-                            }}
-                          >
-                            🛒
-                          </div>
-                          <div className="card-content">
-                            <h3>{item.value.toFixed(2)}</h3>
-                            <p>{item.name}</p>
-                          </div>
+              <div className="carousel-container">
+                <div className="carousel-slide">
+                  <h4>{currentData.title}</h4>
+                  <div className="item-grid">
+                    {currentData.data.map((item, index) => (
+                      <div className="item-box" key={index}>
+                        <div
+                          className="item-avatar"
+                          style={{
+                            backgroundColor: ['#e6f0fa', '#f0e6fa', '#faefe6', '#fae6e6'][index],
+                          }}
+                        >
+                          🛒
                         </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-                <div className="slider-buttons">
-                  <button onClick={() => setCurrentIndex(0)}>Top Items</button>
-                  <button onClick={() => setCurrentIndex(1)}>Less Items</button>
+                        <div className="item-details">
+                          <h3>{item.value.toFixed(2)}</h3>
+                          <p>{item.name}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div 
+                  style={{ 
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px'
+                  }}
+                >
+                  <select
+                    value={viewMode}
+                    onChange={(e) => setViewMode(e.target.value)}
+                    style={{ padding: '5px',  borderRadius: '5px', border:'none' }}
+
+                  >
+                    <option value="top">Top Consumed Items</option>
+                    <option value="less">Less Consumed Items</option>
+                  </select>
                 </div>
               </div>
             )}

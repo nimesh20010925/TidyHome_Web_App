@@ -1,28 +1,64 @@
 import axios from "axios";
-
 import { API_BASE_URL } from "../config/config";
 
-export const createCustomNotification = async (data) => {
-  const response = await axios.post(`${API_BASE_URL}/create`, data);
-  return response.data;
-};
+export class NotificationService {
+  static async getAllNotifications() {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/customNotification`);
+      return response.data.notifications;
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      return [];
+    }
+  }
 
-export const getAllCustomNotifications = async () => {
-  const response = await axios.get(`${API_BASE_URL}`);
-  return response.data.customNotifications;
-};
+  static async getNotificationById(id) {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/customNotification/${id}`
+      );
+      return response.data.notification;
+    } catch (error) {
+      console.error("Error fetching notification by ID:", error);
+      throw error;
+    }
+  }
 
-export const getCustomNotificationById = async (id) => {
-  const response = await axios.get(`${API_BASE_URL}/${id}`);
-  return response.data.CustomNotificationRecord;
-};
+  static async createNotification(notificationData) {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/customNotification/create`,
+        notificationData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      throw error;
+    }
+  }
 
-export const updateCustomNotification = async (id, data) => {
-  const response = await axios.put(`${API_BASE_URL}/${id}`, data);
-  return response.data;
-};
+  static async updateNotification(id, updatedData) {
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/customNotification/${id}`,
+        updatedData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error updating notification:", error);
+      throw error;
+    }
+  }
 
-export const deleteCustomNotification = async (id) => {
-  const response = await axios.delete(`${API_BASE_URL}/${id}`);
-  return response.data;
-};
+  static async deleteNotification(id) {
+    try {
+      const response = await axios.delete(
+        `${API_BASE_URL}/customNotification/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      throw error;
+    }
+  }
+}

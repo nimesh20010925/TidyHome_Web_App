@@ -5,7 +5,7 @@ import { ConsumptionService } from '../../../../services/consumptionServices';
 import PropTypes from 'prop-types'; // Import prop-types
 
 // Colors for different products
-const COLORS = ['#8884d8', '#82ca9d', '#ff7300', '#ffbb28', '#00C49F'];
+const COLORS = ['#C799FF'];
 
 function BarChartComponent() {
   const [chartData, setChartData] = useState([]);
@@ -57,7 +57,7 @@ function BarChartComponent() {
   return (
     <div className="p-4">
       {error && <div className="alert alert-danger">{error}</div>}
-      <h2 className="text-2xl font-bold mb-4">Total Consumption </h2>
+      {/* <h2 className="text-2xl font-bold mb-4">Total Consumption </h2> */}
       {chartData.length === 0 && !error ? (
         <div>No consumption data available for Bar Chart</div>
       ) : (
@@ -94,7 +94,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         {payload.map((entry, index) => (
           entry.value > 0 && (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}
+              
               <span className="ml-2">{entry.value}</span>
             </p>
           )
