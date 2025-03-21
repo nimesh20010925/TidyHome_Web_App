@@ -23,6 +23,10 @@ const shoppingListItemsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    itemType: {
+      type: String,
+      required: true,
+    },
     quantity: {
       type: Number,
       required: true,

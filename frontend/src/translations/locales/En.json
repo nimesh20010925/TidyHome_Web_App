@@ -47,6 +47,8 @@
     "KG": "Kg",
     "LITRE": "Litre",
     "METRE": "Metre",
+    "BOTTLE": "Bottle",
+    "PACK": "Pack",
     "PER_UNIT": "Per Unit",
     "PER_KG": "Per Kg",
     "PER_LITRE": "Per Litre",

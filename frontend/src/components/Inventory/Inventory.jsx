@@ -312,6 +312,7 @@ const Inventory = () => {
             <h5 className="ms-1 fw-bold">Inventory List</h5>
             <Button
               onClick={addInventoryToggle}
+              onMouseDown={(e) => e.stopPropagation()}
               className="rounded-pill border-0 add-inventory-button fw-bold"
             >
               <img
@@ -453,7 +454,7 @@ const Inventory = () => {
         containerPadding={[0, 0]}
       >
         <div key="barChart" style={{ marginTop: "42px" }}>
-          <Card className="barChart p-3 shadow-sm justify-content-center">
+          <Card className="p-3 shadow-sm justify-content-center inventory-barchart">
             <h5 className="mb-4">{t("LOW_INVENTORY_ITEMS")}</h5>
             <ResponsiveContainer width="90%" height={400}>
               <BarChart data={lowInventoryData}>
@@ -488,7 +489,7 @@ const Inventory = () => {
                 >
                   {lowInventoryData.map((entry, index) => (
                     <Cell
-                      key={`cell-${index}`} 
+                      key={`cell-${index}`}
                       fill={
                         entry.existingLevel <= 1
                           ? "#FF0000" // Critical Level

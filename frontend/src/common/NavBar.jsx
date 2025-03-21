@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Row, Col } from "reactstrap";
 import Navbar from "react-bootstrap/Navbar";
@@ -23,8 +23,19 @@ import LanguageSelector from "../translations/languageSelector.jsx";
 
 const NavBar = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // <-- Added this
   const [activeNavTab, setActiveNavTab] = useState("HOME");
   const { t } = useTranslation();
+
+  // Set active tab based on current path
+  useEffect(() => {
+    const currentPath = location.pathname;
+
+    const matchedTab = buttonsData.find((btn) => btn.route === currentPath);
+    if (matchedTab) {
+      setActiveNavTab(matchedTab.tab);
+    }
+  }, [location.pathname]);
 
   const handleNavTab = (tab, route) => {
     setActiveNavTab(tab);

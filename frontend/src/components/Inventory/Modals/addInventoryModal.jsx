@@ -82,7 +82,12 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
   };
 
   const closeBtn = (
-    <button className="close-btn" onClick={handleToggle} type="button">
+    <button
+      className="close-btn"
+      onClick={handleToggle}
+      onMouseDown={(e) => e.stopPropagation()}
+      type="button"
+    >
       <img
         width="20"
         height="20"
@@ -176,6 +181,8 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               <option value="Kg">{t("KG")}</option>
               <option value="Litre">{t("LITRE")}</option>
               <option value="Metre">{t("METRE")}</option>
+              <option value="Pack">{t("BOTTLE")}</option>
+              <option value="Bottle">{t("PACK")}</option>
             </Form.Select>
             {formik.errors.itemType && formik.touched.itemType && (
               <div className="text-danger">{formik.errors.itemType}</div>
@@ -321,7 +328,9 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               {formik.values.itemType === "Unit" ||
               formik.values.itemType === "Kg" ||
               formik.values.itemType === "Litre" ||
-              formik.values.itemType === "Metre"
+              formik.values.itemType === "Metre" ||
+              formik.values.itemType === "Pack" ||
+              formik.values.itemType === "Bottle"
                 ? `(${
                     formik.values.itemType === "Unit"
                       ? t("UNIT")
@@ -331,6 +340,10 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
                       ? t("LITRE")
                       : formik.values.itemType === "Metre"
                       ? t("METRE")
+                      : formik.values.itemType === "Pack"
+                      ? t("PACK")
+                      : formik.values.itemType === "Bottle"
+                      ? t("BOTTLE")
                       : ""
                   })`
                 : ""}
