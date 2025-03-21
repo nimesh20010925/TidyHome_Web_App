@@ -5,11 +5,11 @@ import BarChart from "../components/consumption/consumptionChart/barChart/barCha
 import AreaChart from "../components/consumption/consumptionChart/areaChart/areaChart";
 import PieChart from "../components/consumption/consumptionChart/pieChart/pieChart";
 import RadialBarChart from "../components/consumption/consumptionChart/radialBarChart/radialBarChart";
-import { Responsive, WidthProvider } from 'react-grid-layout'; 
-import { useState } from 'react';
-import 'react-grid-layout/css/styles.css'; 
-import 'react-resizable/css/styles.css'; 
-import Modal from '../components/consumption/consumptionCreateModel/consumptionCreateModel';
+import { Responsive, WidthProvider } from "react-grid-layout";
+import { useState } from "react";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
+import Modal from "../components/consumption/consumptionCreateModel/consumptionCreateModel";
 import ConsumptionSummery from "../components/consumption/consumptionSummery/consumptionSummery";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -25,25 +25,25 @@ const ContactPage = ({ image }) => {
   // Define layouts for different breakpoints
   const [layouts, setLayouts] = useState({
     lg: [
-      { i: 'consumptionTable', x: 0, y: 0, w: 12, h: 4 },
-      { i: 'barChart', x: 0, y: 4, w: 6, h: 4 },
-      { i: 'areaChart', x: 6, y: 4, w: 6, h: 4 },
-      { i: 'pieChart', x: 0, y: 8, w: 6, h: 4 },
-      { i: 'radialBarChart', x: 6, y: 8, w: 6, h: 4 },
+      { i: "consumptionTable", x: 0, y: 0, w: 12, h: 5 },
+      { i: "barChart", x: 0, y: 4, w: 6, h: 4 },
+      { i: "areaChart", x: 6, y: 4, w: 6, h: 4 },
+      { i: "pieChart", x: 0, y: 8, w: 6, h: 4 },
+      { i: "radialBarChart", x: 6, y: 8, w: 6, h: 4 },
     ],
     md: [
-      { i: 'consumptionTable', x: 0, y: 0, w: 8, h: 4 },
-      { i: 'barChart', x: 0, y: 4, w: 4, h: 4 },
-      { i: 'areaChart', x: 4, y: 4, w: 4, h: 4 },
-      { i: 'pieChart', x: 0, y: 8, w: 4, h: 4 },
-      { i: 'radialBarChart', x: 4, y: 8, w: 4, h: 4 },
+      { i: "consumptionTable", x: 0, y: 0, w: 8, h: 5 },
+      { i: "barChart", x: 0, y: 4, w: 4, h: 4 },
+      { i: "areaChart", x: 4, y: 4, w: 4, h: 4 },
+      { i: "pieChart", x: 0, y: 8, w: 4, h: 4 },
+      { i: "radialBarChart", x: 4, y: 8, w: 4, h: 4 },
     ],
     sm: [
-      { i: 'consumptionTable', x: 0, y: 0, w: 6, h: 4 },
-      { i: 'barChart', x: 0, y: 4, w: 6, h: 4 },
-      { i: 'areaChart', x: 0, y: 8, w: 6, h: 4 },
-      { i: 'pieChart', x: 0, y: 12, w: 6, h: 4 },
-      { i: 'radialBarChart', x: 0, y: 16, w: 6, h: 4 },
+      { i: "consumptionTable", x: 0, y: 0, w: 6, h: 5 },
+      { i: "barChart", x: 0, y: 4, w: 6, h: 4 },
+      { i: "areaChart", x: 0, y: 8, w: 6, h: 4 },
+      { i: "pieChart", x: 0, y: 12, w: 6, h: 4 },
+      { i: "radialBarChart", x: 0, y: 16, w: 6, h: 4 },
     ],
   });
 
@@ -56,7 +56,7 @@ const ContactPage = ({ image }) => {
   };
 
   const [isModalOpen, setModalOpen] = useState(false);
-  
+
   const openModal = () => {
     setModalOpen(true);
   };
@@ -66,17 +66,19 @@ const ContactPage = ({ image }) => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: "20px", background: "#ffffff" }}>
       <style>{`
         .grid-item {
           background: white;
           border: 1px solid #ddd;
-          border-radius: 4px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          border-radius: 10px;
+          transition: 0.3s ease;
+          
         }
 
         .grid-item:hover {
           box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+          transition: box-shadow 0.3s ease;
         }
 
         .container {
@@ -90,6 +92,17 @@ const ContactPage = ({ image }) => {
         .content {
           width: 100%;
         }
+        .create-consumption-button{
+          background-color: #C799FF;
+          color: white;
+          margin: 20px 20px;
+        
+          }
+          .create-consumption-button:hover{
+            background-color:rgb(192, 140, 255);
+            color: white;
+            
+            }
       `}</style>
 
       <div className="container">
@@ -114,8 +127,10 @@ const ContactPage = ({ image }) => {
             <meta name="twitter:image" content={image || defaultImage} />
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
-<ConsumptionSummery />
-          <button onClick={openModal}>Create Consumption</button>
+          <ConsumptionSummery />
+          <button className="create-consumption-button" onClick={openModal}>
+            Create Consumption
+          </button>
           <Modal isOpen={isModalOpen} closeModal={closeModal} />
 
           <ResponsiveGridLayout
@@ -128,75 +143,89 @@ const ContactPage = ({ image }) => {
             isDraggable={true}
             isResizable={true}
             draggableHandle=".drag-handle"
-      
-            margin={[20, 20]} 
+            margin={[20, 20]}
           >
             <div key="consumptionTable" className="grid-item">
-              <div className="drag-handle" style={{ 
-                padding: '10px', 
-                // background: '#f0f0f0', 
-                cursor: 'move',
-                marginBottom: '10px'
-              }}>
+              <div
+                className="drag-handle"
+                style={{
+                  padding: "10px",
+                  // background: '#f0f0f0',
+                  cursor: "move",
+                  marginBottom: "10px",
+                }}
+              >
                 Consumption Table
               </div>
-              <div style={{ padding: '20px' }}>
+              <div style={{ padding: "20px" }}>
                 <ConsumptionTable />
               </div>
             </div>
 
             <div key="barChart" className="grid-item">
-              <div className="drag-handle" style={{ 
-                padding: '10px', 
-                background: '#f0f0f0', 
-                cursor: 'move',
-                marginBottom: '10px'
-              }}>
+              <div
+                className="drag-handle"
+                style={{
+                  padding: "10px",
+                  background: "#f0f0f0",
+                  cursor: "move",
+                  marginBottom: "10px",
+                }}
+              >
                 Bar Chart
               </div>
-              <div style={{ padding: '20px' }}>
+              <div style={{ padding: "20px" }}>
                 <BarChart />
               </div>
             </div>
 
             <div key="areaChart" className="grid-item">
-              <div className="drag-handle" style={{ 
-                padding: '10px', 
-                background: '#f0f0f0', 
-                cursor: 'move',
-                marginBottom: '10px'
-              }}>
+              <div
+                className="drag-handle"
+                style={{
+                  padding: "10px",
+                  background: "#f0f0f0",
+                  cursor: "move",
+                  marginBottom: "10px",
+                }}
+              >
                 Area Chart
               </div>
-              <div style={{ padding: '20px' }}>
+              <div style={{ padding: "20px" }}>
                 <AreaChart />
               </div>
             </div>
 
             <div key="pieChart" className="grid-item">
-              <div className="drag-handle" style={{ 
-                padding: '10px', 
-                background: '#f0f0f0', 
-                cursor: 'move',
-                marginBottom: '10px'
-              }}>
+              <div
+                className="drag-handle"
+                style={{
+                  padding: "10px",
+                  background: "#f0f0f0",
+                  cursor: "move",
+                  marginBottom: "10px",
+                }}
+              >
                 Pie Chart
               </div>
-              <div style={{ padding: '20px' }}>
+              <div style={{ padding: "20px" }}>
                 <PieChart />
               </div>
             </div>
 
             <div key="radialBarChart" className="grid-item">
-              <div className="drag-handle" style={{ 
-                padding: '10px', 
-                background: '#f0f0f0', 
-                cursor: 'move',
-                marginBottom: '10px'
-              }}>
+              <div
+                className="drag-handle"
+                style={{
+                  padding: "10px",
+                  background: "#f0f0f0",
+                  cursor: "move",
+                  marginBottom: "10px",
+                }}
+              >
                 Radial Bar Chart
               </div>
-              <div style={{ padding: '20px' }}>
+              <div style={{ padding: "20px" }}>
                 <RadialBarChart />
               </div>
             </div>

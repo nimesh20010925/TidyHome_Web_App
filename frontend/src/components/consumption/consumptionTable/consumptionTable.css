@@ -1,24 +1,34 @@
+/* Base styles for the table */
 .advanced-table {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     overflow: hidden;
-    width: 100%; /* Ensure table takes full width */
+    width: 100%;
   }
   
+  /* Sortable headers */
   .advanced-table th.sortable {
     cursor: pointer;
     user-select: none;
     transition: background-color 0.2s;
+    background-color: #d4b1ff !important;
+    border: none;
+    color: black;
   }
   
   .advanced-table th.sortable:hover {
-    background-color: #343a40 !important;
+    background-color: #d4b1ff !important;
+  }
+  
+  .table > :not(caption) > * > * {
+    background-color: #ffffff !important;
+    color: black;
   }
   
   .advanced-table td {
     vertical-align: middle;
   }
   
+  /* Button group styles */
   .btn-group .btn {
     margin-right: 5px;
     transition: all 0.3s ease;
@@ -26,40 +36,125 @@
   
   .btn-group .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
+  /* Pagination styles */
   .pagination .page-link {
-    color: #007bff;
+    color: #000000;
   }
   
   .pagination .page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #c799ff;
+    border-color: #c799ff;
+    color: white;
   }
   
   .pagination .page-link:hover {
-    background-color: #e9ecef;
+    background-color: #eee0ff;
   }
   
-  /* New styles for scrollable wrapper */
+  /* Scrollable table wrapper */
   .table-wrapper {
     position: relative;
   }
   
   .table-wrapper::-webkit-scrollbar {
-    width: 8px;
+    width: 4px;
   }
   
   .table-wrapper::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: #eadaff;
   }
   
   .table-wrapper::-webkit-scrollbar-thumb {
-    background: #888;
+    background: #d4b1ff;
     border-radius: 4px;
   }
   
   .table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #d4b1ff;
+  }
+  
+  /* Responsive Table */
+  @media (max-width: 768px) {
+    .table-responsive {
+      overflow-x: auto; /* Enable horizontal scrolling on small screens */
+    }
+  
+    .advanced-table {
+      min-width: 600px; /* Ensures table content doesn’t collapse too much */
+    }
+  
+    .advanced-table thead {
+      display: none; /* Hide headers on small screens */
+    }
+  
+    .advanced-table tbody,
+    .advanced-table tr,
+    .advanced-table td {
+      display: block;
+      width: 100%;
+    }
+  
+    .advanced-table tr {
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+  
+    .advanced-table td {
+      position: relative;
+      padding-left: 50%;
+      text-align: left;
+    }
+  
+    .advanced-table td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 10px;
+      width: 45%;
+      padding-right: 10px;
+      font-weight: bold;
+      text-align: left;
+      color: #333;
+    }
+  
+    .btn-group {
+      display: flex;
+      justify-content: space-around;
+    }
+  
+    .btn-group .btn {
+      margin-right: 0;
+      font-size: 0.8rem;
+      padding: 5px 10px;
+    }
+  }
+  
+  /* Responsive Pagination */
+  @media (max-width: 576px) {
+    .pagination {
+      flex-wrap: wrap; /* Allow pagination items to wrap */
+      justify-content: center;
+    }
+  
+    .pagination .page-item {
+      margin: 2px; /* Reduce spacing between items */
+    }
+  
+    .pagination .page-link {
+      padding: 5px 10px; /* Smaller buttons */
+      font-size: 0.9rem;
+    }
+  
+    /* Hide some page numbers on very small screens, showing only first, last, and current */
+    .pagination .page-item:not(.active):not(:first-child):not(:last-child) {
+      display: none;
+    }
+  
+    .pagination .page-item:first-child,
+    .pagination .page-item:last-child,
+    .pagination .page-item.active {
+      display: block;
+    }
   }

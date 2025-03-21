@@ -28,18 +28,15 @@ const ConsumptionTable = () => {
         setLoading(false);
       }
     };
-
     fetchConsumptions();
   }, []);
 
-  // Sorting function
   const handleSort = (key) => {
     let direction = 'asc';
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     }
     setSortConfig({ key, direction });
-
     const sortedData = [...consumptions].sort((a, b) => {
       if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
       if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
@@ -48,7 +45,6 @@ const ConsumptionTable = () => {
     setConsumptions(sortedData);
   };
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = consumptions.slice(indexOfFirstItem, indexOfLastItem);
@@ -86,7 +82,6 @@ const ConsumptionTable = () => {
     }
   };
 
-  // Check if rows exceed 4 for scroll
   const shouldScroll = currentItems.length > 4;
 
   let content;
@@ -110,11 +105,11 @@ const ConsumptionTable = () => {
     content = (
       <>
         <div className="table-responsive">
-          <div 
-            className="table-wrapper" 
-            style={shouldScroll ? { maxHeight: '250px', overflowY: 'auto' } : {}}
+          <div
+            className="table-wrapper"
+            style={shouldScroll ? { maxHeight: '550px', overflowY: 'auto' } : {}}
           >
-            <table className="table table-striped table-hover table-bordered advanced-table">
+            <table className="table table-hover advanced-table">
               <thead className="table-dark">
                 <tr>
                   {[
@@ -124,7 +119,7 @@ const ConsumptionTable = () => {
                     { label: "Date", key: "date" },
                     { label: "Remaining Stock", key: "remaining_stock" },
                     { label: "Notes", key: "notes" },
-                    { label: "Action", key: null }
+                    { label: "Action", key: "null" },
                   ].map((header) => (
                     <th
                       key={header.label}
@@ -143,13 +138,13 @@ const ConsumptionTable = () => {
               <tbody>
                 {currentItems.map((item) => (
                   <tr key={item._id}>
-                    <td>{item.product_name}</td>
-                    <td>{item.amount_used}</td>
-                    <td>{item.user}</td>
-                    <td>{new Date(item.date).toLocaleDateString()}</td>
-                    <td>{item.remaining_stock}</td>
-                    <td>{item.notes}</td>
-                    <td>
+                    <td data-label="Product Name">{item.product_name}</td>
+                    <td data-label="Amount Used">{item.amount_used}</td>
+                    <td data-label="User">{item.user}</td>
+                    <td data-label="Date">{new Date(item.date).toLocaleDateString()}</td>
+                    <td data-label="Remaining Stock">{item.remaining_stock}</td>
+                    <td data-label="Notes">{item.notes}</td>
+                    <td data-label="Action">
                       <div className="btn-group" role="group">
                         <button
                           className="btn btn-outline-primary btn-sm"
@@ -181,10 +176,9 @@ const ConsumptionTable = () => {
           </div>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <nav aria-label="Table pagination" className="mt-3">
-            <ul className="pagination justify-content-center">
+            <ul className="pagination justify-content-center flex-wrap">
               <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
                 <button
                   className="page-link"
@@ -222,9 +216,8 @@ const ConsumptionTable = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid py-1">
       {content}
-
       <ViewModal
         open={openViewModal}
         onClose={() => setOpenViewModal(false)}

@@ -96,7 +96,7 @@ const HomeSummary = () => {
             ) : (
               <div className="carousel-container">
                 <div className="carousel-slide">
-                  <h4>{currentData.title}</h4>
+                <h5 style={{ textAlign: 'left' }}>{currentData.title}</h5>
                   <div className="item-grid">
                     {currentData.data.map((item, index) => (
                       <div className="item-box" key={index}>

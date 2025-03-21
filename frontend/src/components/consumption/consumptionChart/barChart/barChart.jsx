@@ -2,79 +2,134 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ConsumptionService } from '../../../../services/consumptionServices';
-import PropTypes from 'prop-types'; // Import prop-types
+import PropTypes from 'prop-types';
 
-// Colors for different products
-const COLORS = ['#C799FF'];
+// Extended color palette
+const COLORS = [
+  '#C799FF', '#8884d8', '#82ca9d', '#ff7300', 
+  '#ffc658', '#00C4B4', '#ff6f61', '#d4a5a5'
+];
 
 function BarChartComponent() {
   const [chartData, setChartData] = useState([]);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchConsumptions = async () => {
       try {
+        setLoading(true);
         const consumptions = await ConsumptionService.getAllConsumptions();
         console.log("Fetched consumptions:", consumptions);
 
-        // Process the data
         const { processedData, uniqueProducts } = processConsumptionData(consumptions);
         setChartData(processedData);
         setProducts(uniqueProducts);
       } catch (err) {
         console.error("Error fetching consumptions:", err);
         setError("Failed to load consumption data.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchConsumptions();
   }, []);
 
-  // Process consumption data to aggregate amount_used by product_name
   const processConsumptionData = (consumptions) => {
-    // Get unique product names
     const uniqueProducts = [...new Set(consumptions.map((item) => item.product_name))];
 
-    // Aggregate amount_used for each product_name
+    // Aggregate data with additional details
     const productTotals = {};
-    uniqueProducts.forEach((product) => {
-      productTotals[product] = { name: product };
-      uniqueProducts.forEach((p) => {
-        productTotals[product][p] = 0;
-      });
-    });
-
     consumptions.forEach((item) => {
+      const product = item.product_name;
       const amount = parseFloat(item.amount_used) || 0;
-      productTotals[item.product_name][item.product_name] = (productTotals[item.product_name][item.product_name] || 0) + amount;
+      
+      if (!productTotals[product]) {
+        productTotals[product] = { 
+          name: product,
+          totalAmount: 0,
+          count: 0,
+          lastDate: item.date,
+        };
+      }
+      
+      productTotals[product].totalAmount += amount;
+      productTotals[product].count += 1;
+      productTotals[product].lastDate = new Date(item.date) > new Date(productTotals[product].lastDate) 
+        ? item.date 
+        : productTotals[product].lastDate;
+      
+      // Set the product-specific value
+      productTotals[product][product] = productTotals[product].totalAmount;
     });
 
     const processedData = Object.values(productTotals);
-
     return { processedData, uniqueProducts };
   };
 
+  const totalConsumption = chartData.reduce((sum, item) => sum + item.totalAmount, 0);
+
   return (
-    <div className="p-4">
-      {error && <div className="alert alert-danger">{error}</div>}
-      {/* <h2 className="text-2xl font-bold mb-4">Total Consumption </h2> */}
-      {chartData.length === 0 && !error ? (
-        <div>No consumption data available for Bar Chart</div>
-      ) : (
-        <div style={{ width: '100%', height: 300 }}>
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      <h5 className="text-2xl font-bold mb-4 text-gray-800 " style={{textAlign: 'left'}}>
+        Total Product Consumption
+      </h5>
+      
+      {loading && (
+        <div className="text-center py-4 text-gray-600">Loading chart...</div>
+      )}
+      
+      {error && (
+        <div className="alert alert-danger p-4 mb-4 bg-red-100 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+      
+      {!loading && !error && chartData.length === 0 && (
+        <div className="text-center py-4 text-gray-600">
+          No consumption data available for Bar Chart
+        </div>
+      )}
+      
+      {!loading && !error && chartData.length > 0 && (
+        <div style={{ width: '100%', height: 350 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
+            <BarChart 
+              data={chartData} 
+              margin={{ top: 20, right: 30, left: 20, bottom: 15 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+              <XAxis 
+                dataKey="name" 
+                tick={{ fontSize: 12 }}
+                interval={0}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+              />
+              <YAxis 
+                label={{ 
+                  value: 'Amount Used', 
+                  angle: -90, 
+                  position: 'insideLeft', 
+                  offset: 10 
+                }}
+                tickFormatter={(value) => value.toLocaleString()}
+              />
+              <Tooltip content={<CustomTooltip totalConsumption={totalConsumption} />} />
+              <Legend 
+                verticalAlign="top" 
+                height={36} 
+                wrapperStyle={{ paddingBottom: 10 }}
+              />
               {products.map((product, index) => (
                 <Bar
                   key={product}
                   dataKey={product}
                   stackId="a"
                   fill={COLORS[index % COLORS.length]}
+                  name={product}
                 />
               ))}
             </BarChart>
@@ -85,27 +140,40 @@ function BarChartComponent() {
   );
 }
 
-// CustomTooltip component with prop types
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length > 0) {
+const CustomTooltip = ({ active, payload, label, totalConsumption }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const percentage = ((data.totalAmount / totalConsumption) * 100).toFixed(2);
+    
     return (
-      <div className="p-4 bg-slate-900 flex flex-col gap-4 rounded-md">
-        <p className="text-medium text-lg">{label}</p>
-        {payload.map((entry, index) => (
-          entry.value > 0 && (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              
-              <span className="ml-2">{entry.value}</span>
-            </p>
-          )
-        ))}
+      <div style={{
+        backgroundColor: 'rgba(38, 38, 38, 0.74)',  
+        padding: '16px', 
+        color: '#fff',    
+        borderRadius: '6px',  
+        boxShadow: '0 4px 6px rgba(38, 38, 38, 0.24)',  
+      }}>
+        <p className="text-lg font-semibold mb-2">{label}</p>
+        <div className="flex flex-col gap-2">
+          <p style={{ color: payload[0].color }}>
+            <span className="font-medium">Total Used:</span> {data.totalAmount.toLocaleString()}
+          </p>
+          <p style={{ color: payload[0].color }}>
+            <span className="font-medium">Percentage:</span> {percentage}%
+          </p>
+          <p style={{ color: payload[0].color }}>
+            <span className="font-medium">Records:</span> {data.count}
+          </p>
+          <p style={{ color: payload[0].color }}>
+            <span className="font-medium">Last Used:</span> {new Date(data.lastDate).toLocaleDateString()}
+          </p>
+        </div>
       </div>
     );
   }
   return null;
 };
 
-// Add prop type validation for CustomTooltip
 CustomTooltip.propTypes = {
   active: PropTypes.bool,
   payload: PropTypes.arrayOf(
@@ -113,9 +181,11 @@ CustomTooltip.propTypes = {
       name: PropTypes.string,
       value: PropTypes.number,
       color: PropTypes.string,
+      payload: PropTypes.object,
     })
   ),
   label: PropTypes.string,
+  totalConsumption: PropTypes.number,
 };
 
 export default BarChartComponent;
