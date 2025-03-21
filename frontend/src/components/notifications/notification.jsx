@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { NotificationService } from "../../services/NotificationService";
 import { Dropdown } from "react-bootstrap";
@@ -16,25 +16,30 @@ const NotificationDropdown = () => {
   // Fetch notifications
   useEffect(() => {
     const fetchNotifications = async () => {
-      const latestNotifications = await NotificationService.getLatestNotifications();
-      console.log("Raw API response:", latestNotifications);
-      if (Array.isArray(latestNotifications)) {
-        setNotifications(latestNotifications);
-
-        // Calculate unread notifications count globally
-        const unreadNotificationsCount = notifications.filter(n => !n.read).length;
-        setUnreadCount(unreadNotificationsCount);
-        console.log("Total notifications:", latestNotifications.length);
-        console.log("Unread notifications count:", unreadNotificationsCount);
-      } else {
-        console.error("API did not return an array:", latestNotifications);
+      try {
+        const latestNotifications = await NotificationService.getLatestNotifications();
+        console.log("Raw API response:", latestNotifications);
+        if (Array.isArray(latestNotifications)) {
+          setNotifications(latestNotifications);
+          // Calculate unread notifications count using the latest data
+          const unreadNotificationsCount = latestNotifications.filter(n => !n.read).length;
+          setUnreadCount(unreadNotificationsCount);
+          console.log("Total notifications:", latestNotifications.length);
+          console.log("Unread notifications count:", unreadNotificationsCount);
+        } else {
+          console.error("API did not return an array:", latestNotifications);
+          setNotifications([]);
+          setUnreadCount(0);
+        }
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
         setNotifications([]);
         setUnreadCount(0);
       }
     };
 
     fetchNotifications();
-  }, [showDropdown]);
+  }, []); // Empty dependency array to run on mount only
 
   // Handle marking a notification as read
   const handleMarkAsRead = async (notificationId) => {
@@ -46,12 +51,9 @@ const NotificationDropdown = () => {
             ? { ...notif, read: true }
             : notif
         );
-        
-        // Recalculate unread count after updating the notifications state
-        const unreadNotificationsCount = notifications.filter(n => !n.read).length;
+        const unreadNotificationsCount = updatedNotifications.filter(n => !n.read).length;
         setUnreadCount(unreadNotificationsCount);
         console.log("Updated unread count after marking as read:", unreadNotificationsCount);
-        
         return updatedNotifications;
       });
     } catch (error) {
@@ -142,6 +144,7 @@ const NotificationDropdown = () => {
                     onClick={goToPreviousPage}
                     disabled={currentPage === 1}
                     style={{ marginRight: '10px' }}
+                    className="next-prev-btn"
                   >
                     Previous
                   </button>
@@ -152,13 +155,14 @@ const NotificationDropdown = () => {
                     onClick={goToNextPage}
                     disabled={currentPage === totalPages}
                     style={{ marginLeft: '10px' }}
+                    className="next-prev-btn"
                   >
                     Next
                   </button>
                 </div>
               )}
 
-              <Dropdown.Item className="show-all" onClick={handleShowAll}>
+              <Dropdown.Item className="show-all" onClick={handleShowAll} style={{color: '#C799FF'}}>
                 Show All Notifications ({notifications.length})
               </Dropdown.Item>
             </>

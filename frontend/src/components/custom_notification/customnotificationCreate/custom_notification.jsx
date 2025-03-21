@@ -79,8 +79,8 @@ const NotificationModal = ({ isOpen, onClose }) => {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2 style={{ margin: 0, color: "#4e54c8" }}>Create Notification</h2>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center" , textAlign: 'center' }}>
+          <h2 style={{ margin: 0, color: "#C799FF", textAlign: 'center' }}>Create Notification</h2>
           <button
             onClick={onClose}
             style={{
@@ -270,7 +270,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 type="submit"
                 style={{
                   padding: "10px 20px",
-                  background: "linear-gradient(to right, #4e54c8, #8f94fb)",
+                  background: "linear-gradient(to right, #C799FF, #8f94fb)",
                   color: "white",
                   border: "none",
                   borderRadius: "20px",

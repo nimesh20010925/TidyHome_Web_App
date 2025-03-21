@@ -21,7 +21,8 @@
   }
   
   .bell-container:hover .bell-icon {
-    color: #007bff;
+    color: #C799FF;
+    
   }
   
   .notification-badge {
@@ -59,7 +60,7 @@
   }
   
   .notification-header {
-    background: linear-gradient(90deg, #007bff, #00b4db);
+    background: linear-gradient(to right, #C799FF, #8f94fb) !important;
     color: white;
     padding: 12px 16px;
     font-weight: 600;
@@ -91,7 +92,7 @@
   .notification-item.unread {
     background-color: #fff;
     font-weight: 500;
-    border-left: 4px solid #007bff;
+    border-left: none !important;
   }
   
   .notification-item:hover {
@@ -117,7 +118,7 @@
   }
   
   .mark-read-btn {
-    background: #007bff;
+    background: linear-gradient(to right, #C799FF, #8f94fb) !important;
     color: white;
     border: none;
     padding: 6px 12px;
@@ -129,7 +130,7 @@
   }
   
   .mark-read-btn:hover {
-    background: #0056b3;
+    background: linear-gradient(to right, #C799FF, #8f94fb) !important;
     transform: translateY(-1px);
   }
   
@@ -172,4 +173,17 @@
       padding: 5px 10px;
       font-size: 11px;
     }
+  }
+
+  .next-prev-btn{
+
+    background: linear-gradient(to right, #C799FF, #8f94fb) !important;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
   }

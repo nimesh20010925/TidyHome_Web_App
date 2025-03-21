@@ -79,7 +79,7 @@ const NavBar = () => {
     },
     {
       tab: "SUPPLIERS",
-      route: "/app/custom-notification",
+      route: "/supplier-home",
       icon: Supplier,
       activeIcon: SupplierActive,
       label: t("SUPPLIERS"),

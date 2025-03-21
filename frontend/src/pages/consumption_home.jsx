@@ -93,13 +93,13 @@ const ContactPage = ({ image }) => {
           width: 100%;
         }
         .create-consumption-button{
-          background-color: #C799FF;
+          background: linear-gradient(to right, #C799FF, #8f94fb) !important;
           color: white;
           margin: 20px 20px;
         
           }
           .create-consumption-button:hover{
-            background-color:rgb(192, 140, 255);
+            background: linear-gradient(to right, #C799FF, #8f94fb) !important;
             color: white;
             
             }
@@ -201,9 +201,11 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  
+                  // background:"linear-gradient(to right, #C799FF, #8f94fb) ",
+                  // borderRadius: "10px",
                   cursor: "move",
                   marginBottom: "10px",
+                  
                 }}
               >
                 Pie Chart
