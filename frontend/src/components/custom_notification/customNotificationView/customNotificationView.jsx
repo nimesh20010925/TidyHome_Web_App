@@ -1,133 +1,193 @@
-import  { useState, useEffect } from 'react';
-import { NotificationService } from '../../../services/customNotificationServices';
+import { useState, useEffect } from 'react';
+import { NotificationService } from '../../../services/customNotificationServices'; // Adjust path as needed
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './customNotificationView.css';
 
-const NotificationCard = () => {
+const NotificationShow = () => {
   const [notifications, setNotifications] = useState([]);
-  const [selectedNotification, setSelectedNotification] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({});
 
   useEffect(() => {
     fetchNotifications();
   }, []);
 
   const fetchNotifications = async () => {
-    const data = await NotificationService.getAllNotifications();
-    setNotifications(data);
+    try {
+      setLoading(true);
+      const data = await NotificationService.getAllNotifications();
+      console.log('Fetched notifications:', data);
+      setNotifications(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError('Failed to load notifications');
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDropdown = (id) => {
-    setShowDropdown(showDropdown === id ? null : id);
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this notification?')) {
+      try {
+        await NotificationService.deleteNotification(id);
+        setNotifications(notifications.filter((n) => n._id !== id));
+      } catch (err) {
+        console.error('Delete error:', err);
+        setError('Failed to delete notification');
+      }
+    }
   };
 
-  const handleAdd = () => {
-    console.log('Add new notification');
+  const handleEdit = (notification) => {
+    setEditingId(notification._id);
+    setEditForm({ ...notification });
   };
 
-  const handleUpdate = (id) => {
-    console.log('Update notification:', id);
+  const handleSave = async (id) => {
+    try {
+      const updatedData = { ...editForm };
+      await NotificationService.updateNotification(id, updatedData);
+      setNotifications(
+        notifications.map((n) => (n._id === id ? { ...n, ...updatedData } : n))
+      );
+      setEditingId(null);
+    } catch (err) {
+      console.error('Update error:', err);
+      setError('Failed to update notification');
+    }
   };
 
-  const handleDelete = (id) => {
-    NotificationService.deleteNotification(id)
-      .then(() => fetchNotifications())
-      .catch(err => console.error(err));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const closeModal = () => {
-    setSelectedNotification(null);
-  };
+  if (loading) return <div className="text-center py-5"><div className="spinner-border text-primary" role="status"></div></div>;
+  if (error) return <div className="text-center py-5 text-danger fw-bold">{error}</div>;
 
   return (
-    <div className="notification-container">
-      <div className="header">
-        <h2>Notifications</h2>
-        <button className="add-btn" onClick={handleAdd}>
-          + Add Notification
-        </button>
-      </div>
-
-      <div className="cards-container">
-        {notifications.map((notification) => (
-          <div key={notification.id} className="notification-card">
-            <div className="card-header">
-              <h3>{notification.notification_title}</h3>
-              <div className="dropdown">
-                <button 
-                  className="dropdown-btn" 
-                  onClick={() => handleDropdown(notification.id)}
-                >
-                  ⋮
-                </button>
-                {showDropdown === notification.id && (
-                  <div className="dropdown-menu">
-                    <button onClick={() => setSelectedNotification(notification)}>
-                      View
+    <div className="container py-5">
+      <h2 className="mb-5 text-center fw-bold text-uppercase text-primary">Notifications Dashboard</h2>
+      {notifications.length === 0 ? (
+        <p className="text-center text-muted fs-5">No notifications available</p>
+      ) : (
+        <div className="row g-4">
+          {notifications.map((notification) => (
+            <div key={notification._id} className="col-lg-4 col-md-6">
+              <div className="card notification-card h-100 shadow-lg border-0">
+                <div className="card-header bg-gradient-primary text-white position-relative">
+                  <h5 className="mb-0 fw-bold">{notification.notification_title}</h5>
+                  <div className="dropdown position-absolute end-0 top-0 mt-2 me-2">
+                    <button
+                      className="btn btn-sm btn-outline-light dropdown-toggle p-1"
+                      type="button"
+                      id={`dropdownMenu-${notification._id}`}
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i className="bi bi-three-dots-vertical"></i>
                     </button>
-                    <button onClick={() => handleUpdate(notification.id)}>
-                      Update
-                    </button>
-                    <button onClick={() => handleDelete(notification.id)}>
-                      Delete
-                    </button>
+                    <ul
+                      className="dropdown-menu dropdown-menu-end shadow-sm"
+                      aria-labelledby={`dropdownMenu-${notification._id}`}
+                    >
+                      <li>
+                        <button
+                          className="dropdown-item text-primary"
+                          onClick={() => handleEdit(notification)}
+                        >
+                          <i className="bi bi-pencil-square me-2"></i>Edit
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          className="dropdown-item text-danger"
+                          onClick={() => handleDelete(notification._id)}
+                        >
+                          <i className="bi bi-trash me-2"></i>Delete
+                        </button>
+                      </li>
+                    </ul>
                   </div>
-                )}
+                </div>
+                <div className="card-body p-4">
+                  {editingId === notification._id ? (
+                    <div className="edit-form">
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Title</label>
+                        <input
+                          type="text"
+                          name="notification_title"
+                          value={editForm.notification_title || ''}
+                          onChange={handleChange}
+                          className="form-control shadow-sm"
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={editForm.email || ''}
+                          onChange={handleChange}
+                          className="form-control shadow-sm"
+                        />
+                      </div>
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Message</label>
+                        <textarea
+                          name="message"
+                          value={editForm.message || ''}
+                          onChange={handleChange}
+                          className="form-control shadow-sm"
+                          rows="3"
+                        />
+                      </div>
+                      <button
+                        className="btn btn-success w-100 fw-bold"
+                        onClick={() => handleSave(notification._id)}
+                      >
+                        <i className="bi bi-check-circle me-2"></i>Save Changes
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="notification-details">
+                      <p className="mb-2"><strong>Email:</strong> <span className="text-muted">{notification.email}</span></p>
+                      <p className="mb-2"><strong>Type:</strong> <span className="text-muted">{notification.notification_type}</span></p>
+                      <p className="mb-2"><strong>Assigned to:</strong> <span className="text-muted">{notification.assign_to}</span></p>
+                      <p className="mb-2">
+                        <strong>Priority:</strong>
+                        <span
+                          className={`badge ${
+                            notification.priority_level === 'High'
+                              ? 'bg-danger'
+                              : notification.priority_level === 'Medium'
+                              ? 'bg-warning'
+                              : 'bg-success'
+                          } ms-2`}
+                        >
+                          {notification.priority_level}
+                        </span>
+                      </p>
+                      <p className="mb-2"><strong>Date:</strong> <span className="text-muted">{new Date(notification.date).toLocaleDateString()}</span></p>
+                      <p className="mb-2"><strong>Time:</strong> <span className="text-muted">{notification.time}</span></p>
+                      <p className="mb-0"><strong>Message:</strong> <span className="text-muted">{notification.message}</span></p>
+                    </div>
+                  )}
+                </div>
+                <div className="card-footer bg-light text-muted small">
+                  Created: {new Date(notification.createdAt).toLocaleString()}
+                </div>
               </div>
             </div>
-
-            <div className="card-content">
-              <div className="priority" style={{
-                backgroundColor: notification.priority_level === 'high' ? '#ff4444' :
-                                notification.priority_level === 'medium' ? '#ffbb33' : '#00C851'
-              }}>
-                {notification.priority_level}
-              </div>
-              <p><strong>Email:</strong> {notification.email}</p>
-              <p><strong>Type:</strong> {notification.notification_type}</p>
-              <p><strong>Assigned to:</strong> {notification.assign_to}</p>
-              <p><strong>Date:</strong> {notification.date} {notification.time}</p>
-              <p><strong>Message:</strong> {notification.message}</p>
-              {notification.repeat_notification && (
-                <span className="repeat-badge">Repeating</span>
-              )}
-            </div>
-
-            <div className="card-footer">
-              <span>Sent via: {notification.send_notification_via}</span>
-              {notification.notes && (
-                <span className="notes">Has notes</span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Modal for viewing notification details */}
-      {selectedNotification && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h2>{selectedNotification.notification_title}</h2>
-            <div className="modal-body">
-              <p><strong>Email:</strong> {selectedNotification.email}</p>
-              <p><strong>Type:</strong> {selectedNotification.notification_type}</p>
-              <p><strong>Assigned to:</strong> {selectedNotification.assign_to}</p>
-              <p><strong>Priority:</strong> {selectedNotification.priority_level}</p>
-              <p><strong>Date:</strong> {selectedNotification.date} {selectedNotification.time}</p>
-              <p><strong>Message:</strong> {selectedNotification.message}</p>
-              <p><strong>Sent via:</strong> {selectedNotification.send_notification_via}</p>
-              <p><strong>Repeat:</strong> {selectedNotification.repeat_notification ? 'Yes' : 'No'}</p>
-              {selectedNotification.notes && (
-                <p><strong>Notes:</strong> {selectedNotification.notes}</p>
-              )}
-            </div>
-            <button className="close-btn" onClick={closeModal}>
-              Close
-            </button>
-          </div>
+          ))}
         </div>
       )}
     </div>
   );
 };
 
-export default NotificationCard;
+export default NotificationShow;

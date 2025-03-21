@@ -24,6 +24,7 @@ import Category_home from "./pages/category_home.jsx";
 import CustomNotification from "./pages/custom_notification_home.jsx";
 import Notification from "./components/notifications/notification.jsx";
 import SingleNotification from "./components/notifications/SingleNotificationPage.jsx";
+
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
     <NavBar />

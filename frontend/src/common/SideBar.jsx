@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, Dropdown, ListGroup, Button } from "react-bootstrap";
 import { FaPlus, FaBox, FaTruck, FaFileExport, FaClock } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 import axios from "axios";
 import userAvatar from "../assets/navBar/dummy-user.png";
 import addNotification from "../assets/sideBar/add-notification.png";
@@ -127,14 +127,12 @@ const SideBar = () => {
           closeModal={closeConsumptionModal}
         />
 
-        <ListGroup.Item
-          onClick={openConsumptionModal}
-          action
-          className="border-0"
-        >
-          <FaClock className="me-2" />
-          Reminders
-        </ListGroup.Item>
+<ListGroup.Item className="border-0">
+  <Link to="/app/custom-notification" className="text-decoration-none text-dark">
+    <FaClock className="me-2" />
+    Reminders
+  </Link>
+</ListGroup.Item>
 
         <ListGroup.Item
           onClick={openNotificationModal}

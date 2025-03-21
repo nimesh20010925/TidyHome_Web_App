@@ -1,6 +1,6 @@
 import { HelmetProvider } from "react-helmet-async";
 import PropTypes from "prop-types";
-import CustomNotification from "../components/custom_notification/customnotificationCreate/custom_notification";
+import CustomNotification from "../components/custom_notification/customNotificationView/customNotificationView";
 
 const ContactPage = ({ image }) => {
   const defaultDescription =
