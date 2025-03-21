@@ -31,6 +31,10 @@ const NavBar = () => {
     navigate(route);
   };
 
+  const handleProfileClick = () => {
+    navigate("/app/myhome"); // Add the route you want to navigate to when the profile is clicked
+  };
+
   const renderProfileSection = () => (
     <div className="d-flex align-items-center mb-1">
       <div className="position-relative">
@@ -41,6 +45,7 @@ const NavBar = () => {
           width="44"
           height="44"
           style={{ cursor: "pointer" }}
+          onClick={handleProfileClick} // Add the click handler
         />
       </div>
     </div>
