@@ -30,3 +30,20 @@ export const createHomeController = async (req, res) => {
     res.status(500).json({ success: false, message: "Error in creating home", error: error.message });
   }
 };
+
+// Controller to fetch homes owned by the relevant owner
+export const getHomesByOwnerController = async (req, res) => {
+  try {
+    const ownerID = req.user._id; 
+
+    const homes = await homeModel.find({ ownerID: ownerID }); // Query homes by owner ID
+
+    if (homes.length === 0) {
+      return res.status(404).json({ success: false, message: "No homes found for this owner" });
+    }
+
+    res.status(200).json({ success: true, homes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching homes", error: error.message });
+  }
+};

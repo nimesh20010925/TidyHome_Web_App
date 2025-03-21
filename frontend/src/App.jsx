@@ -21,6 +21,7 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
 import LandingPage from "./pages/LandingPages/LandingPage.jsx";
 import Supplier_home from "./pages/supplier_home.jsx";
 import Category_home from "./pages/category_home.jsx";
+import HomeProfile from "./components/Home/HomeProfile.jsx";
 
 
 const MainLayout = () => (
@@ -74,6 +75,7 @@ const App = () => {
             <Route path="consumption_home" element={<ConsumptionHome />} />
             <Route path="supplier-home" element={<Supplier_home />} />
             <Route path="category-home" element={<Category_home />} />
+            <Route path="myhome" element={<HomeProfile />} />
 
           </Route>
         </Route>

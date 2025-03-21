@@ -1,11 +1,9 @@
 import React from 'react';
-import heroImage from '../../assets/LandingPage/hero.png'
+import heroImage from '../../assets/LandingPage/hero.png';
 import LandingPageNavBar from './LandingPageNavBar';
 import { Link } from 'react-router-dom';
 
 const LandingPage = () => {
-
-
   return (
     <div>
       <LandingPageNavBar />
