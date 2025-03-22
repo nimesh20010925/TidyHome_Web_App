@@ -105,7 +105,7 @@
     "QUICKACTION":"QUICK ACTION",
     "CATEGORIES":"Categories",
     "CREATECONSUMPTION":"Create Consumption",
-    "CREATECUSTOMNOTIFICATION":"Create Custom Notificstion",
+    "CREATECUSTOMREMINDERS":"Custom Reminders",
     "CREATENEWSHOPPINGLIST":"Create New Shopping List",
     "ADDNEWINVENTORY":"Add New Inventory",
     "ADDSUPPLIER":"Add Supplier",
@@ -115,6 +115,11 @@
     "SPECIALNOTICES":"Special Notices",
      "HOMESUMMRY":"Home Summry",
      "SHOPPINGSCHEDULES":"Shopping Schedules",
-     "CREATESHOPPINGSCHEDULES":"Create Shopping Schedules"
+     "CREATESHOPPINGSCHEDULES":"Create Shopping Schedules",
+     "CREATENEWSHOPPINGLISTFORM":"Create Shopping Schedules Form",
+     "CREATE":"Create",
+     "ADDHOMEMEMBER":"Add Home Member",
+     "ADDHOMEMEMBERFORM":"Add Home Member Form",
+     "HOMEMEMBERLIST":"Home Member List"
 
 }

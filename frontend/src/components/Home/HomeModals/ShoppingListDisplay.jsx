@@ -3,7 +3,8 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import Form from "react-bootstrap/Form";
-
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { FaEdit } from "react-icons/fa";
 const ShoppingListDisplay = () => {
     const [shoppingLists, setShoppingLists] = useState([]);
     const [currentList, setCurrentList] = useState(null); // For editing
@@ -235,21 +236,22 @@ const ShoppingListDisplay = () => {
                                     <>
                                         {["homeOwner", "homeMember"].includes(JSON.parse(localStorage.getItem("user")).role) && (
                                             <button
-                                                className="home-shopping-edit-btn"
-                                                onClick={() => handleEdit(list)}
-                                                onMouseDown={(e) => e.stopPropagation()}
-                                            >
-                                                ✏️
-                                            </button>
+                                            className="home-shopping-edit-btn"
+                                            onClick={() => handleEdit(list)}
+                                            onMouseDown={(e) => e.stopPropagation()}
+                                          >
+                                            <FaEdit size={25}/>
+                                          </button>
+                                          
                                         )}
                                         {JSON.parse(localStorage.getItem("user")).role === "homeOwner" && (
                                             <button
-                                                className="home-shopping-delete-btn"
-                                                onClick={() => handleDelete(list._id)}
-                                                onMouseDown={(e) => e.stopPropagation()}
-                                            >
-                                                🗑️
-                                            </button>
+                                            className="home-shopping-delete-btn"
+                                            onClick={() => handleDelete(list._id)}
+                                            onMouseDown={(e) => e.stopPropagation()}
+                                          >
+                                             <RiDeleteBin6Line color="red" size={25}/>
+                                             </button>
                                         )}
                                     </>
                                 )}
@@ -271,7 +273,7 @@ const ShoppingListDisplay = () => {
                     close={closeBtn}
                     className="border-0 poppins-medium mx-4 mt-2 fw-bold"
                 >
-                    Create Shopping List
+                    {t("CREATENEWSHOPPINGLISTFORM")}
                 </ModalHeader>
 
                 <ModalBody className="add-inventory-modal-body">
@@ -335,7 +337,7 @@ const ShoppingListDisplay = () => {
                                 }}
                                 onMouseDown={(e) => e.stopPropagation()}
                             >
-                                Create
+                               {t("CREATE")}
                             </Button>
                         </form>
                     </div>

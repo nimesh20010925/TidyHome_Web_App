@@ -115,7 +115,7 @@ const SideBar = () => {
               height="22px"
               alt="Categories"
             />{" "}
-            Categories
+            {t("CATEGORIES")}
           </ListGroup.Item>
         </a>
         <ListGroup.Item
@@ -124,7 +124,7 @@ const SideBar = () => {
           className="border-0"
         >
           <FaPlus className="me-2" />
-          Create Consumption
+          {t("CREATECONSUMPTION")}
         </ListGroup.Item>
         <Modal
           isOpen={isConsumptionModalOpen}
@@ -153,7 +153,7 @@ const SideBar = () => {
             height="22px"
             alt="Add Notification"
           />
-          Custom Reminders
+          {t("CREATECUSTOMREMINDERS")}
         </ListGroup.Item>
         <NotificationModal
           isOpen={isNotificationModalOpen}
@@ -168,18 +168,18 @@ const SideBar = () => {
             height="22px"
             alt="Create Shopping List"
           />{" "}
-          Create New Shopping List
+          {t("CREATENEWSHOPPINGLIST")}
         </ListGroup.Item>
         <ListGroup.Item action className="border-0">
-          <FaBox className="me-2" /> Add New Inventory
+          <FaBox className="me-2" /> {t("ADDNEWINVENTORY")}
         </ListGroup.Item>
-        <a href="/supplier-home">
+        <a href="/app/supplier-home">
           <ListGroup.Item action className="border-0">
-            <FaTruck className="me-2" /> Add Supplier
+            <FaTruck className="me-2" />{t("ADDSUPPLIER")}
           </ListGroup.Item>
         </a>
         <ListGroup.Item action className="border-0">
-          <FaFileExport className="me-2" /> Export Reports
+          <FaFileExport className="me-2" /> {t("EXPORTREPORT")}
         </ListGroup.Item>
       </ListGroup>
 

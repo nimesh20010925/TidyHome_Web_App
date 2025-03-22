@@ -105,7 +105,7 @@
     "QUICKACTION":"ඉක්මන් ක්‍රියාමාර්ග",
     "CATEGORIES":"කාණ්ඩ",
     "CREATECONSUMPTION":"පරිභෝජනය නිර්මාණය කරන්න",
-    "CREATECUSTOMNOTIFICATION":"Custom notificstion සාදන්න",
+    "CREATECUSTOMREMINDERS":"Custom Reminders සාදන්න",
     "CREATENEWSHOPPINGLIST":"නව සාප්පු ලැයිස්තුවක් සාදන්න",
     "ADDNEWINVENTORY":"නව බඩු තොග එකතු කරන්න",
     "ADDSUPPLIER":"සැපයුම්කරු එකතු කරන්න",
@@ -115,6 +115,11 @@
     "SPECIALNOTICES":"විශේෂ නිවේදන",
     "HOMESUMMRY":"මුල් පිටුව සාරාංශය",
     "SHOPPINGSCHEDULES":"සාප්පු සවාරි කාලසටහන්",
-    "CREATESHOPPINGSCHEDULES":"සාප්පු සවාරි කාලසටහන් සාදන්න"
+    "CREATESHOPPINGSCHEDULES":"සාප්පු සවාරි කාලසටහන් සාදන්න",
+    "CREATENEWSHOPPINGLISTFORM":"නව සාප්පු ලැයිස්තු පෝරමය",
+    "CREATE":"සාදන්න",
+    "ADDHOMEMEMBER":"ගෙදර සාමාජිකයන් එකතු කරන්න",
+    "ADDHOMEMEMBERFORM":"ගෙදර සාමාජිකයන් එකතු කරන පෝරමය",
+    "HOMEMEMBERLIST":"ගෘහ සාමාජික ලැයිස්තුව"
 
 }

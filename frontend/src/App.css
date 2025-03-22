@@ -1198,7 +1198,7 @@ h2 {
   gap: 10px;
 }
 
-.edit-btn {
+.home-shopping-edit-btn {
   background: none;
   border: none;
   font-size: 18px;
@@ -1206,10 +1206,10 @@ h2 {
   color: #4a3aff;
 }
 
-.delete-btn {
+.home-shopping-delete-btn{
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
   color: #b22222;
 }
@@ -1495,4 +1495,162 @@ h2 {
     width: 100%;
     max-width: 80%;
   }
+}
+
+/*home memeber table*/
+.home-members-table-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.home-member-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.home-member-table-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.home-members-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.home-members-table th,
+.home-members-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.home-members-table th {
+  background-color: #f4f4f4;
+  color: #333;
+  font-weight: bold;
+}
+
+.home-members-table td {
+  background-color: #fff;
+}
+
+.home-member-action-icons {
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+}
+
+.home-member-action-icons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+}
+
+.home-member-edit-input {
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 150px;
+}
+
+.home-member-edit-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.home-member-table td img.home-member-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+button.home-member-save-btn,
+button.home-member-edit-btn,
+button.home-member-delete-btn {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 16px;
+  border-radius: 4px;
+}
+.home-member-view-btn{
+  color: #000;
+}
+button.home-member-save-btn {
+  color: #000;
+}
+button.home-member-edit-btn {
+  color: #0c04ff;
+}
+
+button.home-member-delete-btn {
+  color: red;
+}
+.home-member-view-btn:hover{
+  color: #bbbbbb;
+}
+button.home-member-save-btn:hover {
+  color: #9f9e9e;
+}
+button.home-member-edit-btn:hover {
+  color: #5b55f7;
+}
+
+button.home-member-delete-btn:hover {
+  color: rgb(255, 111, 111);
+}
+/*home profile*/
+/* HomeProfile.css */
+.home-profile {
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.home-profile h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.home-profile p {
+  font-size: 16px;
+  color: #555;
+  margin: 5px 0;
+}
+
+.home-profile-home-name {
+  font-weight: bold;
+  font-size: 28px;
+}
+
+.home-profile-home-phone,
+.home-profile-home-address,
+.home-profile-home-number-of-members {
+  font-size: 18px;
+}
+
+.home-summary {
+  margin-bottom: 20px;
+}
+
+.loading,
+.error {
+  font-size: 18px;
+  text-align: center;
+  color: #ff5733;
 }

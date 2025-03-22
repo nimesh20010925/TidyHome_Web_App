@@ -3,6 +3,7 @@ import axios from 'axios';
 import HomeMembersTable from './HomeModals/HomeMembersTable';
 import HomeSummary from './HomeModals/HomeSummary';
 
+
 const HomeProfile = () => {
   const [home, setHome] = useState(null); // To store the home data
   const [loading, setLoading] = useState(true); // To handle loading state
@@ -41,29 +42,32 @@ const HomeProfile = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <div className="error">{error}</div>;
   }
 
   return (
     <div>
-        <HomeSummary/>
-    <div className="home-profile">
-      {home ? (
-        <div>
-          <h2>{home.homeName}</h2>
-          <p>Phone: {home.homePhone}</p>
-          <p>Address: {home.address}</p>
-          <p>Number of Members: {home.number_of_members}</p>
-        </div>
-      ) : (
-        <p>No home data available</p>
-      )}
-      <HomeMembersTable/>
-    </div>
+      <HomeSummary />
+      <div className="home-profile">
+        {home ? (
+          <div>
+            <h2 className="home-profile-home-name">{home.homeName}</h2>
+            <p className="home-profile-home-phone">Phone: {home.homePhone}</p>
+            <p className="home-profile-home-address">Address: {home.address}</p>
+            <p className="home-profile-home-number-of-members">
+              Number of Members: {home.number_of_members}
+            </p>
+          </div>
+        ) : (
+          <p>No home data available</p>
+        )}
+       
+      </div>
+      <HomeMembersTable />
     </div>
   );
 };
