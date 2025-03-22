@@ -864,6 +864,16 @@ td.inventory-actions-cell {
   font-size: 22px;
   font-weight: bold;
 }
+.login-input-error {
+  border-color: red;
+}
+
+.login-error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
 
 .logo-image {
   width: 84px;

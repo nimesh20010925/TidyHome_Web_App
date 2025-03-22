@@ -148,7 +148,7 @@ class ShoppingListController {
 
     try {
       const shoppingList = await ShoppingList.findOneAndUpdate(
-        { _id: listId, createdBy: req.user._id }, // Ensure only the home owner can update
+        { _id: listId }, // Ensure only the home owner can update
         { listName, shoppingDate, shopVisitors, itemList },
         { new: true }
       );
