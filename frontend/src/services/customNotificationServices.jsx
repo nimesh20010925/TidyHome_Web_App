@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_BASE_URL } from "../config/config";
+import  NotificationServices  from "./NotificationService";
 
 export class NotificationService {
   static async getAllNotifications() {
@@ -30,6 +31,10 @@ export class NotificationService {
         `${API_BASE_URL}/customNotification/create`,
         notificationData
       );
+      NotificationServices.sendNotification({
+        message: `New custom notification created for ${notificationData.notification_title}`,
+      });
+        
       return response.data;
     } catch (error) {
       console.error("Error creating notification:", error);
