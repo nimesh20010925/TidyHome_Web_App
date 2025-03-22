@@ -1,19 +1,20 @@
-import { category } from "../Models/category_model.js";
+import  category  from "../Models/category_model.js";
+import mongoose from "mongoose";
 
 
-const createcategory = async (req, res) => {
+export const createcategory = async (req, res) => {
   try {
-    const { category_image, category_type, category_name, category_discription, date } = req.body;
+    const {  category_type, category_name, category_description, date } = req.body;
 
-    if (!category_image || !category_type || !category_name || !category_discription || !date) {
+    if (!category_type || !category_name || !category_description || !date) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     const newcategory = new category({
-      category_image,
+      
       category_type,
       category_name,
-      category_discription,
+      category_description,
       date,
     });
 
@@ -24,7 +25,7 @@ const createcategory = async (req, res) => {
   }
 };
 
-const getcategory = async (req, res) => {
+export const getcategory = async (req, res) => {
   try {
     const categorys = await category.find();
     res.status(200).json({ message: "categorys fetched successfully", categorys });
@@ -33,7 +34,7 @@ const getcategory = async (req, res) => {
   }
 };
 
-const getcategoryById = async (req, res) => {
+export const getcategoryById = async (req, res) => {
   try {
     const categoryRecord = await category.findById(req.params.id);
     if (!categoryRecord) {
@@ -45,7 +46,7 @@ const getcategoryById = async (req, res) => {
   }
 };
 
-const updatecategory = async (req, res) => {
+export const updatecategory = async (req, res) => {
   try {
     const categoryRecord = await category.findById(req.params.id);
     if (!categoryRecord) {
@@ -58,26 +59,16 @@ const updatecategory = async (req, res) => {
   }
 };
 
-const deletecategory = async (req, res) => {
+export const deletecategory = async (req, res) => {
+
   try {
-    const categoryRecord = await category.findById(req.params.id);
-    if (!categoryRecord) {
-      return res.status(404).json({ message: "category not record found" });
-    }
+
     await category.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "category deleted successfully" });
+    res.status(200).json({ message: "Category deleted successfully" });
+    
+
+  
   } catch (error) {
-    res.status(500).json({ message: "error deleting category", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-
-const categoryController = {
-  createcategory,
-  getcategory,
-  getcategoryById,
-  updatecategory,
-  deletecategory,
-};
-
-export default categoryController;

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "react-grid-layout": "^1.5.1",
+    "react-modal": "^3.16.3",
+    "react-router-dom": "^7.4.0"
+  }
+}
