@@ -106,7 +106,7 @@ const SideBar = () => {
         <h6 className="fw-bold mt-2 pt-1 ms-3">{t("QUICKACTION")}</h6>
 
       <ListGroup variant="flush">
-        <a href="/category-home">
+        <a href="/app/category-home">
           <ListGroup.Item action className="border-0">
             <img
               src={categories}

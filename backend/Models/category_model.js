@@ -18,9 +18,13 @@ const categorySchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    category_image: {
+      type: String, // Store the path or URL of the uploaded image
+      required: false,
+    },
   },
   {
-    timestamps: true /* To save created time in data base */,
+    timestamps: true,
   }
 );
 
