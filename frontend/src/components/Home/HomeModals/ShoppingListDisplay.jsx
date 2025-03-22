@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
+import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
+import Form from "react-bootstrap/Form";
 
 const ShoppingListDisplay = () => {
   const [shoppingLists, setShoppingLists] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [currentList, setCurrentList] = useState(null); // For editing
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
     listName: "",
@@ -12,11 +14,13 @@ const ShoppingListDisplay = () => {
     shopVisitors: [],
   });
   const [homeMembers, setHomeMembers] = useState([]);
-  const [user, setUser] = useState(null); // To store the user details
+  const [createShoppingScheduleModal, setCreateShoppingScheduleModal] =
+    useState(false);
+
+  const createShoppingScheduleToggle = () =>
+    setCreateShoppingScheduleModal(!createShoppingScheduleModal);
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("user"));
-    setUser(userData);  // Get user data from localStorage
     fetchShoppingLists();
     fetchHomeMembers();
   }, []);
@@ -32,9 +36,19 @@ const ShoppingListDisplay = () => {
           },
         }
       );
-      setShoppingLists(response.data);
+
+      console.log("Fetched Shopping Lists Response:", response.data); // Log to confirm structure
+
+      // Extract the shoppingLists array from the response
+      if (response.data && Array.isArray(response.data.shoppingLists)) {
+        setShoppingLists(response.data.shoppingLists);
+      } else {
+        console.error("Unexpected response format:", response.data);
+        setShoppingLists([]); // Ensure state is always an array
+      }
     } catch (error) {
       console.error("Error fetching shopping lists:", error);
+      setShoppingLists([]); // Prevent UI errors
     }
   };
 
@@ -72,6 +86,7 @@ const ShoppingListDisplay = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user"));
 
       if (!user || !user.homeID || !user._id) {
         console.error("Missing homeID or user ID in localStorage");
@@ -86,22 +101,66 @@ const ShoppingListDisplay = () => {
         shopVisitors: formData.shopVisitors,
       };
 
-      await axios.post(
-        "http://localhost:3500/api/shoppingList/shopping-lists",
-        requestData,
+      if (currentList) {
+        // If editing an existing shopping list
+        await axios.put(
+          `http://localhost:3500/api/shoppingList/shopping-lists/${currentList._id}`,
+          requestData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } else {
+        // If creating a new shopping list
+        await axios.post(
+          "http://localhost:3500/api/shoppingList/shopping-lists",
+          requestData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+
+      createShoppingScheduleToggle();
+
+      setCurrentList(null);
+      fetchShoppingLists();
+    } catch (error) {
+      console.error("Error saving shopping list:", error);
+    }
+  };
+
+  const handleDelete = async (listId) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(
+        `http://localhost:3500/api/shoppingList/shopping-lists/${listId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         }
       );
-
-      setShowModal(false);
       fetchShoppingLists();
     } catch (error) {
-      console.error("Error creating shopping list:", error);
+      console.error("Error deleting shopping list:", error);
     }
+  };
+
+  const handleEdit = (list) => {
+    setFormData({
+      listName: list.listName,
+      shoppingDate: list.shoppingDate,
+      shopVisitors: list.shopVisitors,
+    });
+    setCurrentList(list);
+    createShoppingScheduleToggle();
   };
 
   const getVisitorNames = (visitorIds) => {
@@ -111,21 +170,41 @@ const ShoppingListDisplay = () => {
     });
   };
 
+  const closeBtn = (
+    <button
+      className="close-btn"
+      onClick={createShoppingScheduleToggle}
+      onMouseDown={(e) => e.stopPropagation()}
+      type="button"
+    >
+      <img
+        width="20"
+        height="20"
+        src="https://img.icons8.com/ios/20/cancel.png"
+        alt="cancel"
+      />
+    </button>
+  );
+
   return (
     <div className="home-shopping-container">
       <h2 className="home-shopping-h2">{t("SHOPPINGSCHEDULES")}</h2>
-      
-      {/* Only show this button if the user is a home owner */}
-      {user && user.role === "homeOwner" && (
-        <button className="home-shopin-create-btn" onClick={() => setShowModal(true)}>
-          {t("CREATESHOPPINGSCHEDULES")}
-        </button>
-      )}
+      {localStorage.getItem("user") &&
+        JSON.parse(localStorage.getItem("user")).role === "homeOwner" && (
+          <button
+            className="home-shopin-create-btn"
+            onClick={createShoppingScheduleToggle}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            {t("CREATESHOPPINGSCHEDULES")}
+          </button>
+        )}
 
       <div className="home-shopping-list-wrapper">
-        {shoppingLists.length === 0 ? (
+        {Array.isArray(shoppingLists) && shoppingLists.length === 0 ? (
           <p>No shopping lists available.</p>
         ) : (
+          Array.isArray(shoppingLists) &&
           shoppingLists.map((list) => (
             <div key={list._id} className="home-shopping-card">
               <div className="home-shopping-header">
@@ -144,58 +223,111 @@ const ShoppingListDisplay = () => {
                 )}
               </div>
               <div className="home-shopping-actions">
-                {/* Only show edit and delete buttons if the user is the home owner */}
-                {user && user.role === "homeOwner" && (
-                  <>
-                    <button className="home-shopping-edit-btn" onMouseDown={(e) => e.stopPropagation()}>✏️</button>
-                    <button className="home-shopping-delete-btn" onMouseDown={(e) => e.stopPropagation()}>🗑️</button>
-                  </>
-                )}
+                {/* Show Edit and Delete buttons only if the user is a homeOwner */}
+                {localStorage.getItem("user") &&
+                  JSON.parse(localStorage.getItem("user")).role ===
+                    "homeOwner" && (
+                    <>
+                      <button
+                        className="home-shopping-edit-btn"
+                        onClick={() => handleEdit(list)}
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        className="home-shopping-delete-btn"
+                        onClick={() => handleDelete(list._id)}
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        🗑️
+                      </button>
+                    </>
+                  )}
               </div>
             </div>
           ))
         )}
       </div>
 
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Create Shopping List</h3>
+      <Modal
+        className="add-inventory-modal"
+        isOpen={createShoppingScheduleModal}
+        toggle={createShoppingScheduleToggle}
+        centered
+      >
+        <ModalHeader
+          toggle={createShoppingScheduleToggle}
+          close={closeBtn}
+          className="border-0 poppins-medium mx-4 mt-2 fw-bold"
+        >
+          Create Shopping List
+        </ModalHeader>
+
+        <ModalBody className="add-inventory-modal-body">
+          <div>
             <form onSubmit={handleSubmit}>
-              <label>List Name:</label>
-              <input
-                type="text"
-                name="listName"
-                value={formData.listName}
-                onChange={handleInputChange}
-                required
-              />
+              <Form.Group className="custom-inventory-form-group">
+                <Form.Control
+                  className="custom-inventory-form-input"
+                  type="text"
+                  name="listName"
+                  value={formData.listName}
+                  onChange={handleInputChange}
+                  required
+                  onMouseDown={(e) => e.stopPropagation()}
+                />
+                <Form.Label>List Name:</Form.Label>
+              </Form.Group>
 
-              <label>Shopping Date:</label>
-              <input type="date" name="shoppingDate" value={formData.shoppingDate} onChange={handleInputChange} required onMouseDown={(e) => e.stopPropagation()}/>
+              <Form.Group className="custom-inventory-form-group">
+                <Form.Control
+                  type="date"
+                  name="shoppingDate"
+                  value={formData.shoppingDate}
+                  onChange={handleInputChange}
+                  required
+                  onMouseDown={(e) => e.stopPropagation()}
+                />
+                <Form.Label>Shopping Date:</Form.Label>
+              </Form.Group>
 
-              <label>Shop Visitors:</label>
-              <select
-                name="shopVisitors"
-                multiple
-                value={formData.shopVisitors}
-                onChange={handleVisitorsChange}
+              <Form.Group className="custom-inventory-form-group">
+                <Form.Label>
+                  Shop Visitors: <span className="required">*</span>
+                </Form.Label>
+                <Form.Select
+                  name="shopVisitors"
+                  multiple
+                  value={formData.shopVisitors}
+                  onChange={handleVisitorsChange}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  size={homeMembers.length}
+                >
+                  {homeMembers.map((member) => (
+                    <option key={member._id} value={member._id}>
+                      {member.name}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+              <Button
+                type="submit"
+                className="w-100 pt-2 pb-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                style={{
+                  backgroundColor: "#bb87fa",
+                  border: "none",
+                  fontSize: "17px",
+                }}
                 onMouseDown={(e) => e.stopPropagation()}
-                size={homeMembers.length}
               >
-                {homeMembers.map((member) => (
-                  <option key={member._id} value={member._id}>
-                    {member.name}
-                  </option>
-                ))}
-              </select>
-
-              <button type="submit" className="submit-btn" onMouseDown={(e) => e.stopPropagation()}>Create</button>
-              <button type="button" className="cancel-btn" onMouseDown={(e) => e.stopPropagation()} onClick={() => setShowModal(false)}>Cancel</button>
+                Create
+              </Button>
             </form>
           </div>
-        </div>
-      )}
+        </ModalBody>
+      </Modal>
     </div>
   );
 };

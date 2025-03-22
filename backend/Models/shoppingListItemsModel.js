@@ -9,7 +9,7 @@ const shoppingListItemsSchema = new mongoose.Schema(
       ref: "Home",
       required: true,
     },
-    shopppingListId: {
+    shoppingListId: {
       type: Schema.Types.ObjectId,
       ref: "ShoppingList",
       required: true,
@@ -22,27 +22,30 @@ const shoppingListItemsSchema = new mongoose.Schema(
     itemName: {
       type: String,
       required: true,
+      trim: true,
     },
     itemType: {
       type: String,
       required: true,
+      trim: true,
     },
     quantity: {
       type: Number,
       required: true,
+      min: 0,
     },
     price: {
       type: Number,
       required: true,
+      min: 0,
     },
     estimatedItemCost: {
       type: Number,
-      required: true,
+      min: 0,
     },
     isUrgent: {
       type: Boolean,
       default: false,
-      required: false,
     },
     status: {
       type: String,
@@ -52,6 +55,12 @@ const shoppingListItemsSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Middleware to auto-calculate estimated cost before saving
+shoppingListItemsSchema.pre("save", function (next) {
+  this.estimatedItemCost = this.quantity * this.price;
+  next();
+});
 
 const ShoppingListItems = mongoose.model(
   "ShoppingListItems",

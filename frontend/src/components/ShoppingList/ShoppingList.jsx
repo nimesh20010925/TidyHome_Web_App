@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -22,6 +22,10 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 import AddShoppingListItemsModal from "./Modals/addShoppingListItemsModal.jsx";
+import { ShoppingListService } from "../../services/ShoppingListSevices.jsx";
+import axios from "axios";
+import { Modal, ModalHeader, ModalBody, Col, Row, Button } from "reactstrap";
+import { useTranslation } from "react-i18next";
 
 const cardData = [
   {
@@ -47,73 +51,6 @@ const cardData = [
     value: "343",
     text: "Products",
     bgColor: "#FFEBEE",
-  },
-];
-
-// Data for Shopping Lists
-const shoppingLists = [
-  {
-    title: "Vegetable Shopping List",
-    date: "2025-03-21",
-    items: ["No items yet"],
-    color: "#A576DD",
-  },
-  {
-    title: "Fruits Shopping List",
-    date: "2025-03-21",
-    items: [
-      "Orange - 10 pcs",
-      "Strawberry - 100g",
-      "Mango - 1 kg",
-      "Pineapple - 1 kg",
-      "Banana - 500g",
-    ],
-    color: "#AC9EFF",
-  },
-  {
-    title: "Dry Goods Shopping List",
-    date: "2025-03-21",
-    items: [
-      "White Rice - 5 kg",
-      "Spaghetti - 1 pack",
-      "Whole Wheat Flour - 1 kg",
-      "White Rice - 5 kg",
-      "Spaghetti - 1 pack",
-      "Whole Wheat Flour - 1 kg",
-      "White Rice - 5 kg",
-      "Spaghetti - 1 pack",
-      "Whole Wheat Flour - 1 kg",
-      "White Rice - 5 kg",
-      "Spaghetti - 1 pack",
-      "Whole Wheat Flour - 1 kg",
-      "White Rice - 5 kg",
-      "Spaghetti - 1 pack",
-      "Whole Wheat Flour - 1 kg",
-    ],
-    color: "#C5BCFF",
-  },
-  {
-    title: "Frozen Foods List",
-    date: "2025-03-21",
-    items: ["Chicken Wings - 2 kg", "Frozen Fish - 1 kg"],
-    color: "#E8D5FD",
-  },
-  {
-    title: "Bakery Shopping List",
-    date: "2025-03-31",
-    items: ["Bread - 2 loaves", "Cake - 1 kg"],
-    color: "#C799FF",
-  },
-  {
-    title: "Personal & Beauty Care Shopping List",
-    date: "2025-03-31",
-    items: [
-      "Makeup & Cosmetics - 1",
-      "Hair Care & Styling Products - 2",
-      "Deodorants & Perfumes - 3",
-      "Nail Care & Grooming - 1",
-    ],
-    color: "#F2D3FC",
   },
 ];
 
@@ -159,9 +96,133 @@ const summaryVariants = {
 
 const ShoppingList = () => {
   const [addShoppingItemsModal, setAddShoppingItemsModal] = useState(false);
+  const [shoppingLists, setShoppingLists] = useState([]);
+  const [selectedShoppingList, setSelectedShoppingList] = useState([]);
+  const [deleteItemModal, setDeleteItemModal] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState();
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    const fetchShoppingLists = async () => {
+      try {
+        const lists = await ShoppingListService.getShoppingLists();
+        console.log("Fetched Shopping Lists:", lists);
+
+        if (Array.isArray(lists.shoppingLists)) {
+          setShoppingLists(lists.shoppingLists);
+        } else {
+          console.error("Unexpected response format", lists);
+          setShoppingLists([]);
+        }
+      } catch (error) {
+        console.error("Error fetching shopping lists:", error);
+      }
+    };
+
+    fetchShoppingLists();
+  }, []);
+
+  useEffect(() => {
+    const fetchShoppingLists = async () => {
+      try {
+        const lists = await ShoppingListService.getShoppingLists();
+        console.log("Fetched Shopping Lists:", lists);
+
+        if (Array.isArray(lists.shoppingLists)) {
+          setShoppingLists(lists.shoppingLists);
+        } else {
+          console.error("Unexpected response format", lists);
+          setShoppingLists([]);
+        }
+      } catch (error) {
+        console.error("Error fetching shopping lists:", error);
+      }
+    };
+
+    fetchShoppingLists();
+  }, [!addShoppingItemsModal]);
+
+  const fetchShoppingLists = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        "http://localhost:3500/api/shoppingList/shopping-lists",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Fetched Shopping Lists Response:", response.data); // Log to confirm structure
+
+      // Extract the shoppingLists array from the response
+      if (response.data && Array.isArray(response.data.shoppingLists)) {
+        setShoppingLists(response.data.shoppingLists);
+      } else {
+        console.error("Unexpected response format:", response.data);
+        setShoppingLists([]); // Ensure state is always an array
+      }
+    } catch (error) {
+      console.error("Error fetching shopping lists:", error);
+      setShoppingLists([]); // Prevent UI errors
+    }
+  };
+
+  const deleteItemToggle = () => {
+    setDeleteItemModal(!deleteItemModal);
+  };
+
+  const handleDelete = async (listId) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(
+        `http://localhost:3500/api/shoppingList/shopping-lists/${listId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      deleteItemToggle();
+      fetchShoppingLists();
+    } catch (error) {
+      console.error("Error deleting shopping list:", error);
+    }
+  };
 
   const addShoppingItemsToggle = () =>
     setAddShoppingItemsModal(!addShoppingItemsModal);
+
+  const handleAddShoppingItemsBtnSelect = (list) => {
+    addShoppingItemsToggle();
+    setSelectedShoppingList(list);
+  };
+
+  const handleDeleteShoppingListModal = (itemId) => {
+    setSelectedItemId(itemId);
+    deleteItemToggle();
+  };
+
+  // Function to generate random purple shades
+  const getRandomLightPurplePinkBlueShade = () => {
+    const hue = Math.random() * 60 + 210;
+    const saturation = Math.floor(Math.random() * 40) + 60;
+    const lightness = Math.floor(Math.random() * 20) + 70;
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  };
+
+  const closeDeleteItemBtn = (
+    <button className="close-btn" onClick={deleteItemToggle} type="button">
+      <img
+        width="20"
+        height="20"
+        src="https://img.icons8.com/ios/20/cancel.png"
+        alt="cancel"
+      />
+    </button>
+  );
 
   return (
     <div className="shopping-container">
@@ -211,35 +272,93 @@ const ShoppingList = () => {
             <motion.div
               key={index}
               className="shopping-card"
-              style={{ backgroundColor: list.color }}
+              style={{ backgroundColor: getRandomLightPurplePinkBlueShade() }}
               variants={cardVariants}
               initial="hidden"
               animate="visible"
             >
               <div className="shopping-card-header">
-                <h5>{list.title}</h5>
+                <h5>{list.listName}</h5>
               </div>
-              <p className="shopping-date">{list.date}</p>
+              <p className="shopping-date">
+                {new Date(list.shoppingDate).toISOString().split("T")[0]}
+              </p>
               <div className="shopping-card-content">
-                {list.items.map((item, idx) => (
-                  <div key={idx}>{item}</div>
-                ))}
+                {Array.isArray(list.itemList) && list.itemList.length > 0 ? (
+                  list.itemList.map((item, index) => (
+                    <div key={index}>
+                      {item.itemName} - {item.quantity}{" "}
+                      {item.itemType !== "Unit" && item.itemType}
+                    </div>
+                  ))
+                ) : (
+                  <p>No items added yet.</p>
+                )}
               </div>
               <div className="shopping-card-icon-group">
                 <FaEye className="shopping-card-icon view-icon" />
                 <FaEdit
                   className="shopping-card-icon edit-icon"
-                  onClick={addShoppingItemsToggle}
+                  onClick={() => handleAddShoppingItemsBtnSelect(list)}
                 />
-                <FaTrash className="shopping-card-icon delete-icon" />
+                <FaTrash
+                  className="shopping-card-icon delete-icon"
+                  // onClick={() => handleDelete(list._id)}
+                  onClick={() => handleDeleteShoppingListModal(list._id)}
+                />
               </div>
             </motion.div>
           ))}
         </div>
       </div>
+      <Modal
+        isOpen={deleteItemModal}
+        toggle={deleteItemToggle}
+        centered
+        scrollable
+      >
+        <ModalHeader
+          toggle={deleteItemToggle}
+          close={closeDeleteItemBtn}
+          className="border-0 pb-0 pr-4 pl-4 ms-2 mr-2 fw-bold"
+        >
+          {t("INVENTORY_DELETION_CONFIRMATION")}
+        </ModalHeader>
+        <ModalBody>
+          <div className="d-flex flex-column">
+            <div className="form-group mb-4 ms-3 justify-content-center align-items-center">
+              {t("ARE_YOU_SURE_INVENTORY_DELETION")}
+            </div>
+            <Row className="form-group mb-2 mr-1 d-flex justify-content-end">
+              <Col xs="auto">
+                <Button
+                  style={{ cursor: "pointer" }}
+                  onClick={deleteItemToggle}
+                  className="ps-4 pe-4 border-0 rounded-pill bg-black fw-bold"
+                >
+                  {t("CANCEL")}
+                </Button>
+              </Col>
+              <Col xs="auto">
+                <Button
+                  style={{
+                    backgroundColor: "#ff0000",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleDelete(selectedItemId)}
+                  className="ps-4 pe-4 border-0 rounded-pill ms-3 fw-bold"
+                >
+                  {t("DELETE")}
+                </Button>
+              </Col>
+            </Row>
+          </div>
+        </ModalBody>
+      </Modal>
       <AddShoppingListItemsModal
         isOpen={addShoppingItemsModal}
         toggle={addShoppingItemsToggle}
+        selectedShoppingList={selectedShoppingList}
       />
 
       {/* Charts Section */}

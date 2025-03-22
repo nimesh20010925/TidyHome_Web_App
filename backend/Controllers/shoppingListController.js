@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import ShoppingList from "../Models/shoppingListModel.js";
+import ShoppingListItemsController from "./shoppingListItemsController.js";
 
 class ShoppingListController {
   static async createNewShoppingList(req, res, next) {
@@ -39,22 +40,26 @@ class ShoppingListController {
     try {
       const { homeID } = req.user; // Assuming req.user contains homeID for the authenticated user
 
-      // Check if the user is the home owner or a member of the home
+      // Fetch shopping lists and populate itemList with actual item details
       const shoppingLists = await ShoppingList.find({
         $or: [
-          { createdBy: req.user._id }, // Shopping lists created by the authenticated user
-          { homeId: homeID }, // Shopping lists for the user's home
-          { shopVisitors: req.user._id }, // Shopping lists where the user is a visitor
+          { createdBy: req.user._id },
+          { homeId: homeID },
+          { shopVisitors: req.user._id },
         ],
-      });
+      }).populate("itemList"); // Populating the itemList field with full item data
 
-      if (shoppingLists.length === 0) {
+      if (!shoppingLists.length) {
         return res
           .status(404)
           .json({ success: false, message: "No shopping lists found." });
       }
 
-      res.status(200).json(shoppingLists);
+      res.status(200).json({
+        success: true,
+        message: "Shopping lists retrieved successfully.",
+        shoppingLists,
+      });
     } catch (error) {
       console.error("Error fetching shopping lists:", error);
       res
@@ -121,87 +126,6 @@ class ShoppingListController {
     }
   }
 
-  static async updateShoppingList(req, res, next) {
-    const { id } = req.params;
-    let updateData = req.body;
-
-    try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({ error: "Invalid inventory ID format" });
-      }
-
-      // Convert string IDs to ObjectId if they are valid
-      if (updateData.categoryId) {
-        updateData.homeId = mongoose.Types.ObjectId.isValid(updateData.homeId)
-          ? new mongoose.Types.ObjectId(updateData.homeId)
-          : undefined;
-      }
-
-      if (updateData.inventoryId) {
-        updateData.inventoryId = mongoose.Types.ObjectId.isValid(
-          updateData.inventoryId
-        )
-          ? new mongoose.Types.ObjectId(updateData.inventoryId)
-          : undefined;
-      }
-
-      if (updateData.shoppingListId) {
-        updateData.shoppingListId = mongoose.Types.ObjectId.isValid(
-          updateData.shoppingListId
-        )
-          ? new mongoose.Types.ObjectId(updateData.shoppingListId)
-          : undefined;
-      }
-
-      // Filter out undefined fields to avoid overwriting with `undefined`
-      updateData = Object.fromEntries(
-        Object.entries(updateData).filter(([_, value]) => value !== undefined)
-      );
-
-      const updatedShoppingList = await ShoppingList.findByIdAndUpdate(
-        id,
-        updateData,
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-
-      if (!updatedShoppingList) {
-        return res.status(404).json({ error: "Shoppinglist not found" });
-      }
-
-      res.status(200).json({ success: true, data: updatedShoppingList });
-    } catch (error) {
-      console.error("Error updating shopping list:", error);
-      res.status(500).json({ error: "Failed to update shopping list" });
-    }
-  }
-
-  static async deleteShoppingList(req, res, next) {
-    const { id } = req.params;
-
-    try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res
-          .status(400)
-          .json({ error: "Invalid shopping list ID format" });
-      }
-
-      const deletedShoppingList = await ShoppingList.findByIdAndDelete(id);
-
-      if (!deletedShoppingList) {
-        return res.status(404).json({ error: "Shopping list not found" });
-      }
-
-      res
-        .status(200)
-        .json({ success: true, message: "Shopping list deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting shopping list:", error);
-      res.status(500).json({ error: "Failed to delete shopping list" });
-    }
-  }
   static async deleteShoppingList(req, res, next) {
     const { listId } = req.params;
 
@@ -212,13 +136,22 @@ class ShoppingListController {
       });
 
       if (!shoppingList) {
-        return res.status(404).json({ success: false, message: 'Shopping list not found or you are not authorized to delete this list.' });
+        return res.status(404).json({
+          success: false,
+          message:
+            "Shopping list not found or you are not authorized to delete this list.",
+        });
       }
 
-      res.status(200).json({ success: true, message: 'Shopping list deleted successfully.' });
+      res.status(200).json({
+        success: true,
+        message: "Shopping list deleted successfully.",
+      });
     } catch (error) {
-      console.error('Error deleting shopping list:', error);
-      res.status(500).json({ success: false, message: 'Error deleting shopping list.' });
+      console.error("Error deleting shopping list:", error);
+      res
+        .status(500)
+        .json({ success: false, message: "Error deleting shopping list." });
     }
   }
 
@@ -226,25 +159,61 @@ class ShoppingListController {
     const { listId } = req.params;
     const { listName, shoppingDate, shopVisitors, itemList } = req.body;
 
+    console.log(req.body);
+
     try {
+      // Create new shopping list items using createNewShoppingListItem method
+      const createdItemIds = await Promise.all(
+        itemList.map(async (item) => {
+          const reqClone = { ...req, body: item }; // Mock request for item creation
+          const resClone = {
+            status: () => ({ send: () => {} }), // Mock response
+          };
+
+          const createdItem =
+            await ShoppingListItemsController.createNewShoppingListItem(
+              reqClone,
+              resClone,
+              next
+            );
+
+          return createdItem._id; // Return created item ID
+        })
+      );
+
+      // Update the shopping list with new item details
       const shoppingList = await ShoppingList.findOneAndUpdate(
-        { _id: listId, createdBy: req.user._id }, // Ensure only the home owner can update
-        { listName, shoppingDate, shopVisitors, itemList },
+        { _id: listId, createdBy: req.user._id },
+        {
+          listName,
+          shoppingDate,
+          shopVisitors,
+          $push: { itemList: { $each: createdItemIds } }, // Append new items to itemList array
+        },
         { new: true }
       );
 
       if (!shoppingList) {
-        return res.status(404).json({ success: false, message: 'Shopping list not found or you are not authorized to update this list.' });
+        return res.status(404).json({
+          success: false,
+          message:
+            "Shopping list not found or you are not authorized to update this list.",
+        });
       }
 
-      res.status(200).json({ success: true, message: 'Shopping list updated successfully.', shoppingList });
+      res.status(200).json({
+        success: true,
+        message: "Shopping list updated successfully.",
+        shoppingList,
+      });
     } catch (error) {
-      console.error('Error updating shopping list:', error);
-      res.status(500).json({ success: false, message: 'Error updating shopping list.' });
+      console.error("Error updating shopping list:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error updating shopping list.",
+      });
     }
   }
-
-
 }
 
 export default ShoppingListController;

@@ -366,18 +366,23 @@ const Inventory = () => {
                     <td>{item.supplierId ? item.supplierId.name : "-"}</td>
                     <td className="inventory-actions-cell">
                       <div className="inventory-actions-row">
-                        <Button className="inventory-actions-no-bg">
+                        <Button
+                          className="inventory-actions-no-bg"
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
                           <img src={viewIcon} alt="View" />
                         </Button>
                         <Button
                           className="inventory-actions-no-bg"
                           onClick={() => handleUpdateInventoryModal(item)}
+                          onMouseDown={(e) => e.stopPropagation()}
                         >
                           <img src={editIcon} alt="Edit" />
                         </Button>
                         <Button
                           className="inventory-actions-no-bg"
                           onClick={() => handleDeleteInventoryModal(item._id)}
+                          onMouseDown={(e) => e.stopPropagation()}
                         >
                           <img src={deleteIcon} alt="Delete" />
                         </Button>
