@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import { CategoryService } from "../../../services/categoryServices"; // Adjust the import path if needed
 
 const CategoryTable = () => {
@@ -7,6 +7,9 @@ const CategoryTable = () => {
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
   const [categoryImage, setCategoryImage] = useState(null); // State for image file
+
+  // Category type options
+  const categoryTypes = ["Food", "Groceries", "Cleaning Supplies"];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,12 +67,18 @@ const CategoryTable = () => {
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="form-label">Category Type</label>
-                <input
-                  type="text"
+                <select
                   className="form-control"
                   value={categoryType}
                   onChange={(e) => setCategoryType(e.target.value)}
-                />
+                >
+                  <option value="">Select a category type</option>
+                  {categoryTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="mb-3">
                 <label className="form-label">Category Name</label>
