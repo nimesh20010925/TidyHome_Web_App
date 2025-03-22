@@ -202,6 +202,49 @@ class ShoppingListController {
       res.status(500).json({ error: "Failed to delete shopping list" });
     }
   }
+  static async deleteShoppingList(req, res, next) {
+    const { listId } = req.params;
+
+    try {
+      const shoppingList = await ShoppingList.findOneAndDelete({
+        _id: listId,
+        createdBy: req.user._id, // Ensure only the home owner can delete
+      });
+
+      if (!shoppingList) {
+        return res.status(404).json({ success: false, message: 'Shopping list not found or you are not authorized to delete this list.' });
+      }
+
+      res.status(200).json({ success: true, message: 'Shopping list deleted successfully.' });
+    } catch (error) {
+      console.error('Error deleting shopping list:', error);
+      res.status(500).json({ success: false, message: 'Error deleting shopping list.' });
+    }
+  }
+
+  static async updateShoppingList(req, res, next) {
+    const { listId } = req.params;
+    const { listName, shoppingDate, shopVisitors, itemList } = req.body;
+
+    try {
+      const shoppingList = await ShoppingList.findOneAndUpdate(
+        { _id: listId, createdBy: req.user._id }, // Ensure only the home owner can update
+        { listName, shoppingDate, shopVisitors, itemList },
+        { new: true }
+      );
+
+      if (!shoppingList) {
+        return res.status(404).json({ success: false, message: 'Shopping list not found or you are not authorized to update this list.' });
+      }
+
+      res.status(200).json({ success: true, message: 'Shopping list updated successfully.', shoppingList });
+    } catch (error) {
+      console.error('Error updating shopping list:', error);
+      res.status(500).json({ success: false, message: 'Error updating shopping list.' });
+    }
+  }
+
+
 }
 
 export default ShoppingListController;

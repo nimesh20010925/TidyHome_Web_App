@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import HomeMembersTable from './HomeModals/HomeMembersTable';
+import HomeSummary from './HomeModals/HomeSummary';
 
 const HomeProfile = () => {
   const [home, setHome] = useState(null); // To store the home data
@@ -47,6 +49,8 @@ const HomeProfile = () => {
   }
 
   return (
+    <div>
+        <HomeSummary/>
     <div className="home-profile">
       {home ? (
         <div>
@@ -58,6 +62,8 @@ const HomeProfile = () => {
       ) : (
         <p>No home data available</p>
       )}
+      <HomeMembersTable/>
+    </div>
     </div>
   );
 };

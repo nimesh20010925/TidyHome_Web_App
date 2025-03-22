@@ -99,6 +99,22 @@
     "OWNERNAME":"හිමිකරුගේ නම",
     "HOMEPHONENUMBER":"නිවසේ ජංගම දුරකථන අංකය",
     "HOMEADDRESS":"නිවසේ ලිපිනය",
-    "HOMEMEMBERS":"නිවසේ සාමාජිකයින් සංඛ්යාව"
+    "HOMEMEMBERS":"නිවසේ සාමාජිකයින් සංඛ්යාව",
+
+    "USER":"පරිශීලක",
+    "QUICKACTION":"ඉක්මන් ක්‍රියාමාර්ග",
+    "CATEGORIES":"කාණ්ඩ",
+    "CREATECONSUMPTION":"පරිභෝජනය නිර්මාණය කරන්න",
+    "CREATECUSTOMNOTIFICATION":"Custom notificstion සාදන්න",
+    "CREATENEWSHOPPINGLIST":"නව සාප්පු ලැයිස්තුවක් සාදන්න",
+    "ADDNEWINVENTORY":"නව බඩු තොග එකතු කරන්න",
+    "ADDSUPPLIER":"සැපයුම්කරු එකතු කරන්න",
+    "EXPORTREPORT":"වාර්තාව බාගත කරගන්න",
+    "FAMILYMEMBERS":"පවුලේ සාමාජිකයන්",
+
+    "SPECIALNOTICES":"විශේෂ නිවේදන",
+    "HOMESUMMRY":"මුල් පිටුව සාරාංශය",
+    "SHOPPINGSCHEDULES":"සාප්පු සවාරි කාලසටහන්",
+    "CREATESHOPPINGSCHEDULES":"සාප්පු සවාරි කාලසටහන් සාදන්න"
 
 }

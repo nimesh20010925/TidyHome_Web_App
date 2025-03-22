@@ -1,6 +1,7 @@
 import React from "react";
-
+import { useTranslation } from "react-i18next";
 const HomeSummary = () => {
+    const { t } = useTranslation();
   const summaryData = [
     { icon: "📈", value: 50, label: "Today's used items" },
     { icon: "📅", value: "$250,423", label: "Yearly usage" },
@@ -10,7 +11,7 @@ const HomeSummary = () => {
 
   return (
     <div className="home-summary">
-      <h2 className="home-summary-h2">Home Summary</h2>
+      <h2 className="home-summary-h2">{t("HOMESUMMRY")}</h2>
       <div className="summary-cards">
         {summaryData.map((item, index) => (
           <div className="summary-card" key={index}>

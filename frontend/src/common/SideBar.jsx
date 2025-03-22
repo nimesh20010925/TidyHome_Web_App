@@ -3,6 +3,7 @@ import { Card, Dropdown, ListGroup, Button } from "react-bootstrap";
 import { FaPlus, FaBox, FaTruck, FaFileExport } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import userAvatar from "../assets/navBar/dummy-user.png";
 import addNotification from "../assets/sideBar/add-notification.png";
 import addShopping from "../assets/sideBar/add-shopping.png";
@@ -12,6 +13,7 @@ import { TbLayoutSidebarRightExpandFilled, TbLayoutSidebarLeftExpandFilled } fro
 
 const SideBar = () => {
   const navigate = useNavigate();
+    const { t } = useTranslation();
   const [familyMembers, setFamilyMembers] = useState([]);
   const [userRole, setUserRole] = useState("");
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,7 @@ const SideBar = () => {
             <div className="d-flex align-items-center">
               <img src={userAvatar} alt="User Avatar" className="rounded-circle me-2" width="40" />
               <div>
-                <h6 className="mb-0">User</h6>
+                <h6 className="mb-0">{t("USER")}</h6>
                 <small>{userRole === "homeOwner" ? "Home Owner" : "Member"}</small>
               </div>
             </div>
@@ -88,38 +90,38 @@ const SideBar = () => {
         </Card>
 
         <div className="border-top m-2 mt-3"></div>
-        <h6 className="fw-bold mt-2 pt-1 ms-3">QUICK ACTIONS</h6>
+        <h6 className="fw-bold mt-2 pt-1 ms-3">{t("QUICKACTION")}</h6>
 
         <ListGroup variant="flush">
           <a href="/app/category-home">
             <ListGroup.Item action className="border-0">
-              <img src={categories} className="me-2" width="22px" height="22px" alt="Categories" /> Categories
+              <img src={categories} className="me-2" width="22px" height="22px" alt="Categories" /> {t("CATEGORIES")}
             </ListGroup.Item>
           </a>
           <ListGroup.Item action className="border-0">
-            <FaPlus className="me-2" /> Create Consumption
+            <FaPlus className="me-2" />{t("CREATECONSUMPTION")}
           </ListGroup.Item>
           <ListGroup.Item action className="border-0">
-            <img src={addNotification} className="me-2" width="22px" height="22px" alt="Add Notification" /> Create Custom Notification
+            <img src={addNotification} className="me-2" width="22px" height="22px" alt="Add Notification" /> {t("CREATECUSTOMNOTIFICATION")}
           </ListGroup.Item>
           <ListGroup.Item action className="border-0">
-            <img src={addShopping} className="me-2" width="22px" height="22px" alt="Create Shopping List" /> Create New Shopping List
+            <img src={addShopping} className="me-2" width="22px" height="22px" alt="Create Shopping List" /> {t("CREATENEWSHOPPINGLIST")}
           </ListGroup.Item>
           <ListGroup.Item action className="border-0">
-            <FaBox className="me-2" /> Add New Inventory
+            <FaBox className="me-2" /> {t("ADDNEWINVENTORY")}
           </ListGroup.Item>
           <a href="/supplier-home">
             <ListGroup.Item action className="border-0">
-              <FaTruck className="me-2" /> Add Supplier
+              <FaTruck className="me-2" /> {t("ADDSUPPLIER")}
             </ListGroup.Item>
           </a>
           <ListGroup.Item action className="border-0">
-            <FaFileExport className="me-2" /> Export Reports
+            <FaFileExport className="me-2" /> {t("EXPORTREPORT")}
           </ListGroup.Item>
         </ListGroup>
 
         <div className="d-flex align-items-center justify-content-between mt-3 ms-3">
-          <h6 className="fw-bold">FAMILY MEMBERS</h6>
+          <h6 className="fw-bold">{t("FAMILYMEMBERS")}</h6>
           {userRole === "homeOwner" && (
             <Button variant="" size="sm" className="me-3" onClick={setAddHomeMembersModal}>
               <FaPlus />

@@ -116,7 +116,7 @@ const Login = () => {
             <div>
               <p className="signuppara">
                 {t("DONTHAVEANACCOUNT")}{" "}
-                <Link to="/signup" className="signuplink">{t("SIGNUP")}</Link>
+                <Link to="/auth/signup" className="signuplink">{t("SIGNUP")}</Link>
               </p>
             </div>
           </form>

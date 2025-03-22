@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 const ShoppingListDisplay = () => {
   const [shoppingLists, setShoppingLists] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     listName: "",
     shoppingDate: "",
     shopVisitors: [],
   });
   const [homeMembers, setHomeMembers] = useState([]);
+  const [user, setUser] = useState(null); // To store the user details
 
   useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    setUser(userData);  // Get user data from localStorage
     fetchShoppingLists();
     fetchHomeMembers();
   }, []);
@@ -67,7 +72,6 @@ const ShoppingListDisplay = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem("token");
-      const user = JSON.parse(localStorage.getItem("user"));
 
       if (!user || !user.homeID || !user._id) {
         console.error("Missing homeID or user ID in localStorage");
@@ -108,29 +112,29 @@ const ShoppingListDisplay = () => {
   };
 
   return (
-    <div className="shopping-container">
-      <h2>Shopping Schedules</h2>
-      <button
-        className="create-btn"
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={() => setShowModal(true)}
-      >
-        Create Shopping Schedule
-      </button>
+    <div className="home-shopping-container">
+      <h2 className="home-shopping-h2">{t("SHOPPINGSCHEDULES")}</h2>
+      
+      {/* Only show this button if the user is a home owner */}
+      {user && user.role === "homeOwner" && (
+        <button className="home-shopin-create-btn" onClick={() => setShowModal(true)}>
+          {t("CREATESHOPPINGSCHEDULES")}
+        </button>
+      )}
 
-      <div className="shopping-list-wrapper">
+      <div className="home-shopping-list-wrapper">
         {shoppingLists.length === 0 ? (
           <p>No shopping lists available.</p>
         ) : (
           shoppingLists.map((list) => (
-            <div key={list._id} className="shopping-card">
-              <div className="shopping-header">
+            <div key={list._id} className="home-shopping-card">
+              <div className="home-shopping-header">
                 <strong>{list.listName}</strong>
                 <span>
                   {new Date(list.shoppingDate).toISOString().split("T")[0]}
                 </span>
               </div>
-              <div className="shopping-members">
+              <div className="home-shopping-members">
                 {list.shopVisitors && list.shopVisitors.length > 0 ? (
                   getVisitorNames(list.shopVisitors).map(
                     (visitorName, index) => <p key={index}>{visitorName}</p>
@@ -139,19 +143,14 @@ const ShoppingListDisplay = () => {
                   <p>No visitors</p>
                 )}
               </div>
-              <div className="shopping-actions">
-                <button
-                  className="edit-btn"
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  ✏️
-                </button>
-                <button
-                  className="delete-btn"
-                  onMouseDown={(e) => e.stopPropagation()}
-                >
-                  🗑️
-                </button>
+              <div className="home-shopping-actions">
+                {/* Only show edit and delete buttons if the user is the home owner */}
+                {user && user.role === "homeOwner" && (
+                  <>
+                    <button className="home-shopping-edit-btn" onMouseDown={(e) => e.stopPropagation()}>✏️</button>
+                    <button className="home-shopping-delete-btn" onMouseDown={(e) => e.stopPropagation()}>🗑️</button>
+                  </>
+                )}
               </div>
             </div>
           ))
@@ -173,14 +172,7 @@ const ShoppingListDisplay = () => {
               />
 
               <label>Shopping Date:</label>
-              <input
-                type="date"
-                name="shoppingDate"
-                value={formData.shoppingDate}
-                onChange={handleInputChange}
-                onMouseDown={(e) => e.stopPropagation()}
-                required
-              />
+              <input type="date" name="shoppingDate" value={formData.shoppingDate} onChange={handleInputChange} required onMouseDown={(e) => e.stopPropagation()}/>
 
               <label>Shop Visitors:</label>
               <select
@@ -198,21 +190,8 @@ const ShoppingListDisplay = () => {
                 ))}
               </select>
 
-              <button
-                type="submit"
-                className="submit-btn"
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                Create
-              </button>
-              <button
-                type="button"
-                className="cancel-btn"
-                onClick={() => setShowModal(false)}
-                onMouseDown={(e) => e.stopPropagation()}
-              >
-                Cancel
-              </button>
+              <button type="submit" className="submit-btn" onMouseDown={(e) => e.stopPropagation()}>Create</button>
+              <button type="button" className="cancel-btn" onMouseDown={(e) => e.stopPropagation()} onClick={() => setShowModal(false)}>Cancel</button>
             </form>
           </div>
         </div>
