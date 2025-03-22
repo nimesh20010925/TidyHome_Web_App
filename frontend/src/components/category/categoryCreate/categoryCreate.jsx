@@ -1,39 +1,53 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { CategoryService } from "../../../services/categoryServices"; // Adjust the import path if needed
-
 
 const CategoryTable = () => {
   const [showModal, setShowModal] = useState(false);
-
   const [categoryType, setCategoryType] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
+  const [categoryImage, setCategoryImage] = useState(null); // State for image file
 
-  
+  // Category type options
+  const categoryTypes = ["Food", "Groceries", "Cleaning Supplies"];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!categoryType || !categoryName || !categoryDescription) {
-      alert("All fields are required");
+      alert("All fields except image are required");
       return;
     }
 
     const formData = new FormData();
-    
     formData.append("category_type", categoryType);
     formData.append("category_name", categoryName);
     formData.append("category_description", categoryDescription);
     formData.append("date", new Date().toISOString());
+    if (categoryImage) {
+      formData.append("category_image", categoryImage); // Append image file
+    }
 
     try {
       const response = await CategoryService.createCategory(formData);
       console.log("Category created:", response);
       alert("Category created successfully!");
       setShowModal(false); // Close modal after successful creation
+      // Reset form fields
+      setCategoryType("");
+      setCategoryName("");
+      setCategoryDescription("");
+      setCategoryImage(null);
     } catch (error) {
       console.error("Error creating category:", error);
       alert("Error creating category. Please try again.");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCategoryImage(file); // Set the selected image file
     }
   };
 
@@ -51,15 +65,20 @@ const CategoryTable = () => {
           <div className="modal-content">
             <h3>Add New Category</h3>
             <form onSubmit={handleSubmit}>
-              
               <div className="mb-3">
                 <label className="form-label">Category Type</label>
-                <input
-                  type="text"
+                <select
                   className="form-control"
                   value={categoryType}
                   onChange={(e) => setCategoryType(e.target.value)}
-                />
+                >
+                  <option value="">Select a category type</option>
+                  {categoryTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="mb-3">
                 <label className="form-label">Category Name</label>
@@ -78,12 +97,28 @@ const CategoryTable = () => {
                   onChange={(e) => setCategoryDescription(e.target.value)}
                 ></textarea>
               </div>
+              <div className="mb-3">
+                <label className="form-label">Category Image</label>
+                <input
+                  type="file"
+                  className="form-control"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+                {categoryImage && (
+                  <img
+                    src={URL.createObjectURL(categoryImage)}
+                    alt="Preview"
+                    style={{ width: "100px", height: "100px", marginTop: "10px" }}
+                  />
+                )}
+              </div>
               <button type="submit" className="btn btn-success">
                 Submit
               </button>
               <button
                 type="button"
-                className="btn btn-secondary"
+                className="btn btn-secondary ms-2"
                 onClick={() => setShowModal(false)}
               >
                 Cancel

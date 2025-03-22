@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import './store_table.css'; // Importing the CSS file
 
 const SupplierTable = () => {
