@@ -19,10 +19,17 @@ const SignUp = () => {
 
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
 
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if (name === "phone") {
+      if (!/^[0-9]*$/.test(value)) return; // Only allow numbers
+      if (value.length > 10) return; // Prevent input beyond 10 digits
+      setPhoneError(value.length === 10 ? "" : t("PHONEMUSTBE10DIGITS"));
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -34,7 +41,11 @@ const SignUp = () => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-
+    if (formData.phone.length !== 10) {
+      setPhoneError(t("PHONEMUSTBE10DIGITS"));
+      setIsLoading(false);
+      return;
+    }
     try {
       const response = await axios.post("http://localhost:3500/api/auth/register", formData);
       if (response.data.success) {
@@ -107,6 +118,7 @@ const SignUp = () => {
                 onChange={handleInputChange}
                 required
               />
+              {phoneError && <div className="error-message">{phoneError}</div>}
             </div>
 
             <div className="signupinputBx">
@@ -139,10 +151,7 @@ const SignUp = () => {
 
             <div>
               <p className="signuppara">
-                {t("ALREADYHAVEANACCOUNT")}{" "}
-                <Link to="/login" className="signuplink">
-                  {t("LOGIN")}
-                </Link>
+                {t("ALREADYHAVEANACCOUNT")} <Link to="/auth/login" className="signuplink">{t("LOGIN")}</Link>
               </p>
             </div>
           </form>
