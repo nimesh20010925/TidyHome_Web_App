@@ -1125,23 +1125,23 @@ h2 {
   cursor: pointer;
 }
 
-.shopping {
+.home-shopping {
   background: #9166cc;
   color: white;
   font-weight: bold;
 }
 
 /*ShoppingListDisplay*/
-.shopping-container {
+.home-shopping-container {
   width: 80%;
   margin: 20px auto;
 }
 
-h2 {
+.home-shopping-h2 {
   margin-bottom: 10px;
 }
 
-.create-btn {
+.home-shopin-create-btn {
   background-color: #c8a2c8;
   padding: 10px 15px;
   border: none;
@@ -1152,7 +1152,7 @@ h2 {
   margin-bottom: 15px;
 }
 
-.shopping-card {
+.home-shopping-card {
   background-color: #e6d2f0;
   padding: 15px;
   border: 1px dashed black;
@@ -1163,17 +1163,17 @@ h2 {
   align-items: center;
 }
 
-.shopping-header {
+.home-shopping-header {
   flex: 2;
   font-size: 16px;
 }
 
-.shopping-members {
+.home-shopping-members {
   flex: 2;
   text-align: left;
 }
 
-.shopping-actions {
+.home-shopping-actions {
   display: flex;
   gap: 10px;
 }
@@ -1194,7 +1194,7 @@ h2 {
   color: #b22222;
 }
 
-.shopping-list-wrapper {
+.home-shopping-list-wrapper {
   max-height: 300px; /* Adjust this value as needed */
   overflow-y: auto;
   
@@ -1203,11 +1203,11 @@ h2 {
 }
 
 /* Optional: Add a scrollbar style for better visibility */
-.shopping-list-wrapper::-webkit-scrollbar {
+.home-shopping-list-wrapper::-webkit-scrollbar {
   width: 8px;
 }
 
-.shopping-list-wrapper::-webkit-scrollbar-thumb {
+.home-shopping-list-wrapper::-webkit-scrollbar-thumb {
   background-color: #c8a2c8;
   border-radius: 10px;
 }

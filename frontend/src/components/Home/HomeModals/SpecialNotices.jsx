@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const SpecialNotices = () => {
+    const { t } = useTranslation();
   const [notices, setNotices] = useState([
     "🚨 Tomorrow we will clean the store. Please remove personal items before 5 PM.",
     "🚨 Old item disposal will be done this Friday. Mark items to be discarded.",
@@ -15,7 +17,7 @@ const SpecialNotices = () => {
 
   return (
     <div className="special-notices-container">
-      <h2>Special Notices</h2>
+      <h2>{t("SPECIALNOTICES")}</h2>
       <div className="notices-wrapper">
         {notices.map((notice, index) => (
           <div className="notice" key={index}>

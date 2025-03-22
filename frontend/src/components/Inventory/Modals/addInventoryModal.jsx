@@ -82,7 +82,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
   };
 
   const closeBtn = (
-    <button className="close-btn" onClick={handleToggle} type="button">
+    <button className="close-btn" onClick={handleToggle}  type="button">
       <img
         width="20"
         height="20"

@@ -311,7 +311,7 @@ const Inventory = () => {
           <div className="d-flex justify-content-between align-items-center">
             <h5 className="ms-1 fw-bold">Inventory List</h5>
             <Button
-              onClick={addInventoryToggle}
+              onClick={addInventoryToggle} 
               className="rounded-pill border-0 add-inventory-button fw-bold"
             >
               <img

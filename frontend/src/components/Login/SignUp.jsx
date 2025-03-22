@@ -38,7 +38,7 @@ const SignUp = () => {
     try {
       const response = await axios.post("http://localhost:3500/api/auth/register", formData);
       if (response.data.success) {
-        navigate("/login"); // Redirect on success
+        navigate("/auth/login"); // Redirect on success
       }
     } catch (error) {
       setError(error.response?.data?.message || "An error occurred");

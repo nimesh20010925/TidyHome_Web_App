@@ -97,5 +97,22 @@
     "OWNERNAME":"Owner Name",
     "HOMEPHONENUMBER":"Home Mobile Number",
     "HOMEADDRESS":"Home Address",
-    "HOMEMEMBERS":"Home Members"
+    "HOMEMEMBERS":"Home Members",
+
+    "USER":"User",
+    "QUICKACTION":"QUICK ACTION",
+    "CATEGORIES":"Categories",
+    "CREATECONSUMPTION":"Create Consumption",
+    "CREATECUSTOMNOTIFICATION":"Create Custom Notificstion",
+    "CREATENEWSHOPPINGLIST":"Create New Shopping List",
+    "ADDNEWINVENTORY":"Add New Inventory",
+    "ADDSUPPLIER":"Add Supplier",
+    "EXPORTREPORT":"Export Reports",
+    "FAMILYMEMBERS":"FAMILY MEMBERS",
+
+    "SPECIALNOTICES":"Special Notices",
+     "HOMESUMMRY":"Home Summry",
+     "SHOPPINGSCHEDULES":"Shopping Schedules",
+     "CREATESHOPPINGSCHEDULES":"Create Shopping Schedules"
+
 }

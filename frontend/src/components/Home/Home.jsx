@@ -52,16 +52,16 @@ const Home = () => {
         }}
       >
         {/* Each component becomes a draggable/resizable grid item */}
-        <div key="SpecialNotices" className="p-4 bg-white shadow-lg rounded-lg">
+        <div key="SpecialNotices" className="p-4 bg-white shadow-sm rounded-lg">
           <SpecialNotices />
         </div>
-        <div key="HomeSummary" className="p-4 bg-white shadow-lg rounded-lg">
+        <div key="HomeSummary" className="p-4 bg-white shadow-sm rounded-lg">
           <HomeSummary />
         </div>
-        <div key="ShoppingDashboard" className="p-4 bg-white shadow-lg rounded-lg">
+        <div key="ShoppingDashboard" className="p-4 bg-white shadow-sm rounded-lg">
           <ShoppingDashboard />
         </div>
-        <div key="ShoppingListDisplay" className="p-4 bg-white shadow-lg rounded-lg">
+        <div key="ShoppingListDisplay" className="p-4 bg-white shadow-sm rounded-lg">
           <ShoppingListDisplay />
         </div>
       </ResponsiveGridLayout>
