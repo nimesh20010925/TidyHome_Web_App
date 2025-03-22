@@ -142,9 +142,11 @@ const ShoppingListDisplay = () => {
   return (
     <div className="home-shopping-container">
       <h2 className="home-shopping-h2">{t("SHOPPINGSCHEDULES")}</h2>
-      <button className="home-shopin-create-btn" onClick={() => setShowModal(true)}>
-        {t("CREATESHOPPINGSCHEDULES")}
-      </button>
+      {localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")).role === "homeOwner" && (
+  <button className="home-shopin-create-btn" onClick={() => setShowModal(true)} onMouseDown={(e) => e.stopPropagation()}>
+    {t("CREATESHOPPINGSCHEDULES")}
+  </button>
+)}
 
       <div className="home-shopping-list-wrapper">
         {shoppingLists.length === 0 ? (
