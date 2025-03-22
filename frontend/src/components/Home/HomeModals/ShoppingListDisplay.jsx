@@ -56,7 +56,10 @@ const ShoppingListDisplay = () => {
   };
 
   const handleVisitorsChange = (e) => {
-    const visitorIds = Array.from(e.target.selectedOptions, (option) => option.value);
+    const visitorIds = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value
+    );
     setFormData({ ...formData, shopVisitors: visitorIds });
   };
 
@@ -79,12 +82,16 @@ const ShoppingListDisplay = () => {
         shopVisitors: formData.shopVisitors,
       };
 
-      await axios.post("http://localhost:3500/api/shoppingList/shopping-lists", requestData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      await axios.post(
+        "http://localhost:3500/api/shoppingList/shopping-lists",
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       setShowModal(false);
       fetchShoppingLists();
@@ -103,7 +110,11 @@ const ShoppingListDisplay = () => {
   return (
     <div className="shopping-container">
       <h2>Shopping Schedules</h2>
-      <button className="create-btn"onMouseDown={(e) => e.stopPropagation()} onClick={() => setShowModal(true)}>
+      <button
+        className="create-btn"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={() => setShowModal(true)}
+      >
         Create Shopping Schedule
       </button>
 
@@ -115,20 +126,32 @@ const ShoppingListDisplay = () => {
             <div key={list._id} className="shopping-card">
               <div className="shopping-header">
                 <strong>{list.listName}</strong>
-                <span>{new Date(list.shoppingDate).toISOString().split("T")[0]}</span>
+                <span>
+                  {new Date(list.shoppingDate).toISOString().split("T")[0]}
+                </span>
               </div>
               <div className="shopping-members">
                 {list.shopVisitors && list.shopVisitors.length > 0 ? (
-                  getVisitorNames(list.shopVisitors).map((visitorName, index) => (
-                    <p key={index}>{visitorName}</p>
-                  ))
+                  getVisitorNames(list.shopVisitors).map(
+                    (visitorName, index) => <p key={index}>{visitorName}</p>
+                  )
                 ) : (
                   <p>No visitors</p>
                 )}
               </div>
               <div className="shopping-actions">
-                <button className="edit-btn" onMouseDown={(e) => e.stopPropagation()}>✏️</button>
-                <button className="delete-btn" onMouseDown={(e) => e.stopPropagation()}>🗑️</button>
+                <button
+                  className="edit-btn"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  ✏️
+                </button>
+                <button
+                  className="delete-btn"
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  🗑️
+                </button>
               </div>
             </div>
           ))
@@ -141,13 +164,33 @@ const ShoppingListDisplay = () => {
             <h3>Create Shopping List</h3>
             <form onSubmit={handleSubmit}>
               <label>List Name:</label>
-              <input type="text" name="listName" value={formData.listName} onChange={handleInputChange} required />
+              <input
+                type="text"
+                name="listName"
+                value={formData.listName}
+                onChange={handleInputChange}
+                required
+              />
 
               <label>Shopping Date:</label>
-              <input type="date" name="shoppingDate" value={formData.shoppingDate} onChange={handleInputChange} required />
+              <input
+                type="date"
+                name="shoppingDate"
+                value={formData.shoppingDate}
+                onChange={handleInputChange}
+                onMouseDown={(e) => e.stopPropagation()}
+                required
+              />
 
               <label>Shop Visitors:</label>
-              <select name="shopVisitors" multiple value={formData.shopVisitors} onChange={handleVisitorsChange} size={homeMembers.length}>
+              <select
+                name="shopVisitors"
+                multiple
+                value={formData.shopVisitors}
+                onChange={handleVisitorsChange}
+                onMouseDown={(e) => e.stopPropagation()}
+                size={homeMembers.length}
+              >
                 {homeMembers.map((member) => (
                   <option key={member._id} value={member._id}>
                     {member.name}
@@ -155,8 +198,21 @@ const ShoppingListDisplay = () => {
                 ))}
               </select>
 
-              <button type="submit" className="submit-btn">Create</button>
-              <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
+              <button
+                type="submit"
+                className="submit-btn"
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                Create
+              </button>
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={() => setShowModal(false)}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                Cancel
+              </button>
             </form>
           </div>
         </div>

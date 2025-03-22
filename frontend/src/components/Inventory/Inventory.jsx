@@ -144,6 +144,7 @@ const Inventory = () => {
 
   const getAllInventoryItems = async () => {
     const data = await InventoryService.getAllInventoryItems();
+    console.log(data);
     setInventories(data);
   };
 

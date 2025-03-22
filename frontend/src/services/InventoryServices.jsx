@@ -5,7 +5,12 @@ const API_URL = "http://localhost:3500/api/inventory";
 export class InventoryService {
   static async getAllInventoryItems() {
     try {
-      const response = await axios.get(`${API_URL}/getAllInventories`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_URL}/getAllInventories`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.data.success) {
         return response.data.data;
@@ -21,9 +26,16 @@ export class InventoryService {
 
   static async createInventoryItem(inventoryData) {
     try {
+      const token = localStorage.getItem("token");
+
       const response = await axios.post(
         `${API_URL}/createNewInventory`,
-        inventoryData
+        inventoryData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -34,7 +46,13 @@ export class InventoryService {
 
   static async deleteInventoryItem(id) {
     try {
-      const response = await axios.delete(`${API_URL}/deleteInventory/${id}`);
+      const token = localStorage.getItem("token");
+
+      const response = await axios.delete(`${API_URL}/deleteInventory/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.data.success) {
         return response.data;
@@ -50,9 +68,16 @@ export class InventoryService {
 
   static async updateInventoryItem(id, updateData) {
     try {
+      const token = localStorage.getItem("token");
+
       const response = await axios.put(
         `${API_URL}/updateInventory/${id}`,
-        updateData
+        updateData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       if (response.data.success) {

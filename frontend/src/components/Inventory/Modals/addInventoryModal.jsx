@@ -122,6 +122,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               onChange={(e) =>
                 formik.setFieldValue("itemImage", e.target.files[0])
               }
+              onMouseDown={(e) => e.stopPropagation()}
             />
             <Form.Label>{t("ITEM_IMAGE")}</Form.Label>
           </Form.Group>
@@ -133,6 +134,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               name="itemName"
               placeholder={t("ENTER_PRODUCT_NAME")}
               onChange={formik.handleChange}
+              onMouseDown={(e) => e.stopPropagation()}
               value={formik.values.itemName}
             />
             {formik.errors.itemName && formik.touched.itemName && (
@@ -152,6 +154,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               name="categoryId"
               onChange={formik.handleChange}
               value={formik.values.categoryId}
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <option value="" disabled>
                 {t("SELECT_CATEGORY")}
@@ -173,6 +176,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               name="itemType"
               onChange={formik.handleChange}
               value={formik.values.itemType}
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <option value="" disabled>
                 {t("SELECT_ITEM_TYPE")}
@@ -203,6 +207,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
                 }
                 formik.handleChange(e);
               }}
+              onMouseDown={(e) => e.stopPropagation()}
               value={formik.values.quantity}
               onKeyDown={(e) => {
                 // Block ArrowDown and ArrowUp key from changing the value to negative
@@ -255,6 +260,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
                   .replace(/[^0-9.]/g, "")
                   .replace(/(\..*?)\..*/g, "$1");
               }}
+              onMouseDown={(e) => e.stopPropagation()}
             />
             {formik.errors.price && formik.touched.price && (
               <div className="text-danger">{formik.errors.price}</div>
@@ -286,6 +292,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
             <Form.Select
               className="custom-inventory-form-input"
               defaultValue=""
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <option value="" disabled>
                 {t("SELECT_SUPPLIER")}
@@ -318,6 +325,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
                   e.preventDefault();
                 }
               }}
+              onMouseDown={(e) => e.stopPropagation()}
               inputMode="numeric"
             />
             {formik.errors.lowStockLevel && formik.touched.lowStockLevel && (
@@ -366,6 +374,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               onChange={(e) =>
                 formik.setFieldValue("manufacturedDate", e.target.value)
               }
+              onMouseDown={(e) => e.stopPropagation()}
               onBlur={(e) => {
                 const newDate = new Date(e.target.value);
 
@@ -397,6 +406,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               name="brandName"
               placeholder={t("ENTER_BRAND_NAME")}
               onChange={formik.handleChange}
+              onMouseDown={(e) => e.stopPropagation()}
               value={formik.values.brandName}
             />
             <Form.Label>{t("BRAND_NAME")}</Form.Label>
@@ -411,6 +421,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               border: "none",
               fontSize: "17px",
             }}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             {formik.isSubmitting && (
               <div
