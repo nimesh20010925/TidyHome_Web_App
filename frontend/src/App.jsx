@@ -23,7 +23,6 @@ import Supplier_home from "./pages/supplier_home.jsx";
 import Category_home from "./pages/category_home.jsx";
 import HomeProfile from "./components/Home/HomeProfile.jsx";
 
-
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
     <NavBar />
