@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, Dropdown, ListGroup, Button } from "react-bootstrap";
-import { FaPlus, FaBox, FaTruck, FaFileExport } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaPlus, FaBox, FaTruck, FaFileExport, FaClock } from "react-icons/fa";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useTranslation } from "react-i18next";
 import userAvatar from "../assets/navBar/dummy-user.png";
@@ -10,7 +10,11 @@ import addShopping from "../assets/sideBar/add-shopping.png";
 import categories from "../assets/sideBar/categories.png";
 import AddHomeMembers from "../components/Home/AddHomeMembers";
 import { TbLayoutSidebarRightExpandFilled, TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
+import NotificationModal from "../components/custom_notification/customnotificationCreate/custom_notification";
+// import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
+// import { TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
 
+import Modal from "../components/consumption/consumptionCreateModel/consumptionCreateModel";
 const SideBar = () => {
   const navigate = useNavigate();
     const { t } = useTranslation();
@@ -19,6 +23,15 @@ const SideBar = () => {
   const [loading, setLoading] = useState(true);
   const [addHomeMembersModal, setAddHomeMembersModal] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+
+  const [isNotificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [isConsumptionModalOpen, setConsumptionModalOpen] = useState(false);
+
+  const openNotificationModal = () => setNotificationModalOpen(true);
+  const closeNotificationModal = () => setNotificationModalOpen(false);
+
+  const openConsumptionModal = () => setConsumptionModalOpen(true);
+  const closeConsumptionModal = () => setConsumptionModalOpen(false);
 
   const addHomeMembersToggle = () =>
     setAddHomeMembersModal(!addHomeMembersModal);
@@ -92,33 +105,83 @@ const SideBar = () => {
         <div className="border-top m-2 mt-3"></div>
         <h6 className="fw-bold mt-2 pt-1 ms-3">{t("QUICKACTION")}</h6>
 
-        <ListGroup variant="flush">
-          <a href="/app/category-home">
-            <ListGroup.Item action className="border-0">
-              <img src={categories} className="me-2" width="22px" height="22px" alt="Categories" /> {t("CATEGORIES")}
-            </ListGroup.Item>
-          </a>
+      <ListGroup variant="flush">
+        <a href="/category-home">
           <ListGroup.Item action className="border-0">
-            <FaPlus className="me-2" />{t("CREATECONSUMPTION")}
+            <img
+              src={categories}
+              className="me-2"
+              width="22px"
+              height="22px"
+              alt="Categories"
+            />{" "}
+            Categories
           </ListGroup.Item>
+        </a>
+        <ListGroup.Item
+          onClick={openConsumptionModal}
+          action
+          className="border-0"
+        >
+          <FaPlus className="me-2" />
+          Create Consumption
+        </ListGroup.Item>
+        <Modal
+          isOpen={isConsumptionModalOpen}
+          closeModal={closeConsumptionModal}
+        />
+
+        <ListGroup.Item className="border-0">
+          <Link
+            to="/app/custom-notification"
+            className="text-decoration-none text-dark"
+          >
+            <FaClock className="me-2" />
+            Reminders
+          </Link>
+        </ListGroup.Item>
+
+        <ListGroup.Item
+          onClick={openNotificationModal}
+          action
+          className="border-0"
+        >
+          <img
+            src={addNotification}
+            className="me-2"
+            width="22px"
+            height="22px"
+            alt="Add Notification"
+          />
+          Custom Reminders
+        </ListGroup.Item>
+        <NotificationModal
+          isOpen={isNotificationModalOpen}
+          onClose={closeNotificationModal}
+        />
+
+        <ListGroup.Item action className="border-0">
+          <img
+            src={addShopping}
+            className="me-2"
+            width="22px"
+            height="22px"
+            alt="Create Shopping List"
+          />{" "}
+          Create New Shopping List
+        </ListGroup.Item>
+        <ListGroup.Item action className="border-0">
+          <FaBox className="me-2" /> Add New Inventory
+        </ListGroup.Item>
+        <a href="/supplier-home">
           <ListGroup.Item action className="border-0">
-            <img src={addNotification} className="me-2" width="22px" height="22px" alt="Add Notification" /> {t("CREATECUSTOMNOTIFICATION")}
+            <FaTruck className="me-2" /> Add Supplier
           </ListGroup.Item>
-          <ListGroup.Item action className="border-0">
-            <img src={addShopping} className="me-2" width="22px" height="22px" alt="Create Shopping List" /> {t("CREATENEWSHOPPINGLIST")}
-          </ListGroup.Item>
-          <ListGroup.Item action className="border-0">
-            <FaBox className="me-2" /> {t("ADDNEWINVENTORY")}
-          </ListGroup.Item>
-          <a href="/supplier-home">
-            <ListGroup.Item action className="border-0">
-              <FaTruck className="me-2" /> {t("ADDSUPPLIER")}
-            </ListGroup.Item>
-          </a>
-          <ListGroup.Item action className="border-0">
-            <FaFileExport className="me-2" /> {t("EXPORTREPORT")}
-          </ListGroup.Item>
-        </ListGroup>
+        </a>
+        <ListGroup.Item action className="border-0">
+          <FaFileExport className="me-2" /> Export Reports
+        </ListGroup.Item>
+      </ListGroup>
 
         <div className="d-flex align-items-center justify-content-between mt-3 ms-3">
           <h6 className="fw-bold">{t("FAMILYMEMBERS")}</h6>

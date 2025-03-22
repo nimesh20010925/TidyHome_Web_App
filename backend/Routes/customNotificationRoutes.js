@@ -1,13 +1,12 @@
 import express from "express";
-import CustomNotificationControllers from "../Controllers/customNotificationController.js";
+import customNotificationController from "../Controllers/customNotificationController.js";
 
 const router = express.Router();
 
-
-router.post("/create", CustomNotificationControllers.createCustomNotification);
-router.get("/", CustomNotificationControllers.getCustomNotification);
-router.get("/:id", CustomNotificationControllers.getCustomNotificationById);
-router.put("/:id", CustomNotificationControllers.updateCustomNotification);
-router.delete("/:id", CustomNotificationControllers.deleteCustomNotification);
+router.post("/create", customNotificationController.createCustomNotification);
+router.get("/", customNotificationController.getCustomNotifications);
+router.get("/:id", customNotificationController.getCustomNotificationById);
+router.put("/:id", customNotificationController.updateCustomNotification);
+router.delete("/:id", customNotificationController.deleteCustomNotification);
 
 export default router;

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_URL = "http://localhost:3500/api/inventory";
-
+import { NotificationService } from "./NotificationService";
 export class InventoryService {
   static async getAllInventoryItems() {
     try {
@@ -37,6 +37,9 @@ export class InventoryService {
           },
         }
       );
+      NotificationService.sendNotification({
+              message: `New Inventory Item created for ${inventoryData.itemName}`,
+            });
       return response.data;
     } catch (error) {
       console.error("Error creating inventory item:", error);
