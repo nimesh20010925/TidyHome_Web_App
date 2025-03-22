@@ -15,18 +15,23 @@ const supplierSchema = new mongoose.Schema(
       required: true,
     },
     supplier_email: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     supplier_address: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     date: {
       type: Date,
       required: true,
     },
-
+    type: {
+      type: String,
+      required: true,
+      enum: ['Supplier', 'Store'], // Restrict to these values
+      default: 'Supplier'
+    },
   },
   {
     timestamps: true,

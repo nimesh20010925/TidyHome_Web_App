@@ -1,340 +1,532 @@
-import React, { useState } from 'react';
-import './supplier_table.css'; // Importing the CSS file
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import {
+  Box, Button, TextField, Typography, Modal, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Paper, IconButton, Grid, Snackbar, Alert,
+  MenuItem, Select, InputLabel, FormControl
+} from '@mui/material';
+import { Edit, Delete, Add, Visibility, ArrowBack, ArrowForward } from '@mui/icons-material';
 
-const SupplierTable = () => {
-  // State for showing the add new supplier modal
-  const [showModal, setShowModal] = useState(false);
-
-  // State for showing the view details modal
-  const [viewModal, setViewModal] = useState(false);
-
-  // State for showing the delete confirmation modal
-  const [deleteModal, setDeleteModal] = useState(false);
-
-  // State for showing the edit supplier modal
-  const [editModal, setEditModal] = useState(false); // New state for editing
-
-  // State for form inputs
-  const [supplierName, setSupplierName] = useState('');
-  const [contact, setContact] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-
-  // State for supplier list
-  const [suppliers, setSuppliers] = useState([
-    { id: 1, name: 'Mark Otto', contact: '123-456-7890', email: 'mark@example.com', address: '1234 Elm St, Springfield' },
-    { id: 2, name: 'Jacob Thornton', contact: '987-654-3210', email: 'jacob@example.com', address: '5678 Oak St, Shelbyville' },
-    { id: 3, name: 'Larry the Bird', contact: '555-123-4567', email: 'larry@example.com', address: '9101 Pine St, Capital City' }
-  ]);
-
-  // State for the selected supplier details (for viewing)
+const SupplierService = () => {
+  const [suppliers, setSuppliers] = useState([]);
+  const [openCreate, setOpenCreate] = useState(false);
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [openView, setOpenView] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [formData, setFormData] = useState({
+    supplier_id: '',
+    supplier_name: '',
+    supplier_contact: '',
+    supplier_email: '',
+    supplier_address: '',
+    date: '',
+    type: 'Supplier'
+  });
   const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(4);
 
-  // State for the supplier to delete
-  const [selectedSupplierForDelete, setSelectedSupplierForDelete] = useState(null);
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
-  // State for the supplier to edit
-  const [selectedSupplierForEdit, setSelectedSupplierForEdit] = useState(null); // New state for editing supplier
-
-  // Function to toggle the add new supplier modal visibility
-  const toggleModal = () => {
-    setShowModal(!showModal);
+  const fetchSuppliers = async () => {
+    try {
+      const response = await axios.get('http://localhost:3500/api/supplier');
+      setSuppliers(response.data.suppliers);
+    } catch (error) {
+      console.error('Fetch suppliers error:', error);
+      const errorMessage = error.response?.data?.message || 'Error fetching suppliers';
+      showSnackbar(errorMessage, 'error');
+    }
   };
 
-  // Function to handle form submission (adding new supplier)
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-
-    // Create a new supplier object
-    const newSupplier = {
-      id: suppliers.length + 1,
-      name: supplierName,
-      contact: contact,
-      email: email,
-      address: address,
-    };
-
-    // Add the new supplier to the list
-    setSuppliers([...suppliers, newSupplier]);
-
-    // Reset form fields and close the modal
-    setSupplierName('');
-    setContact('');
-    setEmail('');
-    setAddress('');
-    setShowModal(false);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Function to open the view modal with the selected supplier details
-  const viewSupplierDetails = (supplier) => {
-    setSelectedSupplier(supplier);
-    setViewModal(true);
+  const handleCreate = async () => {
+    try {
+      await axios.post('http://localhost:3500/api/supplier/create', formData);
+      setOpenCreate(false);
+      resetForm();
+      fetchSuppliers();
+      showSnackbar('Supplier created successfully');
+    } catch (error) {
+      console.error('Create supplier error:', error);
+      const errorMessage = error.response?.data?.message || 'Error creating supplier';
+      showSnackbar(errorMessage, 'error');
+    }
   };
 
-  // Function to close the view modal
-  const closeViewModal = () => {
-    setViewModal(false);
+  const handleUpdate = async () => {
+    try {
+      await axios.put(`http://localhost:3500/api/supplier/${selectedSupplier._id}`, formData);
+      setOpenUpdate(false);
+      resetForm();
+      fetchSuppliers();
+      showSnackbar('Supplier updated successfully');
+    } catch (error) {
+      console.error('Update supplier error:', error);
+      const errorMessage = error.response?.data?.message || 'Error updating supplier';
+      showSnackbar(errorMessage, 'error');
+    }
   };
 
-  // Function to open the delete confirmation modal
-  const confirmDelete = (supplier) => {
-    setSelectedSupplierForDelete(supplier);
-    setDeleteModal(true);
-  };
-
-  // Function to handle deleting the supplier
-  const handleDelete = () => {
-    // Remove the supplier from the list
-    setSuppliers(suppliers.filter(supplier => supplier.id !== selectedSupplierForDelete.id));
-    setDeleteModal(false); // Close the delete confirmation modal
-  };
-
-  // Function to close the delete confirmation modal without deleting
-  const closeDeleteModal = () => {
-    setDeleteModal(false);
-  };
-
-  // Function to handle opening the edit modal with the selected supplier's details
-  const openEditModal = (supplier) => {
-    setSelectedSupplierForEdit(supplier);
-    setSupplierName(supplier.name);
-    setContact(supplier.contact);
-    setEmail(supplier.email);
-    setAddress(supplier.address);
-    setEditModal(true); // Open edit modal
-  };
-
-  // Function to handle submitting the edited supplier details
-  const handleEditSubmit = (e) => {
-    e.preventDefault();
-
-    // Update the supplier in the list
-    const updatedSuppliers = suppliers.map((supplier) => {
-      if (supplier.id === selectedSupplierForEdit.id) {
-        return {
-          ...supplier,
-          name: supplierName,
-          contact: contact,
-          email: email,
-          address: address,
-        };
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this supplier?')) {
+      try {
+        await axios.delete(`http://localhost:3500/api/supplier/${id}`);
+        fetchSuppliers();
+        showSnackbar('Supplier deleted successfully');
+      } catch (error) {
+        console.error('Delete supplier error:', error);
+        const errorMessage = error.response?.data?.message || 'Error deleting supplier';
+        showSnackbar(errorMessage, 'error');
       }
-      return supplier;
+    }
+  };
+
+  const handleViewClick = (supplier) => {
+    setSelectedSupplier(supplier);
+    setOpenView(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      supplier_id: '',
+      supplier_name: '',
+      supplier_contact: '',
+      supplier_email: '',
+      supplier_address: '',
+      date: '',
+      type: 'Supplier'
     });
-
-    // Update the suppliers state
-    setSuppliers(updatedSuppliers);
-
-    // Reset form fields and close the modal
-    setSupplierName('');
-    setContact('');
-    setEmail('');
-    setAddress('');
-    setEditModal(false);
+    setSelectedSupplier(null);
   };
 
-  // Function to close the edit modal
-  const closeEditModal = () => {
-    setEditModal(false);
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
   };
+
+  const handleEditClick = (supplier) => {
+    setSelectedSupplier(supplier);
+    setFormData({ ...supplier, date: supplier.date.split('T')[0] });
+    setOpenUpdate(true);
+  };
+
+  const handleChangePage = (newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'white',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 8,
+  };
+
+  const paginatedSuppliers = suppliers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+  // Custom Purple Theme
+  const purpleTheme = {
+    lightPurple: '#DAD5FB', // Table header
+    buttonPurple: '#AC9EFF', // Add Supplier button
+    buttonHover: '#9a80ff', // Hover for Add Supplier button
+    accentPurple: '#7b1fa2', // Pagination accent
+  };
+
+  // Pagination Logic
+  const totalPages = Math.ceil(suppliers.length / rowsPerPage);
+  const pageNumbers = [];
+  for (let i = Math.max(0, page - 2); i < Math.min(totalPages, page + 3); i++) {
+    pageNumbers.push(i);
+  }
 
   return (
-    <div>
-      {/* Button to open the modal */}
-      <div className="div-button">
-        <button className="btn btn-primary mb-3" onClick={toggleModal}>
-          + Add New Supplier
-        </button>
-      </div>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Supplier Management
+      </Typography>
 
-      {/* Modal structure for adding a new supplier */}
-      {showModal && (
-        <div className="modal-overlay" onClick={toggleModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Add New Supplier</h2>
-            {/* Form for adding new supplier */}
-            <form onSubmit={handleFormSubmit}>
-              <div>
-                <label>Supplier Name</label>
-                <input
-                  type="text"
-                  value={supplierName}
-                  onChange={(e) => setSupplierName(e.target.value)}
-                  placeholder="Enter Supplier Name"
-                  required
-                />
-              </div>
-              <div>
-                <label>Contact</label>
-                <input
-                  type="text"
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  placeholder="Enter Contact"
-                  required
-                />
-              </div>
-              <div>
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter Email"
-                  required
-                />
-              </div>
-              <div>
-                <label>Address</label>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Enter Address"
-                  required
-                />
-              </div>
-              <div className="modal-buttons">
-                <button type="submit" className="btn btn-primary">Save</button>
-                <button type="button" className="btn btn-danger" onClick={toggleModal}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <Button
+        variant="contained"
+        startIcon={<Add />}
+        onClick={() => setOpenCreate(true)}
+        sx={{
+          mb: 2,
+          backgroundColor: purpleTheme.buttonPurple,
+          color: 'white',
+          '&:hover': { backgroundColor: purpleTheme.buttonHover },
+          float: 'right',
+        }}
+      >
+        Add Supplier
+      </Button>
 
-      {/* Modal structure for viewing supplier details */}
-      {viewModal && selectedSupplier && (
-        <div className="modal-overlay" onClick={closeViewModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Supplier Details</h2>
-            <p><strong>Name:</strong> {selectedSupplier.name}</p>
-            <p><strong>Contact:</strong> {selectedSupplier.contact}</p>
-            <p><strong>Email:</strong> {selectedSupplier.email}</p>
-            <p><strong>Address:</strong> {selectedSupplier.address}</p>
-            <div className="modal-buttons">
-              <button className="btn btn-danger" onClick={closeViewModal}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TableContainer component={Paper} elevation={3} sx={{ mt: 2 }}>
+        <Table sx={{ width: '100%' }}>
+          <TableHead sx={{ backgroundColor: purpleTheme.lightPurple }}>
+            <TableRow>
+              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>ID</TableCell>
+              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Name</TableCell>
+              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Contact</TableCell>
+              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Email</TableCell>
+              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Address</TableCell>
+              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Date</TableCell>
+              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Type</TableCell>
+              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {paginatedSuppliers.map((supplier) => (
+              <TableRow key={supplier._id} hover>
+                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_id}</TableCell>
+                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_name}</TableCell>
+                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_contact}</TableCell>
+                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_email}</TableCell>
+                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_address}</TableCell>
+                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{new Date(supplier.date).toLocaleDateString()}</TableCell>
+                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.type}</TableCell>
+                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                  <IconButton color="primary" onClick={() => handleViewClick(supplier)}>
+                    <Visibility />
+                  </IconButton>
+                  <IconButton color="primary" onClick={() => handleEditClick(supplier)}>
+                    <Edit />
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleDelete(supplier._id)}>
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
 
-      {/* Modal structure for delete confirmation */}
-      {deleteModal && selectedSupplierForDelete && (
-        <div className="modal-overlay" onClick={closeDeleteModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Are you sure you want to delete this supplier?</h2>
-            <p><strong>Name:</strong> {selectedSupplierForDelete.name}</p>
-            <div className="modal-buttons">
-              <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
-              <button className="btn btn-secondary" onClick={closeDeleteModal}>Cancel</button>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Advanced Pagination */}
+        {suppliers.length > 4 && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              p: 2,
+              backgroundColor: '#f9f9f9',
+              borderTop: '1px solid #e0e0e0',
+            }}
+          >
+            {/* Rows Per Page Dropdown */}
+            <FormControl sx={{ minWidth: 120 }}>
+              <InputLabel>Rows per page</InputLabel>
+              <Select
+                value={rowsPerPage}
+                onChange={handleChangeRowsPerPage}
+                label="Rows per page"
+                sx={{
+                  color: purpleTheme.accentPurple,
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: purpleTheme.accentPurple,
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: purpleTheme.buttonHover,
+                  },
+                }}
+              >
+                <MenuItem value={4}>4</MenuItem>
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={25}>25</MenuItem>
+              </Select>
+            </FormControl>
 
-      {/* Modal structure for editing supplier */}
-      {editModal && selectedSupplierForEdit && (
-        <div className="modal-overlay" onClick={closeEditModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Edit Supplier</h2>
-            {/* Form for editing supplier */}
-            <form onSubmit={handleEditSubmit}>
-              <div>
-                <label>Supplier Name</label>
-                <input
-                  type="text"
-                  value={supplierName}
-                  onChange={(e) => setSupplierName(e.target.value)}
-                  placeholder="Enter Supplier Name"
-                  required
-                />
-              </div>
-              <div>
-                <label>Contact</label>
-                <input
-                  type="text"
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value)}
-                  placeholder="Enter Contact"
-                  required
-                />
-              </div>
-              <div>
-                <label>Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter Email"
-                  required
-                />
-              </div>
-              <div>
-                <label>Address</label>
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Enter Address"
-                  required
-                />
-              </div>
-              <div className="modal-buttons">
-                <button type="submit" className="btn btn-primary">Save Changes</button>
-                <button type="button" className="btn btn-danger" onClick={closeEditModal}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            {/* Pagination Controls */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton
+                onClick={() => handleChangePage(page - 1)}
+                disabled={page === 0}
+                sx={{
+                  color: page === 0 ? '#bdbdbd' : purpleTheme.accentPurple,
+                  '&:hover': {
+                    backgroundColor: `${purpleTheme.accentPurple}20`,
+                    transform: 'scale(1.1)',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                <ArrowBack />
+              </IconButton>
 
-      {/* Supplier table */}
-      <table className="table">
-        <thead>
-          <tr>
-            <th scope="col">Supplier ID</th>
-            <th scope="col">Name</th>
-            <th scope="col">Contact</th>
-            <th scope="col">Email</th>
-            <th scope="col">Address</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {suppliers.map((supplier) => (
-            <tr key={supplier.id}>
-              <td>{supplier.id}</td>
-              <td>{supplier.name}</td>
-              <td>{supplier.contact}</td>
-              <td>{supplier.email}</td>
-              <td>{supplier.address}</td>
-              <td>
-                <button
-                  className="btn btn-info btn-sm"
-                  onClick={() => viewSupplierDetails(supplier)}
+              {pageNumbers.map((num) => (
+                <Button
+                  key={num}
+                  onClick={() => handleChangePage(num)}
+                  sx={{
+                    minWidth: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    backgroundColor: page === num ? purpleTheme.accentPurple : 'transparent',
+                    color: page === num ? 'white' : purpleTheme.accentPurple,
+                    '&:hover': {
+                      backgroundColor: page === num ? purpleTheme.accentPurple : `${purpleTheme.accentPurple}20`,
+                      transform: 'scale(1.1)',
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                    fontWeight: 'bold',
+                  }}
                 >
-                  View
-                </button>
-                <button
-                  className="btn btn-warning btn-sm ml-2"
-                  onClick={() => openEditModal(supplier)} // Open edit modal
+                  {num + 1}
+                </Button>
+              ))}
+
+              <IconButton
+                onClick={() => handleChangePage(page + 1)}
+                disabled={page >= totalPages - 1}
+                sx={{
+                  color: page >= totalPages - 1 ? '#bdbdbd' : purpleTheme.accentPurple,
+                  '&:hover': {
+                    backgroundColor: `${purpleTheme.accentPurple}20`,
+                    transform: 'scale(1.1)',
+                  },
+                  transition: 'all 0.2s ease-in-out',
+                }}
+              >
+                <ArrowForward />
+              </IconButton>
+            </Box>
+
+            {/* Page Info */}
+            <Typography
+              sx={{
+                color: purpleTheme.accentPurple,
+                fontWeight: 'bold',
+              }}
+            >
+              {`${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, suppliers.length)} of ${suppliers.length}`}
+            </Typography>
+          </Box>
+        )}
+      </TableContainer>
+
+      {/* Create Modal */}
+      <Modal open={openCreate} onClose={() => setOpenCreate(false)}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" gutterBottom>Create Supplier</Typography>
+          <Grid container spacing={2}>
+            {Object.keys(formData).map((key) =>
+              key === 'type' ? (
+                <Grid item xs={12} key={key}>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel>Type</InputLabel>
+                    <Select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleInputChange}
+                      label="Type"
+                    >
+                      <MenuItem value="Supplier">Supplier</MenuItem>
+                      <MenuItem value="Store">Store</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              ) : (
+                <Grid item xs={12} key={key}>
+                  <TextField
+                    fullWidth
+                    label={key.replace('_', ' ').toUpperCase()}
+                    name={key}
+                    value={formData[key]}
+                    onChange={handleInputChange}
+                    type={key === 'date' ? 'date' : 'text'}
+                    variant="outlined"
+                  />
+                </Grid>
+              )
+            )}
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                onClick={handleCreate}
+                fullWidth
+                sx={{
+                  backgroundColor: purpleTheme.buttonPurple,
+                  color: 'white',
+                  '&:hover': { backgroundColor: purpleTheme.buttonHover },
+                }}
+              >
+                Create
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
+
+      {/* Update Modal */}
+      <Modal open={openUpdate} onClose={() => setOpenUpdate(false)}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" gutterBottom>Update Supplier</Typography>
+          <Grid container spacing={2}>
+            {Object.keys(formData).map((key) =>
+              key === 'type' ? (
+                <Grid item xs={12} key={key}>
+                  <FormControl fullWidth variant="outlined">
+                    <InputLabel>Type</InputLabel>
+                    <Select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleInputChange}
+                      label="Type"
+                    >
+                      <MenuItem value="Supplier">Supplier</MenuItem>
+                      <MenuItem value="Store">Store</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+              ) : (
+                <Grid item xs={12} key={key}>
+                  <TextField
+                    fullWidth
+                    label={key.replace('_', ' ').toUpperCase()}
+                    name={key}
+                    value={formData[key]}
+                    onChange={handleInputChange}
+                    type={key === 'date' ? 'date' : 'text'}
+                    variant="outlined"
+                  />
+                </Grid>
+              )
+            )}
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                onClick={handleUpdate}
+                fullWidth
+                sx={{
+                  backgroundColor: purpleTheme.buttonPurple,
+                  color: 'white',
+                  '&:hover': { backgroundColor: purpleTheme.buttonHover },
+                }}
+              >
+                Update
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Modal>
+
+      {/* View Modal */}
+      <Modal open={openView} onClose={() => setOpenView(false)}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" gutterBottom>View Supplier Details</Typography>
+          {selectedSupplier && (
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="SUPPLIER ID"
+                  value={selectedSupplier.supplier_id}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="SUPPLIER NAME"
+                  value={selectedSupplier.supplier_name}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="SUPPLIER CONTACT"
+                  value={selectedSupplier.supplier_contact}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="SUPPLIER EMAIL"
+                  value={selectedSupplier.supplier_email}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="SUPPLIER ADDRESS"
+                  value={selectedSupplier.supplier_address}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="DATE"
+                  value={new Date(selectedSupplier.date).toLocaleDateString()}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="TYPE"
+                  value={selectedSupplier.type}
+                  variant="outlined"
+                  InputProps={{ readOnly: true }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="outlined"
+                  onClick={() => setOpenView(false)}
+                  fullWidth
+                  sx={{
+                    color: purpleTheme.buttonPurple,
+                    borderColor: purpleTheme.buttonPurple,
+                    '&:hover': { borderColor: purpleTheme.buttonHover, color: purpleTheme.buttonHover },
+                  }}
                 >
-                  Edit
-                </button>
-                <button
-                  className="btn btn-danger btn-sm ml-2"
-                  onClick={() => confirmDelete(supplier)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                  Close
+                </Button>
+              </Grid>
+            </Grid>
+          )}
+        </Box>
+      </Modal>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
-}
+};
 
-export default SupplierTable;
+export default SupplierService;

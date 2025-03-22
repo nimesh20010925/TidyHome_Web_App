@@ -27,7 +27,7 @@
 
 .category-table th,
 .category-table td {
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
   padding: 8px;
   text-align: left;
 }
@@ -80,7 +80,7 @@
 
 .category-table th,
 .category-table td {
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
   padding: 8px;
   text-align: left;
   width: 100%;
