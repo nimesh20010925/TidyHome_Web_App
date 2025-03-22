@@ -16,28 +16,9 @@
   
 
   
-  button {
-    padding: 10px;
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin: 10px 0;
-  }
+
   
-  button{
-    background-color: #f44336;
-  }
-  
-  input,
-  textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+ 
   
   :root {
     --ccm-primary-gradient-start: #007bff;

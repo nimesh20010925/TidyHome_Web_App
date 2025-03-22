@@ -70,7 +70,7 @@ const ConsumptionChart = () => {
   const yPadding = (yMax - yMin) * 0.1;
 
   return (
-    <div className="chart-container">
+    <div className="chart-containers">
       <h5 style={{ textAlign: 'left' }}>Consumption vs Stock Report</h5>
       <ResponsiveContainer width="100%" height={330}>
         <ScatterChart
