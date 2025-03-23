@@ -6,7 +6,7 @@ import {
   MenuItem, Select, InputLabel, FormControl
 } from '@mui/material';
 import { Edit, Delete, Add, Visibility, ArrowBack, ArrowForward } from '@mui/icons-material';
-
+import HomeSummary from "../../../Home/HomeModals/HomeSummary.jsx"
 const SupplierService = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
@@ -100,11 +100,6 @@ const SupplierService = () => {
       showSnackbar('Supplier Contact can only contain numbers', 'error');
       return;
     }
-    const validStart = /^[6-9]/;
-    if (!validStart.test(supplier_contact)) {
-      showSnackbar('Supplier Contact must start with 6, 7, 8, or 9', 'error');
-      return;
-    }
 
     // Email Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -142,7 +137,7 @@ const SupplierService = () => {
       return;
     }
     const inputDate = new Date(date);
-    const currentDate = new Date('2025-03-22');
+    const currentDate = new Date(); // Dynamically set to today's date (e.g., 2025-03-23)
     if (inputDate > currentDate) {
       showSnackbar('Date cannot be in the future', 'error');
       return;
@@ -223,11 +218,6 @@ const SupplierService = () => {
     const contactRegex = /^[0-9]+$/;
     if (!contactRegex.test(supplier_contact)) {
       showSnackbar('Supplier Contact can only contain numbers', 'error');
-      return;
-    }
-    const validStart = /^[6-9]/;
-    if (!validStart.test(supplier_contact)) {
-      showSnackbar('Supplier Contact must start with 6, 7, 8, or 9', 'error');
       return;
     }
 
@@ -330,7 +320,15 @@ const SupplierService = () => {
 
   const handleEditClick = (supplier) => {
     setSelectedSupplier(supplier);
-    setFormData({ ...supplier, date: supplier.date.split('T')[0] });
+    setFormData({
+      supplier_id: supplier.supplier_id,
+      supplier_name: supplier.supplier_name,
+      supplier_contact: supplier.supplier_contact,
+      supplier_email: supplier.supplier_email,
+      supplier_address: supplier.supplier_address,
+      date: supplier.date.split('T')[0],
+      type: supplier.type
+    });
     setOpenUpdate(true);
   };
 
@@ -348,7 +346,7 @@ const SupplierService = () => {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: { xs: '90%', sm: 400 }, // Responsive width: 90% on small screens, 400px on larger
     bgcolor: 'white',
     boxShadow: 24,
     p: 4,
@@ -389,6 +387,7 @@ const SupplierService = () => {
 
   return (
     <Box sx={{ p: 3 }}>
+      <HomeSummary/>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1F2937' }}>
           Supplier Management
@@ -685,78 +684,109 @@ const SupplierService = () => {
       {/* Update Modal */}
       <Modal open={openUpdate} onClose={() => setOpenUpdate(false)}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" gutterBottom>Update Supplier</Typography>
-          <Grid container spacing={2}>
-            {Object.keys(formData).map((key) =>
-              key === 'type' ? (
-                <Grid item xs={12} key={key}>
-                  <FormControl fullWidth variant="outlined">
-                    <InputLabel>Type</InputLabel>
-                    <Select
-                      name="type"
-                      value={formData.type}
+          <Box
+            sx={{
+              maxHeight: '80vh', // Limit height to 80% of viewport height
+              overflowY: 'auto', // Add vertical scrollbar when content overflows
+              p: 2, // Internal padding
+            }}
+          >
+            <Typography variant="h6" gutterBottom>Update Supplier</Typography>
+            <Grid container spacing={2}>
+              {Object.keys(formData).map((key) =>
+                key === 'type' ? (
+                  <Grid item xs={12} key={key}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel>Type</InputLabel>
+                      <Select
+                        name="type"
+                        value={formData.type}
+                        onChange={handleInputChange}
+                        label="Type"
+                      >
+                        <MenuItem value="Supplier">Supplier</MenuItem>
+                        <MenuItem value="Store">Store</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                ) : key === 'date' ? (
+                  <Grid item xs={12} key={key}>
+                    <TextField
+                      fullWidth
+                      label="Date"
+                      name="date"
+                      value={formData.date}
                       onChange={handleInputChange}
-                      label="Type"
-                    >
-                      <MenuItem value="Supplier">Supplier</MenuItem>
-                      <MenuItem value="Store">Store</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              ) : key === 'date' ? (
-                <Grid item xs={12} key={key}>
-                  <TextField
-                    fullWidth
-                    label="Date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    type="date"
-                    variant="outlined"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
+                      type="date"
+                      variant="outlined"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: '#6A5ACD',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#7B68EE',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+                ) : (
+                  <Grid item xs={12} key={key}>
+                    <TextField
+                      fullWidth
+                      label={key.replace('_', ' ').toUpperCase()}
+                      name={key}
+                      value={formData[key]}
+                      onChange={handleInputChange}
+                      type="text"
+                      variant="outlined"
+                    />
+                  </Grid>
+                )
+              )}
+              <Grid item xs={12}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: 2,
+                    pt: 2, // Add padding to separate buttons from content
+                    position: 'sticky', // Make buttons stick to the bottom
+                    bottom: 0,
+                    backgroundColor: 'white', // Ensure buttons are readable
+                    zIndex: 1, // Ensure buttons stay above scrolling content
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    onClick={handleUpdate}
                     sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          borderColor: '#6A5ACD',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: '#7B68EE',
-                        },
-                      },
+                      backgroundColor: purpleTheme.buttonPurple,
+                      color: 'white',
+                      '&:hover': { backgroundColor: purpleTheme.buttonHover },
                     }}
-                  />
-                </Grid>
-              ) : (
-                <Grid item xs={12} key={key}>
-                  <TextField
-                    fullWidth
-                    label={key.replace('_', ' ').toUpperCase()}
-                    name={key}
-                    value={formData[key]}
-                    onChange={handleInputChange}
-                    type="text"
+                  >
+                    Update
+                  </Button>
+                  <Button
                     variant="outlined"
-                  />
-                </Grid>
-              )
-            )}
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                onClick={handleUpdate}
-                fullWidth
-                sx={{
-                  backgroundColor: purpleTheme.buttonPurple,
-                  color: 'white',
-                  '&:hover': { backgroundColor: purpleTheme.buttonHover },
-                }}
-              >
-                Update
-              </Button>
+                    onClick={() => setOpenUpdate(false)}
+                    sx={{
+                      color: purpleTheme.buttonPurple,
+                      borderColor: purpleTheme.buttonPurple,
+                      '&:hover': { borderColor: purpleTheme.buttonHover, color: purpleTheme.buttonHover },
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Grid>
             </Grid>
-          </Grid>
+          </Box>
         </Box>
       </Modal>
 

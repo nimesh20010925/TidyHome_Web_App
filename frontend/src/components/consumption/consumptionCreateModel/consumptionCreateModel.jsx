@@ -189,10 +189,16 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 onChange={handleInputChange}
                 required
                 rows={3}
-                placeholder="Add notes"
+                minLength={5}
+                maxLength={10}
+                placeholder="Add notes (5-10 chars)"
               />
               <Form.Control.Feedback type="invalid">
-                Please add some notes.
+                {formData.notes.length === 0
+                  ? "Please add some notes."
+                  : formData.notes.length < 5
+                  ? "Notes must be at least 5 characters."
+                  : "Notes cannot exceed 10 characters."}
               </Form.Control.Feedback>
             </FloatingLabel>
 

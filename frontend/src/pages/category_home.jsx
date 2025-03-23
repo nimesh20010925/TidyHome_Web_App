@@ -10,6 +10,7 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import { useState } from "react";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import HomeSummary from "../components/Home/HomeModals/HomeSummary";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -51,6 +52,7 @@ const ContactPage = ({ image }) => {
 
   return (
     <div style={{ padding: "20px", background: "#ffffff" }}>
+      <HomeSummary/>
       <style>{`
         .grid-item {
           background: white;
