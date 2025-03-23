@@ -20,7 +20,7 @@ import InventoryActive from "../assets/navBar/inventory-purple.png";
 import SupplierActive from "../assets/navBar/supplier-purple.png";
 import ShoppingListActive from "../assets/navBar/shopping-purple.png";
 import LanguageSelector from "../translations/languageSelector.jsx";
-import NotificationDropdown from "../components/notifications/notification.jsx";
+import NotificationDropdown from "../components/notifications/notification.jsx"
 const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation(); // <-- Added this
@@ -126,7 +126,7 @@ const NavBar = () => {
           </Nav>
           <Row className="d-flex align-items-center justify-content-end">
             <Col className="d-flex align-items-center gap-2 me-1">
-              <NotificationDropdown />
+            <NotificationDropdown />
               <div className="d-flex align-items-center">
                 <img src={Language} width="32px" height="32px" alt="Language" />
                 <LanguageSelector />

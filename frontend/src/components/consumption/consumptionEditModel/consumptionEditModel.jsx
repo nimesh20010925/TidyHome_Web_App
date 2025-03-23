@@ -28,6 +28,12 @@ const EditModal = ({ open, onClose, item, onSave }) => {
     setErrors({});
   }, [item]);
 
+  // Function to get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedItem((prev) => ({
@@ -39,6 +45,8 @@ const EditModal = ({ open, onClose, item, onSave }) => {
 
   const validateForm = () => {
     const newErrors = {};
+    const today = getTodayDate();
+
     if (!editedItem?.product_name) newErrors.product_name = "Product name is required";
     if (!editedItem?.amount_used || isNaN(editedItem.amount_used) || editedItem.amount_used < 0)
       newErrors.amount_used = "Enter a valid amount (≥ 0)";
@@ -46,7 +54,12 @@ const EditModal = ({ open, onClose, item, onSave }) => {
     if (!editedItem?.remaining_stock || isNaN(editedItem.remaining_stock))
       newErrors.remaining_stock = "Enter a valid stock amount";
     if (!editedItem?.notes) newErrors.notes = "Notes are required";
-    if (!editedItem?.date) newErrors.date = "Date is required";
+    if (!editedItem?.date) {
+      newErrors.date = "Date is required";
+    } else if (editedItem.date < today) {
+      newErrors.date = "Date must be today or a future date";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -88,7 +101,7 @@ const EditModal = ({ open, onClose, item, onSave }) => {
               color: "white",
               p: 2,
               borderRadius: "12px 12px 0 0",
-             background: "linear-gradient(to right, #C799FF, #8f94fb)",
+              background: "linear-gradient(to right, #C799FF, #8f94fb)",
               mb: 2,
             }}
           >
@@ -170,6 +183,7 @@ const EditModal = ({ open, onClose, item, onSave }) => {
             error={!!errors.date}
             helperText={errors.date}
             InputLabelProps={{ shrink: true }}
+            inputProps={{ min: getTodayDate() }} // Restrict to today and future dates
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
           />
 
@@ -180,6 +194,7 @@ const EditModal = ({ open, onClose, item, onSave }) => {
             value={editedItem?.remaining_stock || ""}
             onChange={handleChange}
             fullWidth
+            disabled
             margin="normal"
             variant="outlined"
             error={!!errors.remaining_stock}

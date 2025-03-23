@@ -6,6 +6,7 @@ import { Modal as BootstrapModal, Form, Button, Spinner, FloatingLabel } from 'r
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './consumptionCreateModel.css';
 
+
 const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
     product_name: '',
@@ -20,6 +21,12 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [validated, setValidated] = useState(false);
+
+  // Function to get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
 
   useEffect(() => {
     const fetchInventoryData = async () => {
@@ -165,9 +172,10 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 value={formData.date}
                 onChange={handleInputChange}
                 required
+                min={getTodayDate()} // Restrict to today and future dates
               />
               <Form.Control.Feedback type="invalid">
-                Please select a date.
+                Please select a date from today onwards.
               </Form.Control.Feedback>
             </FloatingLabel>
 
@@ -189,10 +197,16 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 onChange={handleInputChange}
                 required
                 rows={3}
-                placeholder="Add notes"
+                minLength={5}
+                maxLength={10}
+                placeholder="Add notes (5-10 chars)"
               />
               <Form.Control.Feedback type="invalid">
-                Please add some notes.
+                {formData.notes.length === 0
+                  ? "Please add some notes."
+                  : formData.notes.length < 5
+                  ? "Notes must be at least 5 characters."
+                  : "Notes cannot exceed 10 characters."}
               </Form.Control.Feedback>
             </FloatingLabel>
 

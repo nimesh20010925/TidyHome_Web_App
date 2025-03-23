@@ -1,6 +1,6 @@
 import { useState } from "react";
-import PropTypes from "prop-types"; // Import PropTypes
-import { NotificationService } from "../../../services/customNotificationServices"; // Ensure this path is correct
+import PropTypes from "prop-types";
+import { NotificationService } from "../../../services/customNotificationServices";
 
 const NotificationModal = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -18,12 +18,60 @@ const NotificationModal = ({ isOpen, onClose }) => {
     notes: "",
   });
 
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    const today = new Date().toISOString().split("T")[0];
+
+    // Required fields validation
+    if (!formData.notification_title.trim()) {
+      newErrors.notification_title = "Title is required";
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!formData.notification_type) {
+      newErrors.notification_type = "Notification type is required";
+    }
+    if (!formData.assign_to.trim()) {
+      newErrors.assign_to = "Assignee is required";
+    }
+    if (!formData.send_notification_via) {
+      newErrors.send_notification_via = "Send method is required";
+    }
+    if (!formData.date) {
+      newErrors.date = "Date is required";
+    } else if (formData.date < today) {
+      newErrors.date = "Date must be today or later";
+    }
+    if (!formData.time) {
+      newErrors.time = "Time is required";
+    }
+    if (!formData.message.trim()) {
+      newErrors.message = "Message is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: "" });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     try {
       await NotificationService.createNotification(formData);
       alert("Notification created successfully!");
@@ -41,6 +89,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
         actions: "",
         notes: "",
       });
+      setErrors({});
       onClose();
     } catch (error) {
       console.error("Error creating notification:", error);
@@ -79,7 +128,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center" , textAlign: 'center' }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", textAlign: 'center' }}>
           <h2 style={{ margin: 0, color: "#C799FF", textAlign: 'center' }}>Create Notification</h2>
           <button
             onClick={onClose}
@@ -106,8 +155,16 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 value={formData.notification_title}
                 onChange={handleChange}
                 placeholder="Title"
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "8px", 
+                  borderRadius: "4px", 
+                  border: errors.notification_title ? "1px solid red" : "1px solid #ddd" 
+                }}
               />
+              {errors.notification_title && (
+                <span style={{ color: "red", fontSize: "12px" }}>{errors.notification_title}</span>
+              )}
             </div>
             <div>
               <label htmlFor="email">Email Address</label>
@@ -118,8 +175,16 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email"
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "8px", 
+                  borderRadius: "4px", 
+                  border: errors.email ? "1px solid red" : "1px solid #ddd" 
+                }}
               />
+              {errors.email && (
+                <span style={{ color: "red", fontSize: "12px" }}>{errors.email}</span>
+              )}
             </div>
             <div>
               <label htmlFor="notification_type">Notification Type</label>
@@ -128,13 +193,21 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 name="notification_type"
                 value={formData.notification_type}
                 onChange={handleChange}
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "8px", 
+                  borderRadius: "4px", 
+                  border: errors.notification_type ? "1px solid red" : "1px solid #ddd" 
+                }}
               >
                 <option value="">Select Type</option>
                 <option value="alert">Alert</option>
                 <option value="reminder">Reminder</option>
                 <option value="update">Update</option>
               </select>
+              {errors.notification_type && (
+                <span style={{ color: "red", fontSize: "12px" }}>{errors.notification_type}</span>
+              )}
             </div>
             <div>
               <label htmlFor="assign_to">Assign To</label>
@@ -145,8 +218,16 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 value={formData.assign_to}
                 onChange={handleChange}
                 placeholder="Assign To"
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "8px", 
+                  borderRadius: "4px", 
+                  border: errors.assign_to ? "1px solid red" : "1px solid #ddd" 
+                }}
               />
+              {errors.assign_to && (
+                <span style={{ color: "red", fontSize: "12px" }}>{errors.assign_to}</span>
+              )}
             </div>
             <div>
               <label htmlFor="repeat_notification">Repeat Notification</label>
@@ -170,13 +251,21 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 name="send_notification_via"
                 value={formData.send_notification_via}
                 onChange={handleChange}
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                style={{ 
+                  width: "100%", 
+                  padding: "8px", 
+                  borderRadius: "4px", 
+                  border: errors.send_notification_via ? "1px solid red" : "1px solid #ddd" 
+                }}
               >
                 <option value="">Select Method</option>
                 <option value="email">Email</option>
                 <option value="sms">SMS</option>
                 <option value="push">Push Notification</option>
               </select>
+              {errors.send_notification_via && (
+                <span style={{ color: "red", fontSize: "12px" }}>{errors.send_notification_via}</span>
+              )}
             </div>
             <div>
               <label htmlFor="priority_level">Priority Level</label>
@@ -202,8 +291,17 @@ const NotificationModal = ({ isOpen, onClose }) => {
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                  min={new Date().toISOString().split("T")[0]}
+                  style={{ 
+                    width: "100%", 
+                    padding: "8px", 
+                    borderRadius: "4px", 
+                    border: errors.date ? "1px solid red" : "1px solid #ddd" 
+                  }}
                 />
+                {errors.date && (
+                  <span style={{ color: "red", fontSize: "12px" }}>{errors.date}</span>
+                )}
               </div>
               <div style={{ flex: 1 }}>
                 <label htmlFor="time">Time</label>
@@ -213,8 +311,16 @@ const NotificationModal = ({ isOpen, onClose }) => {
                   name="time"
                   value={formData.time}
                   onChange={handleChange}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                  style={{ 
+                    width: "100%", 
+                    padding: "8px", 
+                    borderRadius: "4px", 
+                    border: errors.time ? "1px solid red" : "1px solid #ddd" 
+                  }}
                 />
+                {errors.time && (
+                  <span style={{ color: "red", fontSize: "12px" }}>{errors.time}</span>
+                )}
               </div>
             </div>
             <div>
@@ -230,10 +336,13 @@ const NotificationModal = ({ isOpen, onClose }) => {
                   width: "100%",
                   padding: "8px",
                   borderRadius: "4px",
-                  border: "1px solid #ddd",
+                  border: errors.message ? "1px solid red" : "1px solid #ddd",
                   resize: "vertical",
                 }}
               />
+              {errors.message && (
+                <span style={{ color: "red", fontSize: "12px" }}>{errors.message}</span>
+              )}
             </div>
             <div>
               <label htmlFor="actions">Actions (comma-separated)</label>
@@ -290,13 +399,9 @@ const NotificationModal = ({ isOpen, onClose }) => {
   );
 };
 
-// Define PropTypes for the component
 NotificationModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired, // isOpen is a required boolean
-  onClose: PropTypes.func.isRequired, // onClose is a required function
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
-// Parent Component to Test the Modal
-
-
-export default NotificationModal; // Export App for testing, or NotificationModal if using elsewhere
+export default NotificationModal;

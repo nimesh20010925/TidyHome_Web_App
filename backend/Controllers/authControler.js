@@ -114,7 +114,7 @@ export const loginController = async (req, res) => {
     // Determine redirection path
     let redirectTo = "/app/home";
     if (user.role === "homeOwner" && !user.homeID) {
-      redirectTo = "/create-home";
+      redirectTo = "/auth/create-home";
     }
 
     res.status(200).json({ 
