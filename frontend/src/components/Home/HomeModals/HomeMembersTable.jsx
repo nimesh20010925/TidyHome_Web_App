@@ -8,6 +8,8 @@ import { FaEdit } from "react-icons/fa";
 import { IoIosSave } from "react-icons/io";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { FaRegEye } from "react-icons/fa";
+import { toast } from "react-hot-toast";
+import DeleteConformationbox from "../../../common/DeleteConformationbox.jsx";
 const HomeMembersTable = () => {
     const [members, setMembers] = useState([]);
     const [editingMember, setEditingMember] = useState(null);
@@ -17,7 +19,9 @@ const HomeMembersTable = () => {
     const [updatedAddress, setUpdatedAddress] = useState("");
     const [userRole, setUserRole] = useState(""); // Initialize userRole state
     const [addHomeMembersModal, setAddHomeMembersModal] = useState(false);
-const { t } = useTranslation();
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [selectedMember, setSelectedMember] = useState(null);
+    const { t } = useTranslation();
     const addHomeMembersToggle = () => setAddHomeMembersModal(!addHomeMembersModal); // Toggle modal visibility
 
     useEffect(() => {
@@ -42,18 +46,28 @@ const { t } = useTranslation();
             setMembers(response.data.members);
         } catch (error) {
             console.error("Error fetching members", error);
+            toast.error("Error fetching members")
         }
     };
 
-    const handleDelete = async (memberID) => {
+    const confirmDelete = (member) => {
+        setSelectedMember(member);
+        setDeleteModal(true);
+    };
+
+    const handleDelete = async () => {
+        if (!selectedMember) return;
         try {
             const token = localStorage.getItem("token");
-            await axios.delete(`http://localhost:3500/api/auth/home/members/${memberID}`, {
+            await axios.delete(`http://localhost:3500/api/auth/home/members/${selectedMember._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setMembers(members.filter((member) => member._id !== memberID));
+            setMembers(members.filter((member) => member._id !== selectedMember._id));
+            setDeleteModal(false);
+            toast.success("Member deleted successfully!");
         } catch (error) {
             console.error("Error deleting member", error);
+            toast.error("Error deleting member");
         }
     };
 
@@ -83,6 +97,7 @@ const { t } = useTranslation();
             setEditingMember(null);
         } catch (error) {
             console.error("Error updating member", error);
+            toast.error("Error updating member")
         }
     };
 
@@ -178,7 +193,7 @@ const { t } = useTranslation();
                                             <FaEdit size={25}/>
                                         </button>
                                     )}
-                                    <button className="home-member-delete-btn" onClick={() => handleDelete(member._id)}>
+                                    <button className="home-member-delete-btn" onClick={() => confirmDelete(member)}>
                                         <RiDeleteBin6Line size={25}/>
                                     </button>
                                 </div>
@@ -188,6 +203,7 @@ const { t } = useTranslation();
                 </tbody>
             </table>
             <AddHomeMembers isOpen={addHomeMembersModal} toggle={addHomeMembersToggle} />
+            <DeleteConformationbox isOpen={deleteModal} toggle={() => setDeleteModal(false)} handleDelete={handleDelete} selectedMember={selectedMember} />
         </div>
     );
 };

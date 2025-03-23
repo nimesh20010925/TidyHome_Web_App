@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import HomeImage from "../../assets/home/home.png";
 import axios from "axios";
-
+import { toast } from "react-hot-toast";
 const CreateHome = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -62,6 +62,7 @@ const CreateHome = () => {
 
     if (!token) {
       setError("Authentication token is missing. Please log in again.");
+      toast.error("Authentication token is missing. Please log in again.")
       setIsLoading(false);
       return;
     }
@@ -81,11 +82,12 @@ const CreateHome = () => {
       if (response.data.success) {
         const updatedUser = { ...user, homeID: response.data.home._id };
         localStorage.setItem("user", JSON.stringify(updatedUser));
-
-        navigate("/home");
+        toast.success("you successfully create your home")
+        navigate("/app/home");
       }
     } catch (error) {
       setError(error.response?.data?.message || "Error creating home");
+      toast.error("Error creating home")
     } finally {
       setIsLoading(false);
     }

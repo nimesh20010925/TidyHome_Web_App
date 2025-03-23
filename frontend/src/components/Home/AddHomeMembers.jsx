@@ -5,6 +5,7 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import PropTypes from "prop-types";
+import { toast } from "react-hot-toast";
 
 const AddHomeMembers = ({ isOpen, toggle }) => {
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,7 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
         const token = localStorage.getItem("token");
         if (!token) {
           setError("Authentication failed. Please log in again.");
+          toast.error("Authentication failed. Please log in again.");
           return;
         }
 
@@ -55,9 +57,11 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
         );
 
         setSuccess(response.data.message);
+        toast.success(response.data.message)
         formik.resetForm(); // Reset form after successful submission
       } catch (error) {
         setError(error.response?.data?.message || "Something went wrong.");
+        toast.error("Something went wrong.")
       } finally {
         setLoading(false);
       }
