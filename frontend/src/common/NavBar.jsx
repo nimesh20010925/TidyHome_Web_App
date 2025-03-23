@@ -27,8 +27,16 @@ const NavBar = () => {
   const [activeNavTab, setActiveNavTab] = useState("HOME");
   const { t } = useTranslation();
 
+  // Set active tab based on current path
+  useEffect(() => {
+    const currentPath = location.pathname;
 
-  
+    const matchedTab = buttonsData.find((btn) => btn.route === currentPath);
+    if (matchedTab) {
+      setActiveNavTab(matchedTab.tab);
+    }
+  }, [location.pathname]);
+
   const handleNavTab = (tab, route) => {
     setActiveNavTab(tab);
     navigate(route);

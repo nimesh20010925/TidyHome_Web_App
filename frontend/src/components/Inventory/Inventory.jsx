@@ -152,6 +152,10 @@ const Inventory = () => {
     getAllInventoryItems();
   }, []);
 
+  useEffect(() => {
+    getAllInventoryItems();
+  }, [!addInventoryModal]);
+
   const handleDeleteInventory = async (id) => {
     try {
       await InventoryService.deleteInventoryItem(id);
@@ -237,16 +241,16 @@ const Inventory = () => {
   }, [inventories]);
 
   // Handle resizing of the card and update table height
-  const onResizeStop = (layout, oldItem, newItem) => {
-    if (newItem.i === "inventoryList") {
-      const rowHeight = 1.75;
-      const headerHeight = 1.8;
-      const totalRows = inventories.length;
-      const maxHeight = totalRows * rowHeight + headerHeight;
-      const calculatedHeight = Math.min(newItem.h * rowHeight, maxHeight);
-      setCardHeight(calculatedHeight);
-    }
-  };
+  // const onResizeStop = (layout, oldItem, newItem) => {
+  //   if (newItem.i === "inventoryList") {
+  //     const rowHeight = 1.75;
+  //     const headerHeight = 1.8;
+  //     const totalRows = inventories.length;
+  //     const maxHeight = totalRows * rowHeight + headerHeight;
+  //     const calculatedHeight = Math.min(newItem.h * rowHeight, maxHeight);
+  //     setCardHeight(calculatedHeight);
+  //   }
+  // };
 
   // Layout configuration
   const layout = [
@@ -266,9 +270,9 @@ const Inventory = () => {
   ];
 
   return (
-    <div className="inventory-container mt-2">
+    <div className="inventory-container mt-4 ms-2">
       {/* Categories Section */}
-      <div className="inventory-category-section">
+      <div className="inventory-category-section ms-2">
         <h5 className="ms-2 mb-2 fw-bold">{t("INVENTORY_CATEGORIES")}</h5>
         <div className="inventory-categories-container">
           {categories.map((category) => (
@@ -292,104 +296,101 @@ const Inventory = () => {
       </div>
 
       {/* Inventory List */}
-      <ResponsiveGridLayout
-        className="layout"
-        layouts={{ lg: layout }}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480 }}
-        cols={{ lg: 12, md: 12, sm: 6, xs: 4 }}
-        rowHeight={30}
-        isResizable={true}
-        isDraggable={true}
-        margin={[0, 0]}
-        containerPadding={[0, 0]}
-        onResizeStop={onResizeStop}
+
+      <Card
+        key="inventoryList"
+        className="pt-3 ps-3 pe-3 pb-1 mt-3 ms-2 inventory-table-card"
+        style={{ mixHeight: cardHeight }}
       >
-        <Card
-          key="inventoryList"
-          className="p-3 shadow-sm mt-3"
-          style={{ mixHeight: cardHeight }}
-        >
-          <div className="d-flex justify-content-between align-items-center">
-            <h5 className="ms-1 fw-bold">Inventory List</h5>
-            <Button
-              onClick={addInventoryToggle}
-              onMouseDown={(e) => e.stopPropagation()}
-              className="rounded-pill border-0 add-inventory-button fw-bold"
-            >
-              <img
-                src={addIcon}
-                alt="Add Item"
-                width={16}
-                height={16}
-                className="mb-1 me-1"
-              />{" "}
-              Add Inventory
-            </Button>
-          </div>
+        <div className="d-flex justify-content-between align-items-center">
+          <h5 className="ms-1 fw-bold">Inventory List</h5>
+          <Button
+            onClick={addInventoryToggle}
+            onMouseDown={(e) => e.stopPropagation()}
+            className="rounded-pill border-0 add-inventory-button fw-bold"
+          >
+            <img
+              src={addIcon}
+              alt="Add Item"
+              width={16}
+              height={16}
+              className="mb-1 me-1"
+            />{" "}
+            Add Inventory
+          </Button>
+        </div>
 
-          <AddInventoryModal
-            isOpen={addInventoryModal}
-            toggle={addInventoryToggle}
-          />
+        <AddInventoryModal
+          isOpen={addInventoryModal}
+          toggle={addInventoryToggle}
+        />
 
-          <div className="inventory-table-wrapper">
-            <Table striped bordered hover className="mt-4">
-              <thead>
-                <tr>
-                  <th>{t("PRODUCT_NAME")}</th>
-                  <th>{t("CATEGORY")}</th>
-                  <th>{t("QUANTITY")}</th>
-                  <th>{t("ITEM_TYPE")}</th>
-                  <th>{t("MANUFACTURED")}</th>
-                  <th>{t("EXPIRY_DATE")}</th>
-                  <th>{t("SUPPLIER")}</th>
-                  <th>{t("ACTIONS")}</th>
+        <div className="inventory-table-wrapper">
+          <Table striped bordered hover className="mt-4">
+            <thead>
+              <tr>
+                <th>{t("PRODUCT_NAME")}</th>
+                <th>{t("CATEGORY")}</th>
+                <th>{t("QUANTITY")}</th>
+                <th>{t("ITEM_TYPE")}</th>
+                <th>{t("MANUFACTURED")}</th>
+                <th>{t("EXPIRY_DATE")}</th>
+                <th>{t("SUPPLIER")}</th>
+                <th>{t("ACTIONS")}</th>
+              </tr>
+            </thead>
+            <tbody className="inventory-table-body">
+              {inventories.map((item) => (
+                <tr key={item._id}>
+                  <td>{item.itemName}</td>
+                  <td>
+                    {item.categoryId ? item.categoryId.category_name : "-"}
+                  </td>
+                  <td>{item.quantity || "-"}</td>
+                  <td>{item.itemType || "-"}</td>
+                  <td>
+                    {item.manufacturedDate
+                      ? new Date(item.manufacturedDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>
+                    {item.expiryDate
+                      ? new Date(item.expiryDate).toLocaleDateString()
+                      : "-"}
+                  </td>
+                  <td>
+                    {item.supplierId ? item.supplierId.supplier_name : "-"}
+                  </td>
+                  <td className="inventory-actions-cell">
+                    <div className="inventory-actions-row">
+                      <Button
+                        className="inventory-actions-no-bg"
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        <img src={viewIcon} alt="View" />
+                      </Button>
+                      <Button
+                        className="inventory-actions-no-bg"
+                        onClick={() => handleUpdateInventoryModal(item)}
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        <img src={editIcon} alt="Edit" />
+                      </Button>
+                      <Button
+                        className="inventory-actions-no-bg"
+                        onClick={() => handleDeleteInventoryModal(item._id)}
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        <img src={deleteIcon} alt="Delete" />
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="inventory-table-body">
-                {inventories.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.itemName}</td>
-                    <td>{item.categoryId ? item.categoryId : "-"}</td>
-                    <td>{item.quantity || "-"}</td>
-                    <td>{item.itemType || "-"}</td>
-                    <td>
-                      {item.manufacturedDate
-                        ? new Date(item.manufacturedDate).toLocaleDateString()
-                        : "-"}
-                    </td>
-                    <td>
-                      {item.expiryDate
-                        ? new Date(item.expiryDate).toLocaleDateString()
-                        : "-"}
-                    </td>
-                    <td>{item.supplierId ? item.supplierId.name : "-"}</td>
-                    <td className="inventory-actions-cell">
-                      <div className="inventory-actions-row">
-                        <Button className="inventory-actions-no-bg">
-                          <img src={viewIcon} alt="View" />
-                        </Button>
-                        <Button
-                          className="inventory-actions-no-bg"
-                          onClick={() => handleUpdateInventoryModal(item)}
-                        >
-                          <img src={editIcon} alt="Edit" />
-                        </Button>
-                        <Button
-                          className="inventory-actions-no-bg"
-                          onClick={() => handleDeleteInventoryModal(item._id)}
-                        >
-                          <img src={deleteIcon} alt="Delete" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
-        </Card>
-      </ResponsiveGridLayout>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      </Card>
 
       <Modal
         isOpen={deleteItemModal}
@@ -455,7 +456,7 @@ const Inventory = () => {
         containerPadding={[0, 0]}
       >
         <div key="barChart" style={{ marginTop: "42px" }}>
-          <Card className="p-3 shadow-sm justify-content-center inventory-barchart">
+          <Card className="p-3 shadow-sm justify-content-center inventory-barchart ms-2">
             <h5 className="mb-4">{t("LOW_INVENTORY_ITEMS")}</h5>
             <ResponsiveContainer width="90%" height={400}>
               <BarChart data={lowInventoryData}>
@@ -514,7 +515,7 @@ const Inventory = () => {
 
         <Card
           key="pieChart"
-          className="inventory-pie-chart p-3 shadow-sm"
+          className="inventory-pie-chart p-3 shadow-sm ms-2"
           style={{ marginTop: "36px", marginBottom: "36px" }}
         >
           <h5>{t("INVENTORY_ITEMS_SUMMARY_BY_CATEGORIES")}</h5>

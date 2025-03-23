@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import ShoppingList from "../Models/shoppingListModel.js";
+import ShoppingListItemsController from "./shoppingListItemsController.js";
 
 class ShoppingListController {
   static async createNewShoppingList(req, res, next) {
@@ -39,22 +40,26 @@ class ShoppingListController {
     try {
       const { homeID } = req.user; // Assuming req.user contains homeID for the authenticated user
 
-      // Check if the user is the home owner or a member of the home
+      // Fetch shopping lists and populate itemList with actual item details
       const shoppingLists = await ShoppingList.find({
         $or: [
-          { createdBy: req.user._id }, // Shopping lists created by the authenticated user
-          { homeId: homeID }, // Shopping lists for the user's home
-          { shopVisitors: req.user._id }, // Shopping lists where the user is a visitor
+          { createdBy: req.user._id },
+          { homeId: homeID },
+          { shopVisitors: req.user._id },
         ],
-      });
+      }).populate("itemList"); // Populating the itemList field with full item data
 
-      if (shoppingLists.length === 0) {
+      if (!shoppingLists.length) {
         return res
           .status(404)
           .json({ success: false, message: "No shopping lists found." });
       }
 
-      res.status(200).json(shoppingLists);
+      res.status(200).json({
+        success: true,
+        message: "Shopping lists retrieved successfully.",
+        shoppingLists,
+      });
     } catch (error) {
       console.error("Error fetching shopping lists:", error);
       res
@@ -121,7 +126,6 @@ class ShoppingListController {
     }
   }
 
- 
   static async deleteShoppingList(req, res, next) {
     const { listId } = req.params;
 
@@ -132,13 +136,22 @@ class ShoppingListController {
       });
 
       if (!shoppingList) {
-        return res.status(404).json({ success: false, message: 'Shopping list not found or you are not authorized to delete this list.' });
+        return res.status(404).json({
+          success: false,
+          message:
+            "Shopping list not found or you are not authorized to delete this list.",
+        });
       }
 
-      res.status(200).json({ success: true, message: 'Shopping list deleted successfully.' });
+      res.status(200).json({
+        success: true,
+        message: "Shopping list deleted successfully.",
+      });
     } catch (error) {
-      console.error('Error deleting shopping list:', error);
-      res.status(500).json({ success: false, message: 'Error deleting shopping list.' });
+      console.error("Error deleting shopping list:", error);
+      res
+        .status(500)
+        .json({ success: false, message: "Error deleting shopping list." });
     }
   }
 
@@ -146,25 +159,67 @@ class ShoppingListController {
     const { listId } = req.params;
     const { listName, shoppingDate, shopVisitors, itemList } = req.body;
 
+    console.log(req.body);
+
     try {
+      let createdItemIds = [];
+
+      // Create new shopping list items only if `itemList` is provided
+      if (Array.isArray(itemList) && itemList.length > 0) {
+        createdItemIds = await Promise.all(
+          itemList.map(async (item) => {
+            const reqClone = { ...req, body: item }; // Mock request for item creation
+            const resClone = {
+              status: () => ({ send: () => {} }), // Mock response
+            };
+
+            const createdItem =
+              await ShoppingListItemsController.createNewShoppingListItem(
+                reqClone,
+                resClone,
+                next
+              );
+
+            return createdItem._id; // Return created item ID
+          })
+        );
+      }
+
+      // Update the shopping list with new item details
       const shoppingList = await ShoppingList.findOneAndUpdate(
-        { _id: listId }, // Ensure only the home owner can update
-        { listName, shoppingDate, shopVisitors, itemList },
+        { _id: listId },
+        {
+          listName,
+          shoppingDate,
+          shopVisitors,
+          ...(createdItemIds.length > 0 && {
+            $push: { itemList: { $each: createdItemIds } },
+          }),
+        },
         { new: true }
       );
 
       if (!shoppingList) {
-        return res.status(404).json({ success: false, message: 'Shopping list not found or you are not authorized to update this list.' });
+        return res.status(404).json({
+          success: false,
+          message:
+            "Shopping list not found or you are not authorized to update this list.",
+        });
       }
 
-      res.status(200).json({ success: true, message: 'Shopping list updated successfully.', shoppingList });
+      res.status(200).json({
+        success: true,
+        message: "Shopping list updated successfully.",
+        shoppingList,
+      });
     } catch (error) {
-      console.error('Error updating shopping list:', error);
-      res.status(500).json({ success: false, message: 'Error updating shopping list.' });
+      console.error("Error updating shopping list:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error updating shopping list.",
+      });
     }
   }
-
-
 }
 
 export default ShoppingListController;

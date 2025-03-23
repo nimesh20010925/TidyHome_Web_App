@@ -19,7 +19,7 @@ const inventorySchema = new mongoose.Schema(
     },
     categoryId: {
       type: Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "categorys",
       required: false,
     },
     quantity: {
@@ -36,7 +36,7 @@ const inventorySchema = new mongoose.Schema(
     },
     supplierId: {
       type: Schema.Types.ObjectId,
-      ref: "Supplier",
+      ref: "suppliers",
       required: false,
     },
     lowStockLevel: {

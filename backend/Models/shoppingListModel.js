@@ -7,20 +7,20 @@ const shoppingListSchema = new mongoose.Schema(
     homeId: {
       type: Schema.Types.ObjectId,
       ref: "Home",
-      required: true,
+      required: false,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
     listName: {
       type: String,
-      required: true,
+      required: false,
     },
     shoppingDate: {
       type: Date,
-      required: true,
+      required: false,
     },
     shopVisitors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     itemList: [

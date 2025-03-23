@@ -1,13 +1,18 @@
+import { useEffect, useState } from "react";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import Form from "react-bootstrap/Form";
 import { useTranslation } from "react-i18next";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { InventoryService } from "../../../services/InventoryServices.jsx";
+import { CategoryService } from "../../../services/categoryServices";
 import PropTypes from "prop-types";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
 const AddInventoryModal = ({ isOpen, toggle }) => {
+  const [categories, setCategories] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const { t } = useTranslation();
 
   const today = new Date();
@@ -75,6 +80,31 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
       }
     },
   });
+
+  const getAllCategories = async () => {
+    try {
+      const categoryData = await CategoryService.getAllCategorys();
+      setCategories(categoryData);
+      console.log(categoryData);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const getSuppliers = async () => {
+    try {
+      const response = await axios.get("http://localhost:3500/api/supplier");
+      setSuppliers(response.data.suppliers);
+      console.log(response.data.suppliers);
+    } catch (error) {
+      console.error("Fetch suppliers error:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAllCategories();
+    getSuppliers();
+  }, [isOpen]);
 
   const handleToggle = () => {
     toggle();
@@ -159,12 +189,15 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               <option value="" disabled>
                 {t("SELECT_CATEGORY")}
               </option>
-              <option value="Category 1">Category 1</option>
-              <option value="Category 2">Category 2</option>
+              {categories.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.category_name}
+                </option>
+              ))}
             </Form.Select>
-            {/* {formik.errors.categoryId && formik.touched.categoryId && (
+            {formik.errors.categoryId && formik.touched.categoryId && (
               <div className="text-danger">{formik.errors.categoryId}</div>
-            )} */}
+            )}
           </Form.Group>
 
           <Form.Group className="custom-inventory-form-group">
@@ -291,14 +324,19 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
             <Form.Label>{t("SUPPLIER")}</Form.Label>
             <Form.Select
               className="custom-inventory-form-input"
-              defaultValue=""
+              name="supplierId"
+              onChange={formik.handleChange}
+              value={formik.values.supplierId}
               onMouseDown={(e) => e.stopPropagation()}
             >
               <option value="" disabled>
                 {t("SELECT_SUPPLIER")}
               </option>
-              <option value="Supplier 1">Supplier 1</option>
-              <option value="Supplier 2">Supplier 2</option>
+              {suppliers.map((supplier) => (
+                <option key={supplier._id} value={supplier._id}>
+                  {supplier.supplier_name}
+                </option>
+              ))}
             </Form.Select>
           </Form.Group>
 

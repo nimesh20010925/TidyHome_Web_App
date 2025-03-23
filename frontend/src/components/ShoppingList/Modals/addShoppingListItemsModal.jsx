@@ -15,8 +15,14 @@ import { FaSearchPlus } from "react-icons/fa";
 import { FiPlusCircle } from "react-icons/fi";
 import { FaCirclePlus, FaCircleMinus } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa";
+import { ShoppingListService } from "../../../services/ShoppingListSevices.jsx";
+import { toast } from "react-hot-toast";
 
-const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
+const AddShoppingListItemsModal = ({
+  isOpen,
+  toggle,
+  selectedShoppingList,
+}) => {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const inputRef = useRef(null);
   const [inventories, setInventories] = useState([]);
@@ -28,6 +34,7 @@ const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
   );
   const [isUrgent, setIsUrgent] = useState(false);
   const [shoppingListItems, setShoppingListItems] = useState([]);
+  const [updatedShoppingListItems, setUpdatedShoppingListItems] = useState([]);
   const [user, setUser] = useState();
 
   const { t } = useTranslation();
@@ -41,8 +48,9 @@ const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
   }, [selectedInventoryItem?.price, itemCount]);
 
   useEffect(() => {
-    console.log(shoppingListItems);
-  }, [shoppingListItems]);
+    setShoppingListItems(selectedShoppingList.itemList);
+    console.log(selectedShoppingList);
+  }, [selectedShoppingList]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -51,6 +59,38 @@ const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
       setUser(parsedUser);
     }
   }, []);
+
+  const handleUpdateShoppingList = async () => {
+    const updateData = {
+      homeId: user.homeID,
+      createdBy: selectedShoppingList.createdBy,
+      listName: selectedShoppingList.listName,
+      shoppingDate: selectedShoppingList.shoppingDate,
+      itemList: updatedShoppingListItems,
+    };
+
+    try {
+      const response = await ShoppingListService.updateShoppingList(
+        selectedShoppingList._id,
+        updateData
+      );
+
+      if (response.success) {
+        console.log("Shopping list updated successfully!");
+        toast.success(t("Shopping list updated successfully!"), {
+          style: {
+            background: "#4caf50",
+            color: "#fff",
+          },
+        });
+        toggle();
+      } else {
+        console.error("Failed to update shopping list:", response.message);
+      }
+    } catch (error) {
+      console.error("Error while updating shopping list:", error.message);
+    }
+  };
 
   const handleUrgentChange = (e) => {
     setIsUrgent(e.target.checked);
@@ -61,7 +101,7 @@ const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
 
     const newItem = {
       homeId: user.homeID,
-      shoppingListId: selectedInventoryItem.shoppingListId,
+      shoppingListId: selectedShoppingList._id,
       inventoryId: selectedInventoryItem?._id,
       itemName: selectedInventoryItem.itemName,
       itemType: selectedInventoryItem.itemType,
@@ -73,6 +113,7 @@ const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
     };
 
     setShoppingListItems((prev) => [...prev, newItem]);
+    setUpdatedShoppingListItems((prev) => [...prev, newItem]);
     setIsUrgent(false);
 
     setIsInputFocused(false);
@@ -463,37 +504,67 @@ const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
                   zIndex: 10,
                 }}
               />
-              {shoppingListItems.length !== 0 && (
-                <Row className="pb-2 ps-1 pr-2">
-                  <Col
-                    xs={6}
-                    className="customer-subheading-text text-start"
-                    style={{ fontWeight: 600, color: "#898989" }}
-                  >
-                    {t("ITEM_DESCRIPTION")}
-                  </Col>
-                  <Col
-                    xs={2}
-                    className="customer-subheading-text text-center"
-                    style={{ fontWeight: 600, color: "#898989" }}
-                  >
-                    {t("QUANTITY")}
-                  </Col>
-                  <Col
-                    xs={4}
-                    className="customer-subheading-text text-end"
-                    style={{ fontWeight: 600, color: "#898989" }}
-                  >
-                    {t("AMOUNT")} (LKR)
-                  </Col>
-                </Row>
-              )}
+              <Row className="mb-4">
+                <Col>
+                  <h5 style={{ fontSize: "20px" }}>
+                    {selectedShoppingList.listName}
+                  </h5>
+                  <h5 style={{ fontSize: "16px", color: "#555555" }}>
+                    Shopping date:{" "}
+                    {selectedShoppingList?.shoppingDate &&
+                    !isNaN(
+                      new Date(selectedShoppingList.shoppingDate).getTime()
+                    )
+                      ? new Date(selectedShoppingList.shoppingDate)
+                          .toISOString()
+                          .split("T")[0]
+                      : ""}
+                  </h5>
+                </Col>
+                {/* <Col>
+                  {selectedShoppingList.shopVisitors && selectedShoppingList.shopVisitors.length > 0 ? (
+                    getVisitorNames(list.shopVisitors).map(
+                      (visitorName, index) => <p key={index}>{visitorName}</p>
+                    )
+                  ) : (
+                    <p>No visitors</p>
+                  )}
+                </Col> */}
+              </Row>
 
-              {shoppingListItems.length === 0 && (
-                <div className="mt-5" style={{ color: "#976bdb" }}>
-                  No Shopping List Items Added Yet
-                </div>
-              )}
+              {Array.isArray(selectedShoppingList.itemList) &&
+                selectedShoppingList.itemList.length > 0 && (
+                  <Row className="pb-2 ps-1 pr-2">
+                    <Col
+                      xs={6}
+                      className="text-start"
+                      style={{ fontWeight: 600, color: "#898989" }}
+                    >
+                      {t("ITEM_DESCRIPTION")}
+                    </Col>
+                    <Col
+                      xs={2}
+                      className="text-center"
+                      style={{ fontWeight: 600, color: "#898989" }}
+                    >
+                      {t("QUANTITY")}
+                    </Col>
+                    <Col
+                      xs={4}
+                      className="text-end"
+                      style={{ fontWeight: 600, color: "#898989" }}
+                    >
+                      {t("AMOUNT")} (LKR)
+                    </Col>
+                  </Row>
+                )}
+
+              {Array.isArray(selectedShoppingList.itemList) &&
+                selectedShoppingList.itemList.length === 0 && (
+                  <div className="mt-5" style={{ color: "#976bdb" }}>
+                    No Shopping List Items Added Yet
+                  </div>
+                )}
               <div
                 style={{
                   maxHeight: "340px",
@@ -581,7 +652,7 @@ const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
           <Button
             className="col-3 border-0 rounded-pill ms-3 fw-bold"
             style={{ backgroundColor: "#976BDB", height: "36px" }}
-            // onClick={handleSaveUpdatedInvoice}
+            onClick={handleUpdateShoppingList}
           >
             {t("SAVE")}
           </Button>
@@ -594,6 +665,7 @@ const AddShoppingListItemsModal = ({ isOpen, toggle }) => {
 AddShoppingListItemsModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
+  selectedShoppingList: PropTypes.any.isRequired,
 };
 
 export default AddShoppingListItemsModal;
