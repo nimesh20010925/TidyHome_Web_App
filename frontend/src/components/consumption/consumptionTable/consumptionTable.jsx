@@ -147,19 +147,19 @@ const ConsumptionTable = () => {
                     <td data-label="Action">
                       <div className="btn-group" role="group">
                         <button
-                          className="btn btn-outline-primary btn-sm"
+                          className="btn btn-outline-primary btn-sm bt"
                           onClick={() => handleView(item)}
                         >
                           View
                         </button>
                         <button
-                          className="btn btn-outline-warning btn-sm"
+                          className="btn btn-outline-warning btn-sm bt"
                           onClick={() => handleEdit(item)}
                         >
                           Edit
                         </button>
                         <button
-                          className="btn btn-outline-danger btn-sm"
+                          className="btn btn-outline-danger btn-sm bt"
                           onClick={() => {
                             setSelectedItem(item);
                             setOpenDeleteModal(true);
