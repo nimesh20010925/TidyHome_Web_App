@@ -1,4 +1,3 @@
-
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -12,6 +11,7 @@ import categoryRoutes from "./Routes/categoryRoutes.js"
 import supplierRoutes from "./Routes/supplierRoute.js"
 import shoppingListRoutes from './Routes/shoppingListRoute.js';
 
+import notificationRoutes from "./Routes/notificationRoute.js";
 // Load environment variables
 dotenv.config();
 
@@ -33,6 +33,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cors());
 
+app.use("/uploads", express.static("uploads"));
+
 //Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/home", homeRoutes);
@@ -42,6 +44,8 @@ app.use("/api/customNotification", customNotificationRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/shoppingList", shoppingListRoutes);
+app.use('/api/notifications', notificationRoutes);
+
 
 // Connect to MongoDB
 mongoose

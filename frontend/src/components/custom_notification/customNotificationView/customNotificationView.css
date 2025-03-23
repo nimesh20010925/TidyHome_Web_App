@@ -1,0 +1,201 @@
+.notification-card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, height 0.5s ease, padding 0.3s ease; /* Comprehensive transition */
+    background: #fff;
+    height: auto;
+    will-change: transform, box-shadow; /* Optimize for performance */
+  }
+  
+  .notification-card.view-mode {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  
+  .notification-card.edit-mode {
+    height: auto;
+    max-height: 1000px; /* Fallback for transition */
+    overflow: visible;
+  }
+  
+  .notification-card:hover {
+    transform: translateY(-10px); /* GPU-accelerated */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important; /* Smooth shadow change */
+  }
+  
+  .bg-gradient-primary {
+    background: linear-gradient(to right, #C799FF, #8f94fb);
+    padding: 1rem;
+    border-bottom: none;
+  }
+  
+  .card-body {
+    padding: 1rem !important;
+    transition: padding 0.3s ease;
+  }
+  
+  .notification-card.edit-mode .card-body {
+    padding: 1.5rem !important;
+  }
+  
+  .card-footer {
+    border-top: none;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .dropdown-toggle::after {
+    display: none !important;
+  }
+  
+  .bi-three-dots-vertical {
+    font-size: 1.3rem;
+  }
+  
+  .dropdown-menu {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.2s ease;
+  }
+  
+  .dropdown-item {
+    transition: background 0.2s ease;
+  }
+  
+  .dropdown-item:hover {
+    background: #f8f9fa;
+  }
+  
+  .badge {
+    font-size: 0.9rem;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+  }
+  
+  .edit-form .form-control {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .edit-form .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  
+  .btn-success,
+  .btn-secondary {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Match card hover timing */
+  }
+  
+  .btn-success:hover,
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .notification-details p {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+  
+  .notification-details strong {
+    color: #333;
+  }
+  
+  .text-primary {
+    color: #007bff !important;
+  }
+  
+  .edit-form .d-flex {
+    gap: 0.5rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .notification-card.view-mode {
+      height: auto;
+    }
+  
+    .notification-card.edit-mode {
+      max-height: 1200px;
+    }
+  
+    .card-header h5 {
+      font-size: 1.1rem;
+    }
+  
+    .card-body {
+      padding: 0.75rem !important;
+    }
+  
+    .notification-card.edit-mode .card-body {
+      padding: 1.25rem !important;
+    }
+  
+    .notification-details p {
+      font-size: 0.9rem;
+    }
+  
+    .edit-form .form-label {
+      font-size: 0.9rem;
+    }
+  
+    .btn-success,
+    .btn-secondary {
+      padding: 0.4rem 0.8rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .notification-card.view-mode {
+      height: auto;
+    }
+  
+    .notification-card.edit-mode {
+      max-height: none;
+    }
+  
+    .card-header {
+      padding: 0.75rem;
+    }
+  
+    .dropdown {
+      margin-top: 0.5rem !important;
+      margin-right: 0.5rem !important;
+    }
+  
+    .edit-form .d-flex {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  
+    .btn-success,
+    .btn-secondary {
+      width: 100%;
+    }
+  }
+
+
+  .cancle-button{
+background-color: rgb(255, 156, 156);
+  }
+  .cancle-button:hover{
+        background-color: rgb(255, 156, 156);
+      }
+      .cancle-button:active{
+        background-color: rgb(255, 156, 156);
+      }
+      .cancle-button:focus{
+    background-color: rgb(255, 156, 156);
+      }
+    
+
+  .save-button{
+    background: linear-gradient(to right, #C799FF, #8f94fb) !important;
+    border: none !important;
+  }

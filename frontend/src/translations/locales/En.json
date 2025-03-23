@@ -73,6 +73,14 @@
     "UPDATING_ITEM": "Updating Item",
     "UPDATE_ITEM": "Update Item",
     "UPDATE_INVENTORY_ITEM_FORM": "Update Inventory Items Form",
+    "ITEM_DESCRIPTION": "Item Description",
+    "ESTIMATED_COST": "Estimated Cost",
+    "SEARCH_NEW_ITEMS": "Search New Items",
+    "NO_ITEMS_ADDED_YET": "No Items Added Yet",
+    "ESTIMATED_SHOPPING_COST_SUMMARY": "Estimated Shopping Cost Summary",
+    "SHOPPING_ITEM_COST_SUMMARY": "Shoppping Item Cost Summary",
+    "SHOPPINGLIST_TOTAL_COST": "Shopping List Total Cost",
+    "HOME_SUMMARY": "Home Summary", 
 
     "NOTIFICATIONS": "Notifications",
     "Search": "Search",
@@ -105,7 +113,7 @@
     "QUICKACTION":"QUICK ACTION",
     "CATEGORIES":"Categories",
     "CREATECONSUMPTION":"Create Consumption",
-    "CREATECUSTOMNOTIFICATION":"Create Custom Notificstion",
+    "CREATECUSTOMREMINDERS":"Custom Reminders",
     "CREATENEWSHOPPINGLIST":"Create New Shopping List",
     "ADDNEWINVENTORY":"Add New Inventory",
     "ADDSUPPLIER":"Add Supplier",
@@ -115,6 +123,11 @@
     "SPECIALNOTICES":"Special Notices",
      "HOMESUMMRY":"Home Summry",
      "SHOPPINGSCHEDULES":"Shopping Schedules",
-     "CREATESHOPPINGSCHEDULES":"Create Shopping Schedules"
+     "CREATESHOPPINGSCHEDULES":"Create Shopping Schedules",
+     "CREATENEWSHOPPINGLISTFORM":"Create Shopping Schedules Form",
+     "CREATE":"Create",
+     "ADDHOMEMEMBER":"Add Home Member",
+     "ADDHOMEMEMBERFORM":"Add Home Member Form",
+     "HOMEMEMBERLIST":"Home Member List"
 
 }

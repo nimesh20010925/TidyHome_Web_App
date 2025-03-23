@@ -1,0 +1,190 @@
+/* App.css or your CSS file */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+
+
+button {
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px 0;
+}
+
+button{
+  background-color: #f44336;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+:root {
+  --ccm-primary-gradient-start: #007bff;
+  --ccm-primary-gradient-end: #0056b3;
+  --ccm-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.ccm-consumption-modal .modal-dialog {
+  max-width: 600px;
+}
+
+.ccm-modal-header.bg-gradient-primary {
+  background: linear-gradient(to right, #C799FF, #8f94fb) !important;
+  border-bottom: none;
+  padding: 1.5rem;
+}
+
+.ccm-modal-header .modal-title {
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.ccm-modal-header .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.ccm-modal-body {
+  padding: 2rem;
+  background: #fff;
+  border-radius: 0 0 15px 15px;
+  box-shadow: var(--ccm-shadow);
+}
+
+.ccm-form-floating label {
+  color: #495057;
+  font-weight: 500;
+}
+
+.ccm-form-floating .form-control {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.ccm-form-floating .form-control:focus {
+  border-color: var(--ccm-primary-gradient-start);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.ccm-form-select {
+  border-radius: 8px;
+}
+
+.ccm-form-control:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+}
+
+.ccm-form-control[readonly] {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.ccm-modal-btn {
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.ccm-modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ccm-modal-btn.btn-primary {
+  background: linear-gradient(to right, #C799FF, #8f94fb) !important;
+  border: none;
+}
+
+.ccm-modal-btn.btn-secondary {
+  background: #ff8383;
+  border: none;
+}
+
+.ccm-consumption-modal .modal-content {
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  animation: ccm-fadeIn 0.3s ease;
+}
+
+.ccm-text-center {
+  text-align: center;
+}
+
+.ccm-py-5 {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.ccm-mt-2 {
+  margin-top: 0.5rem;
+}
+
+.ccm-mb-3 {
+  margin-bottom: 1rem;
+}
+
+.ccm-d-flex {
+  display: flex;
+}
+
+.ccm-gap-2 {
+  gap: 0.5rem;
+}
+
+.ccm-justify-content-end {
+  justify-content: flex-end;
+}
+
+@keyframes ccm-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  .ccm-modal-body {
+    padding: 1.5rem;
+  }
+
+  .ccm-modal-header {
+    padding: 1rem;
+  }
+
+  .ccm-modal-title {
+    font-size: 1.25rem;
+  }
+
+  .ccm-modal-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+  }
+}

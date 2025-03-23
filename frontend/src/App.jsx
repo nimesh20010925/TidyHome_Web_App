@@ -22,13 +22,15 @@ import LandingPage from "./pages/LandingPages/LandingPage.jsx";
 import Supplier_home from "./pages/supplier_home.jsx";
 import Category_home from "./pages/category_home.jsx";
 import HomeProfile from "./components/Home/HomeProfile.jsx";
-
+import CustomNotification from "./pages/custom_notification_home.jsx";
+import Notification from "./components/notifications/notification.jsx";
+import SingleNotification from "./components/notifications/SingleNotificationPage.jsx";
 
 const MainLayout = () => (
   <div className="d-flex flex-column vh-100">
     <NavBar />
     <div className="d-flex flex-grow-1">
-      <div className="app-body flex-grow-1 p-3">
+      <div className="app-body flex-grow-1 p-1">
         <Outlet />
       </div>
       <div className="app-sidebar">
@@ -76,6 +78,9 @@ const App = () => {
             <Route path="supplier-home" element={<Supplier_home />} />
             <Route path="category-home" element={<Category_home />} />
             <Route path="myhome" element={<HomeProfile />} />
+            <Route path="custom-notification" element={<CustomNotification />} />
+            <Route path="notification" element={<Notification />} />
+            <Route path="single-notification" element={< SingleNotification/>} />
 
           </Route>
         </Route>

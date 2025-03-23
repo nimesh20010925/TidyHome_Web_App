@@ -31,6 +31,29 @@ const CreateHome = () => {
     }));
   };
 
+  // Handle validation for phone number and members
+  const handlePhoneChange = (e) => {
+    const { value } = e.target;
+    // Only allow numbers and limit the length to 10
+    if (/^\d{0,10}$/.test(value)) {
+      setFormData((prev) => ({
+        ...prev,
+        homePhone: value,
+      }));
+    }
+  };
+
+  const handleMembersChange = (e) => {
+    const { value } = e.target;
+    // Only allow numbers
+    if (/^\d*$/.test(value)) {
+      setFormData((prev) => ({
+        ...prev,
+        number_of_members: value,
+      }));
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,7 +110,15 @@ const CreateHome = () => {
             </div>
             <div className="signupinputBx">
               <span>{t("HOMEPHONENUMBER")}</span>
-              <input type="tel" className="signupinput" name="homePhone" value={formData.homePhone} onChange={handleInputChange} required />
+              <input 
+                type="tel" 
+                className="signupinput" 
+                name="homePhone" 
+                value={formData.homePhone} 
+                onChange={handlePhoneChange} 
+                maxLength="10" // Limit to 10 digits
+                required 
+              />
             </div>
             <div className="signupinputBx">
               <span>{t("HOMEADDRESS")}</span>
@@ -95,7 +126,14 @@ const CreateHome = () => {
             </div>
             <div className="signupinputBx">
               <span>{t("HOMEMEMBERS")}</span>
-              <input type="number" className="signupinput" name="number_of_members" value={formData.number_of_members} onChange={handleInputChange} required />
+              <input 
+                type="number" 
+                className="signupinput" 
+                name="number_of_members" 
+                value={formData.number_of_members} 
+                onChange={handleMembersChange} 
+                required 
+              />
             </div>
             
             {error && <div className="error-message">{error}</div>}

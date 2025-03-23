@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import PropTypes from "prop-types";
 
@@ -9,7 +10,7 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
+   const { t } = useTranslation();
   // Formik setup for form validation and submission
   const formik = useFormik({
     initialValues: {
@@ -27,9 +28,12 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
       password: Yup.string()
         .min(6, "Password must be at least 6 characters")
         .required("Password is required"),
-      phone: Yup.string().required("Phone number is required"),
+      phone: Yup.string()
+        .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
+        .required("Phone number is required"),
       address: Yup.string().required("Address is required"),
     }),
+    
     onSubmit: async (values) => {
       setError("");
       setSuccess("");
@@ -88,7 +92,7 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
         close={closeBtn}
         className="border-0 poppins-medium mx-4 mt-2 fw-bold"
       >
-        Add Home Member
+        {t("ADDHOMEMEMBERFORM")}
       </ModalHeader>
 
       <ModalBody className="add-home-member-modal-body">
@@ -101,7 +105,7 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
             <form onSubmit={formik.handleSubmit}>
               {/* Full Name */}
               <div className="custom-add-home-member-form-group">
-                <label htmlFor="name">Full Name</label>
+                <label htmlFor="name">{t("USERNAME")}</label>
                 <input
                   type="text"
                   id="name"
@@ -119,7 +123,7 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
 
               {/* Email */}
               <div className="custom-add-home-member-form-group">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">{t("EMAIL")}</label>
                 <input
                   type="email"
                   id="email"
@@ -137,7 +141,7 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
 
               {/* Password */}
               <div className="custom-add-home-member-form-group">
-                <label htmlFor="password">Password</label>
+                <label htmlFor="password">{t("PASSWORD")}</label>
                 <input
                   type="password"
                   id="password"
@@ -155,14 +159,18 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
 
               {/* Phone */}
               <div className="custom-add-home-member-form-group">
-                <label htmlFor="phone">Phone</label>
+                <label htmlFor="phone">{t("PHONE")}</label>
                 <input
                   type="text"
                   id="phone"
                   name="phone"
                   placeholder="Enter Phone Number"
                   value={formik.values.phone}
-                  onChange={formik.handleChange}
+                  onChange={(e) => {
+                    // Prevent non-numeric characters by allowing only digits
+                    const value = e.target.value.replace(/\D/g, ''); // Replace non-digit characters
+                    formik.setFieldValue("phone", value); // Update Formik state
+                  }}
                   onBlur={formik.handleBlur}
                   className="custom-home-member-form-input"
                 />
@@ -173,7 +181,7 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
 
               {/* Address */}
               <div className="custom-add-home-member-form-group">
-                <label htmlFor="address">Address</label>
+                <label htmlFor="address">{t("ADDRESS")}</label>
                 <input
                   type="text"
                   id="address"
@@ -201,7 +209,7 @@ const AddHomeMembers = ({ isOpen, toggle }) => {
                 }}
                 disabled={loading}
               >
-                {loading ? "Adding..." : "Add Member"}
+               {loading ? "Adding..." : t("ADDHOMEMEMBER")}
               </Button>
             </form>
           </div>

@@ -35,12 +35,7 @@ router.post(
 );
 
 // Route to update a shopping list (only accessible by home owner)
-router.put(
-  "/shopping-lists/:listId",
-  authenticateUser,
-  authorizeHomeOwner,
-  ShoppingListController.updateShoppingList
-);
+router.put("/shopping-lists/:listId", authenticateUser, ShoppingListController.updateShoppingList);
 
 // Route to delete a shopping list (only accessible by home owner)
 router.delete(

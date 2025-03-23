@@ -22,6 +22,7 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 import AddShoppingListItemsModal from "./Modals/addShoppingListItemsModal.jsx";
+import ShoppingListModal from "./Modals/viewShoppingListModal.jsx";
 import { ShoppingListService } from "../../services/ShoppingListSevices.jsx";
 import axios from "axios";
 import { Modal, ModalHeader, ModalBody, Col, Row, Button } from "reactstrap";
@@ -99,6 +100,7 @@ const ShoppingList = () => {
   const [shoppingLists, setShoppingLists] = useState([]);
   const [selectedShoppingList, setSelectedShoppingList] = useState([]);
   const [deleteItemModal, setDeleteItemModal] = useState(false);
+  const [viewShoppingListModal, setViewShoppingListModal] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState();
 
   const { t } = useTranslation();
@@ -174,6 +176,10 @@ const ShoppingList = () => {
     setDeleteItemModal(!deleteItemModal);
   };
 
+  const viewShoppingListToggle = () => {
+    setViewShoppingListModal(!viewShoppingListModal);
+  };
+
   const handleDelete = async (listId) => {
     const token = localStorage.getItem("token");
     try {
@@ -228,18 +234,18 @@ const ShoppingList = () => {
     <div className="shopping-container">
       {/* Summary Cards */}
       <motion.div
-        className="summary-cards"
+        className=""
         variants={summaryVariants}
         initial="hidden"
         animate="visible"
       >
-        <div className="summary-container">
+        <div className="shopping-list-summary-container">
           <h4>Home Summary</h4>
-          <div className="summary-card-section">
+          <div className="shopping-list-summary-card-section">
             {cardData.map((item, index) => (
               <motion.div
                 key={index}
-                className="summary-card"
+                className="shopping-list-summary-card"
                 whileHover={{ scale: 1.05 }}
               >
                 <div
@@ -296,7 +302,10 @@ const ShoppingList = () => {
                 )}
               </div>
               <div className="shopping-card-icon-group">
-                <FaEye className="shopping-card-icon view-icon" />
+                <FaEye
+                  className="shopping-card-icon view-icon"
+                  onClick={viewShoppingListToggle}
+                />
                 <FaEdit
                   className="shopping-card-icon edit-icon"
                   onClick={() => handleAddShoppingItemsBtnSelect(list)}
@@ -311,6 +320,12 @@ const ShoppingList = () => {
           ))}
         </div>
       </div>
+
+      <ShoppingListModal
+        isOpen={viewShoppingListModal}
+        toggle={viewShoppingListToggle}
+      />
+
       <Modal
         isOpen={deleteItemModal}
         toggle={deleteItemToggle}
@@ -362,9 +377,9 @@ const ShoppingList = () => {
       />
 
       {/* Charts Section */}
-      <div className="charts-section">
+      <div className="shopping-list-charts-section">
         <motion.div
-          className="chart-container"
+          className="shopping-list-chart-container"
           variants={chartVariants}
           initial="hidden"
           animate="visible"
@@ -395,7 +410,7 @@ const ShoppingList = () => {
         </motion.div>
 
         <motion.div
-          className="chart-container"
+          className="shopping-list-chart-container"
           variants={chartVariants}
           initial="hidden"
           animate="visible"

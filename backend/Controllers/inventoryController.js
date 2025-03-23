@@ -50,7 +50,10 @@ class InventoryController {
 
   static async getAllInventoryItems(req, res, next) {
     try {
-      const inventories = await Inventory.find();
+      const inventories = await Inventory.find()
+        .populate("categoryId")
+        .populate("supplierId")
+        .sort({ createdAt: -1 });
 
       if (!inventories || inventories.length === 0) {
         return res.status(404).json({

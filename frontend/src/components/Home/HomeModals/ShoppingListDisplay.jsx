@@ -3,7 +3,8 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import Form from "react-bootstrap/Form";
-
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { FaEdit } from "react-icons/fa";
 const ShoppingListDisplay = () => {
   const [shoppingLists, setShoppingLists] = useState([]);
   const [currentList, setCurrentList] = useState(null); // For editing
@@ -14,6 +15,7 @@ const ShoppingListDisplay = () => {
     shopVisitors: [],
   });
   const [homeMembers, setHomeMembers] = useState([]);
+  const [errors, setErrors] = useState({});
   const [createShoppingScheduleModal, setCreateShoppingScheduleModal] =
     useState(false);
 
@@ -84,6 +86,7 @@ const ShoppingListDisplay = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     try {
       const token = localStorage.getItem("token");
       const user = JSON.parse(localStorage.getItem("user"));
@@ -156,7 +159,7 @@ const ShoppingListDisplay = () => {
   const handleEdit = (list) => {
     setFormData({
       listName: list.listName,
-      shoppingDate: list.shoppingDate,
+      shoppingDate: list.shoppingDate.split("T")[0],
       shopVisitors: list.shopVisitors,
     });
     setCurrentList(list);
@@ -168,6 +171,23 @@ const ShoppingListDisplay = () => {
       const member = homeMembers.find((member) => member._id === id);
       return member ? member.name : "Unknown Visitor";
     });
+  };
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Ensure shopping date is not in the past
+    const today = new Date().toISOString().split("T")[0];
+    if (!formData.shoppingDate || formData.shoppingDate < today) {
+      newErrors.shoppingDate = "Shopping date cannot be in the past.";
+    }
+
+    // Ensure at least one visitor is selected
+    if (formData.shopVisitors.length === 0) {
+      newErrors.shopVisitors = "Please select at least one visitor.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const closeBtn = (
@@ -261,7 +281,7 @@ const ShoppingListDisplay = () => {
           close={closeBtn}
           className="border-0 poppins-medium mx-4 mt-2 fw-bold"
         >
-          Create Shopping List
+          {t("CREATENEWSHOPPINGLISTFORM")}
         </ModalHeader>
 
         <ModalBody className="add-inventory-modal-body">
@@ -287,9 +307,13 @@ const ShoppingListDisplay = () => {
                   value={formData.shoppingDate}
                   onChange={handleInputChange}
                   required
+                  min={new Date().toISOString().split("T")[0]}
                   onMouseDown={(e) => e.stopPropagation()}
                 />
                 <Form.Label>Shopping Date:</Form.Label>
+                {errors.shoppingDate && (
+                  <p className="error-text">{errors.shoppingDate}</p>
+                )}
               </Form.Group>
 
               <Form.Group className="custom-inventory-form-group">
@@ -310,6 +334,9 @@ const ShoppingListDisplay = () => {
                     </option>
                   ))}
                 </Form.Select>
+                {errors.shopVisitors && (
+                  <p className="error-text">{errors.shopVisitors}</p>
+                )}
               </Form.Group>
 
               <Button
@@ -322,7 +349,7 @@ const ShoppingListDisplay = () => {
                 }}
                 onMouseDown={(e) => e.stopPropagation()}
               >
-                Create
+                {t("CREATE")}
               </Button>
             </form>
           </div>

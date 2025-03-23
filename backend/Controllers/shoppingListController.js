@@ -162,33 +162,39 @@ class ShoppingListController {
     console.log(req.body);
 
     try {
-      // Create new shopping list items using createNewShoppingListItem method
-      const createdItemIds = await Promise.all(
-        itemList.map(async (item) => {
-          const reqClone = { ...req, body: item }; // Mock request for item creation
-          const resClone = {
-            status: () => ({ send: () => {} }), // Mock response
-          };
+      let createdItemIds = [];
 
-          const createdItem =
-            await ShoppingListItemsController.createNewShoppingListItem(
-              reqClone,
-              resClone,
-              next
-            );
+      // Create new shopping list items only if `itemList` is provided
+      if (Array.isArray(itemList) && itemList.length > 0) {
+        createdItemIds = await Promise.all(
+          itemList.map(async (item) => {
+            const reqClone = { ...req, body: item }; // Mock request for item creation
+            const resClone = {
+              status: () => ({ send: () => {} }), // Mock response
+            };
 
-          return createdItem._id; // Return created item ID
-        })
-      );
+            const createdItem =
+              await ShoppingListItemsController.createNewShoppingListItem(
+                reqClone,
+                resClone,
+                next
+              );
+
+            return createdItem._id; // Return created item ID
+          })
+        );
+      }
 
       // Update the shopping list with new item details
       const shoppingList = await ShoppingList.findOneAndUpdate(
-        { _id: listId, createdBy: req.user._id },
+        { _id: listId },
         {
           listName,
           shoppingDate,
           shopVisitors,
-          $push: { itemList: { $each: createdItemIds } }, // Append new items to itemList array
+          ...(createdItemIds.length > 0 && {
+            $push: { itemList: { $each: createdItemIds } },
+          }),
         },
         { new: true }
       );
