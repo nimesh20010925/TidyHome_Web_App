@@ -25,6 +25,7 @@ const SupplierService = () => {
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(4);
+  const [searchQuery, setSearchQuery] = useState(''); // New state for search
 
   useEffect(() => {
     fetchSuppliers();
@@ -33,7 +34,13 @@ const SupplierService = () => {
   const fetchSuppliers = async () => {
     try {
       const response = await axios.get('http://localhost:3500/api/supplier');
-      setSuppliers(response.data.suppliers);
+      // Sort suppliers by createdAt if available, otherwise by date, in descending order
+      const sortedSuppliers = response.data.suppliers.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
+        return dateB - dateA;
+      });
+      setSuppliers(sortedSuppliers);
     } catch (error) {
       console.error('Fetch suppliers error:', error);
       const errorMessage = error.response?.data?.message || 'Error fetching suppliers';
@@ -47,11 +54,121 @@ const SupplierService = () => {
   };
 
   const handleCreate = async () => {
+    const { supplier_id, supplier_name, supplier_contact, supplier_email, supplier_address, date } = formData;
+
+    // Supplier ID Validation
+    if (supplier_id.length < 5 || supplier_id.length > 10) {
+      showSnackbar('Supplier ID must be between 5 and 10 characters long', 'error');
+      return;
+    }
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    if (!alphanumericRegex.test(supplier_id)) {
+      showSnackbar('Supplier ID can only contain letters and numbers', 'error');
+      return;
+    }
     try {
-      await axios.post('http://localhost:3500/api/supplier/create', formData);
+      const response = await axios.get('http://localhost:3500/api/supplier');
+      const existingSuppliers = response.data.suppliers;
+      if (existingSuppliers.some((supplier) => supplier.supplier_id === supplier_id)) {
+        showSnackbar('Supplier ID already exists', 'error');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking supplier ID uniqueness:', error);
+      showSnackbar('Error validating Supplier ID', 'error');
+      return;
+    }
+
+    // Supplier Name Validation
+    if (supplier_name.length < 3 || supplier_name.length > 50) {
+      showSnackbar('Supplier Name must be between 3 and 50 characters long', 'error');
+      return;
+    }
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(supplier_name)) {
+      showSnackbar('Supplier Name can only contain letters and spaces', 'error');
+      return;
+    }
+
+    // Supplier Contact Validation
+    if (supplier_contact.length !== 10) {
+      showSnackbar('Supplier Contact must be exactly 10 digits', 'error');
+      return;
+    }
+    const contactRegex = /^[0-9]+$/;
+    if (!contactRegex.test(supplier_contact)) {
+      showSnackbar('Supplier Contact can only contain numbers', 'error');
+      return;
+    }
+    const validStart = /^[6-9]/;
+    if (!validStart.test(supplier_contact)) {
+      showSnackbar('Supplier Contact must start with 6, 7, 8, or 9', 'error');
+      return;
+    }
+
+    // Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(supplier_email)) {
+      showSnackbar('Please enter a valid email address', 'error');
+      return;
+    }
+    try {
+      const response = await axios.get('http://localhost:3500/api/supplier');
+      const existingSuppliers = response.data.suppliers;
+      if (existingSuppliers.some((supplier) => supplier.supplier_email === supplier_email)) {
+        showSnackbar('Email already exists', 'error');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking email uniqueness:', error);
+      showSnackbar('Error validating Email', 'error');
+      return;
+    }
+
+    // Address Validation
+    if (supplier_address.length < 10 || supplier_address.length > 100) {
+      showSnackbar('Supplier Address must be between 10 and 100 characters long', 'error');
+      return;
+    }
+    const addressRegex = /^[a-zA-Z0-9\s,.-/]+$/;
+    if (!addressRegex.test(supplier_address)) {
+      showSnackbar('Supplier Address can only contain letters, numbers, spaces, and , . - /', 'error');
+      return;
+    }
+
+    // Date Validation
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      showSnackbar('Date must be in YYYY-MM-DD format', 'error');
+      return;
+    }
+    const inputDate = new Date(date);
+    const currentDate = new Date('2025-03-22');
+    if (inputDate > currentDate) {
+      showSnackbar('Date cannot be in the future', 'error');
+      return;
+    }
+    const minDate = new Date('2015-03-22');
+    if (inputDate < minDate) {
+      showSnackbar('Date cannot be older than 10 years', 'error');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:3500/api/supplier/create', formData);
+      const newSupplier = {
+        ...response.data,
+        createdAt: new Date().toISOString()
+      };
+      setSuppliers((prevSuppliers) => {
+        const updatedSuppliers = [newSupplier, ...prevSuppliers];
+        return updatedSuppliers.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
+          const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
+          return dateB - dateA;
+        });
+      });
       setOpenCreate(false);
       resetForm();
-      fetchSuppliers();
       showSnackbar('Supplier created successfully');
     } catch (error) {
       console.error('Create supplier error:', error);
@@ -61,6 +178,107 @@ const SupplierService = () => {
   };
 
   const handleUpdate = async () => {
+    const { supplier_id, supplier_name, supplier_contact, supplier_email, supplier_address, date } = formData;
+
+    if (supplier_id.length < 5 || supplier_id.length > 10) {
+      showSnackbar('Supplier ID must be between 5 and 10 characters long', 'error');
+      return;
+    }
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    if (!alphanumericRegex.test(supplier_id)) {
+      showSnackbar('Supplier ID can only contain letters and numbers', 'error');
+      return;
+    }
+    try {
+      const response = await axios.get('http://localhost:3500/api/supplier');
+      const existingSuppliers = response.data.suppliers;
+      if (
+        existingSuppliers.some(
+          (supplier) => supplier.supplier_id === supplier_id && supplier._id !== selectedSupplier._id
+        )
+      ) {
+        showSnackbar('Supplier ID already exists', 'error');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking supplier ID uniqueness:', error);
+      showSnackbar('Error validating Supplier ID', 'error');
+      return;
+    }
+
+    if (supplier_name.length < 3 || supplier_name.length > 50) {
+      showSnackbar('Supplier Name must be between 3 and 50 characters long', 'error');
+      return;
+    }
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(supplier_name)) {
+      showSnackbar('Supplier Name can only contain letters and spaces', 'error');
+      return;
+    }
+
+    if (supplier_contact.length !== 10) {
+      showSnackbar('Supplier Contact must be exactly 10 digits', 'error');
+      return;
+    }
+    const contactRegex = /^[0-9]+$/;
+    if (!contactRegex.test(supplier_contact)) {
+      showSnackbar('Supplier Contact can only contain numbers', 'error');
+      return;
+    }
+    const validStart = /^[6-9]/;
+    if (!validStart.test(supplier_contact)) {
+      showSnackbar('Supplier Contact must start with 6, 7, 8, or 9', 'error');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(supplier_email)) {
+      showSnackbar('Please enter a valid email address', 'error');
+      return;
+    }
+    try {
+      const response = await axios.get('http://localhost:3500/api/supplier');
+      const existingSuppliers = response.data.suppliers;
+      if (
+        existingSuppliers.some(
+          (supplier) => supplier.supplier_email === supplier_email && supplier._id !== selectedSupplier._id
+        )
+      ) {
+        showSnackbar('Email already exists', 'error');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking email uniqueness:', error);
+      showSnackbar('Error validating Email', 'error');
+      return;
+    }
+
+    if (supplier_address.length < 10 || supplier_address.length > 100) {
+      showSnackbar('Supplier Address must be between 10 and 100 characters long', 'error');
+      return;
+    }
+    const addressRegex = /^[a-zA-Z0-9\s,.-/]+$/;
+    if (!addressRegex.test(supplier_address)) {
+      showSnackbar('Supplier Address can only contain letters, numbers, spaces, and , . - /', 'error');
+      return;
+    }
+
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      showSnackbar('Date must be in YYYY-MM-DD format', 'error');
+      return;
+    }
+    const inputDate = new Date(date);
+    const currentDate = new Date('2025-03-22');
+    if (inputDate > currentDate) {
+      showSnackbar('Date cannot be in the future', 'error');
+      return;
+    }
+    const minDate = new Date('2015-03-22');
+    if (inputDate < minDate) {
+      showSnackbar('Date cannot be older than 10 years', 'error');
+      return;
+    }
+
     try {
       await axios.put(`http://localhost:3500/api/supplier/${selectedSupplier._id}`, formData);
       setOpenUpdate(false);
@@ -137,18 +355,33 @@ const SupplierService = () => {
     borderRadius: 8,
   };
 
-  const paginatedSuppliers = suppliers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  // Filter suppliers based on search query
+  const filteredSuppliers = suppliers.filter((supplier) =>
+    [
+      supplier.supplier_id,
+      supplier.supplier_name,
+      supplier.supplier_contact,
+      supplier.supplier_email,
+      supplier.supplier_address,
+      supplier.type
+    ]
+      .join(' ')
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
+  const paginatedSuppliers = filteredSuppliers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   // Custom Purple Theme
   const purpleTheme = {
-    lightPurple: '#DAD5FB', // Table header
-    buttonPurple: '#AC9EFF', // Add Supplier button
-    buttonHover: '#9a80ff', // Hover for Add Supplier button
-    accentPurple: '#7b1fa2', // Pagination accent
+    lightPurple: '#DAD5FB',
+    buttonPurple: '#AC9EFF',
+    buttonHover: '#9a80ff',
+    accentPurple: '#7b1fa2',
   };
 
   // Pagination Logic
-  const totalPages = Math.ceil(suppliers.length / rowsPerPage);
+  const totalPages = Math.ceil(filteredSuppliers.length / rowsPerPage);
   const pageNumbers = [];
   for (let i = Math.max(0, page - 2); i < Math.min(totalPages, page + 3); i++) {
     pageNumbers.push(i);
@@ -156,37 +389,93 @@ const SupplierService = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Supplier Management
-      </Typography>
-
-      <Button
-        variant="contained"
-        startIcon={<Add />}
-        onClick={() => setOpenCreate(true)}
-        sx={{
-          mb: 2,
-          backgroundColor: purpleTheme.buttonPurple,
-          color: 'white',
-          '&:hover': { backgroundColor: purpleTheme.buttonHover },
-          float: 'right',
-        }}
-      >
-        Add Supplier
-      </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1F2937' }}>
+          Supplier Management
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Advanced Search Bar */}
+          <TextField
+            label="Search Suppliers"
+            variant="outlined"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{
+              width: 300,
+              backgroundColor: '#fff',
+              borderRadius: '25px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '25px',
+                '& fieldset': {
+                  borderColor: purpleTheme.accentPurple,
+                },
+                '&:hover fieldset': {
+                  borderColor: purpleTheme.buttonHover,
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: purpleTheme.buttonPurple,
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: purpleTheme.accentPurple,
+                fontWeight: '500',
+                '&.Mui-focused': {
+                  color: purpleTheme.buttonPurple,
+                },
+              },
+              '& .MuiOutlinedInput-input': {
+                padding: '12px 20px',
+                fontSize: '16px',
+              },
+            }}
+            InputProps={{
+              sx: {
+                '&::placeholder': {
+                  color: '#9CA3AF',
+                  opacity: 1,
+                },
+              },
+            }}
+          />
+          <Button
+            variant="contained"
+            startIcon={<Add />}
+            onClick={() => setOpenCreate(true)}
+            sx={{
+              background: 'linear-gradient(135deg, #AC9EFF 0%, #7B68EE 100%)',
+              color: 'white',
+              borderRadius: '25px',
+              border: '2px solid #6A5ACD',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              transition: 'all 0.3s ease',
+              padding: '10px 20px',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #AC9EFF 0%, #7B68EE 100%)',
+                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+              },
+            }}
+          >
+            Add Supplier
+          </Button>
+        </Box>
+      </Box>
 
       <TableContainer component={Paper} elevation={3} sx={{ mt: 2 }}>
         <Table sx={{ width: '100%' }}>
-          <TableHead sx={{ backgroundColor: purpleTheme.lightPurple }}>
+          <TableHead sx={{ backgroundColor: '#AC9EFF' }}>
             <TableRow>
-              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>ID</TableCell>
-              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Name</TableCell>
-              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Contact</TableCell>
-              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Email</TableCell>
-              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Address</TableCell>
-              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Date</TableCell>
-              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Type</TableCell>
-              <TableCell sx={{ color: '#333', fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>ID</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Name</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Contact</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Email</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Address</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Date</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Type</TableCell>
+              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -216,7 +505,7 @@ const SupplierService = () => {
         </Table>
 
         {/* Advanced Pagination */}
-        {suppliers.length > 4 && (
+        {filteredSuppliers.length > 4 && (
           <Box
             sx={{
               display: 'flex',
@@ -227,7 +516,6 @@ const SupplierService = () => {
               borderTop: '1px solid #e0e0e0',
             }}
           >
-            {/* Rows Per Page Dropdown */}
             <FormControl sx={{ minWidth: 120 }}>
               <InputLabel>Rows per page</InputLabel>
               <Select
@@ -250,7 +538,6 @@ const SupplierService = () => {
               </Select>
             </FormControl>
 
-            {/* Pagination Controls */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <IconButton
                 onClick={() => handleChangePage(page - 1)}
@@ -305,14 +592,13 @@ const SupplierService = () => {
               </IconButton>
             </Box>
 
-            {/* Page Info */}
             <Typography
               sx={{
                 color: purpleTheme.accentPurple,
                 fontWeight: 'bold',
               }}
             >
-              {`${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, suppliers.length)} of ${suppliers.length}`}
+              {`${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, filteredSuppliers.length)} of ${filteredSuppliers.length}`}
             </Typography>
           </Box>
         )}
@@ -339,6 +625,31 @@ const SupplierService = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+              ) : key === 'date' ? (
+                <Grid item xs={12} key={key}>
+                  <TextField
+                    fullWidth
+                    label="Date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    type="date"
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: '#6A5ACD',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#7B68EE',
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
               ) : (
                 <Grid item xs={12} key={key}>
                   <TextField
@@ -347,7 +658,7 @@ const SupplierService = () => {
                     name={key}
                     value={formData[key]}
                     onChange={handleInputChange}
-                    type={key === 'date' ? 'date' : 'text'}
+                    type="text"
                     variant="outlined"
                   />
                 </Grid>
@@ -392,6 +703,31 @@ const SupplierService = () => {
                     </Select>
                   </FormControl>
                 </Grid>
+              ) : key === 'date' ? (
+                <Grid item xs={12} key={key}>
+                  <TextField
+                    fullWidth
+                    label="Date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    type="date"
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: '#6A5ACD',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#7B68EE',
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
               ) : (
                 <Grid item xs={12} key={key}>
                   <TextField
@@ -400,7 +736,7 @@ const SupplierService = () => {
                     name={key}
                     value={formData[key]}
                     onChange={handleInputChange}
-                    type={key === 'date' ? 'date' : 'text'}
+                    type="text"
                     variant="outlined"
                   />
                 </Grid>

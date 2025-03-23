@@ -19,14 +19,13 @@ import {
   TableRow,
   Paper,
   IconButton,
-  TablePagination,
   Fade,
   MenuItem,
   Select,
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { Edit, Delete, Visibility } from "@mui/icons-material";
+import { Edit, Delete, Visibility, ArrowBack, ArrowForward } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
@@ -42,6 +41,9 @@ const StyledTableHead = styled(TableHead)(({ theme }) => ({
     fontWeight: 600,
     textTransform: "uppercase",
     letterSpacing: "0.5px",
+    fontFamily: "'Roboto Slab', Sans-serif",
+    fontSize: "16px",
+    fontStyle: "normal",
   },
 }));
 
@@ -60,46 +62,6 @@ const StyledButton = styled(Button)(({ theme }) => ({
   fontWeight: 500,
 }));
 
-const StyledTablePagination = styled(TablePagination)(({ theme }) => ({
-  background: "linear-gradient(135deg, #F9FAFB, #EFF3F6)",
-  borderTop: "1px solid #E5E7EB",
-  borderRadius: "0 0 12px 12px",
-  "& .MuiTablePagination-toolbar": {
-    padding: "8px 16px",
-    color: "#4B5563",
-  },
-  "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
-    fontWeight: 500,
-    color: "#374151",
-  },
-  "& .MuiTablePagination-select": {
-    borderRadius: "8px",
-    padding: "4px 8px",
-    backgroundColor: "#FFFFFF",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
-  },
-  "& .MuiTablePagination-actions": {
-    "& .MuiIconButton-root": {
-      borderRadius: "50%",
-      backgroundColor: "#FFFFFF",
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-      color: "#1976D2",
-      margin: "0 4px",
-      transition: "background-color 0.3s ease, transform 0.2s ease",
-      "&:hover": {
-        backgroundColor: "#1976D2",
-        color: "#FFFFFF",
-        transform: "scale(1.1)",
-      },
-      "&.Mui-disabled": {
-        backgroundColor: "#E5E7EB",
-        color: "#9CA3AF",
-        boxShadow: "none",
-      },
-    },
-  },
-}));
-
 const CategoryTable = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -112,9 +74,18 @@ const CategoryTable = () => {
   const [imageFile, setImageFile] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(3);
+  const [searchQuery, setSearchQuery] = useState(""); // New state for search
 
   // Define category type options
   const categoryTypes = ["Food", "Grocery", "Cleaning Supplies"];
+
+  // Purple theme from SupplierService
+  const purpleTheme = {
+    lightPurple: "#DAD5FB",
+    buttonPurple: "#AC9EFF",
+    buttonHover: "#9a80ff",
+    accentPurple: "#7b1fa2",
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -123,7 +94,13 @@ const CategoryTable = () => {
   const fetchCategories = async () => {
     try {
       const categoryData = await CategoryService.getAllCategorys();
-      setCategories(categoryData);
+      // Sort categories by date in descending order (newest first)
+      const sortedCategories = categoryData.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB - dateA; // Descending order
+      });
+      setCategories(sortedCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {
@@ -172,7 +149,7 @@ const CategoryTable = () => {
     }
   };
 
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (newPage) => {
     setPage(newPage);
   };
 
@@ -181,10 +158,29 @@ const CategoryTable = () => {
     setPage(0);
   };
 
-  const paginatedCategories = categories.slice(
+  // Filter categories based on search query
+  const filteredCategories = categories.filter((category) =>
+    [
+      category.category_name,
+      category.category_type,
+      category.category_description
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+  );
+
+  const paginatedCategories = filteredCategories.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  // Pagination Logic from SupplierService
+  const totalPages = Math.ceil(filteredCategories.length / rowsPerPage);
+  const pageNumbers = [];
+  for (let i = Math.max(0, page - 2); i < Math.min(totalPages, page + 3); i++) {
+    pageNumbers.push(i);
+  }
 
   if (loading) {
     return (
@@ -200,28 +196,72 @@ const CategoryTable = () => {
 
   return (
     <Box sx={{ p: 4, background: "white" }}>
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{
-          fontWeight: 700,
-          fontSize: "22px",
-          color: "#1F2937",
-          textAlign: "left",
-          mb: 4,
-          textShadow: "1px 1px 2px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        Category Management
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            fontSize: "22px",
+            color: "#1F2937",
+            textAlign: "left",
+            textShadow: "1px 1px 2px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          Category Management
+        </Typography>
+        {/* Advanced Search Bar */}
+        <TextField
+          label="Search Categories"
+          variant="outlined"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{
+            width: 300,
+            backgroundColor: "#fff",
+            borderRadius: "25px",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "25px",
+              "& fieldset": {
+                borderColor: purpleTheme.accentPurple,
+              },
+              "&:hover fieldset": {
+                borderColor: purpleTheme.buttonHover,
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: purpleTheme.buttonPurple,
+              },
+            },
+            "& .MuiInputLabel-root": {
+              color: purpleTheme.accentPurple,
+              fontWeight: "500",
+              "&.Mui-focused": {
+                color: purpleTheme.buttonPurple,
+              },
+            },
+            "& .MuiOutlinedInput-input": {
+              padding: "12px 20px",
+              fontSize: "16px",
+            },
+          }}
+          InputProps={{
+            sx: {
+              "&::placeholder": {
+                color: "#9CA3AF",
+                opacity: 1,
+              },
+            },
+          }}
+        />
+      </Box>
 
       <StyledTableContainer component={Paper}>
         <Table>
           <StyledTableHead>
             <TableRow>
               <TableCell>Image</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Type</TableCell>
+              <TableCell>Category Name</TableCell>
+              <TableCell>Category Type</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Date</TableCell>
               <TableCell align="right">Actions</TableCell>
@@ -296,19 +336,117 @@ const CategoryTable = () => {
             )}
           </TableBody>
         </Table>
-      </StyledTableContainer>
 
-      {categories.length > 3 && (
-        <StyledTablePagination
-          rowsPerPageOptions={[3, 5, 10, 25]}
-          component="div"
-          count={categories.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      )}
+        {/* Advanced Pagination from SupplierService */}
+        {filteredCategories.length > 3 && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              p: 2,
+              backgroundColor: "#f9f9f9",
+              borderTop: "1px solid #e0e0e0",
+            }}
+          >
+            <FormControl sx={{ minWidth: 120 }}>
+              <InputLabel>Rows per page</InputLabel>
+              <Select
+                value={rowsPerPage}
+                onChange={handleChangeRowsPerPage}
+                label="Rows per page"
+                sx={{
+                  color: purpleTheme.accentPurple,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: purpleTheme.accentPurple,
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: purpleTheme.buttonHover,
+                  },
+                }}
+              >
+                <MenuItem value={3}>3</MenuItem>
+                <MenuItem value={5}>5</MenuItem>
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={25}>25</MenuItem>
+              </Select>
+            </FormControl>
+
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <IconButton
+                onClick={() => handleChangePage(page - 1)}
+                disabled={page === 0}
+                sx={{
+                  color: page === 0 ? "#bdbdbd" : purpleTheme.accentPurple,
+                  "&:hover": {
+                    backgroundColor: `${purpleTheme.accentPurple}20`,
+                    transform: "scale(1.1)",
+                  },
+                  transition: "all 0.2s ease-in-out",
+                }}
+              >
+                <ArrowBack />
+              </IconButton>
+
+              {pageNumbers.map((num) => (
+                <Button
+                  key={num}
+                  onClick={() => handleChangePage(num)}
+                  sx={{
+                    minWidth: "36px",
+                    height: "36px",
+                    borderRadius: "50%",
+                    backgroundColor:
+                      page === num ? purpleTheme.accentPurple : "transparent",
+                    color: page === num ? "white" : purpleTheme.accentPurple,
+                    "&:hover": {
+                      backgroundColor:
+                        page === num
+                          ? purpleTheme.accentPurple
+                          : `${purpleTheme.accentPurple}20`,
+                      transform: "scale(1.1)",
+                    },
+                    transition: "all 0.2s ease-in-out",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {num + 1}
+                </Button>
+              ))}
+
+              <IconButton
+                onClick={() => handleChangePage(page + 1)}
+                disabled={page >= totalPages - 1}
+                sx={{
+                  color:
+                    page >= totalPages - 1
+                      ? "#bdbdbd"
+                      : purpleTheme.accentPurple,
+                  "&:hover": {
+                    backgroundColor: `${purpleTheme.accentPurple}20`,
+                    transform: "scale(1.1)",
+                  },
+                  transition: "all 0.2s ease-in-out",
+                }}
+              >
+                <ArrowForward />
+              </IconButton>
+            </Box>
+
+            <Typography
+              sx={{
+                color: purpleTheme.accentPurple,
+                fontWeight: "bold",
+              }}
+            >
+              {`${page * rowsPerPage + 1}-${Math.min(
+                (page + 1) * rowsPerPage,
+                filteredCategories.length
+              )} of ${filteredCategories.length}`}
+            </Typography>
+          </Box>
+        )}
+      </StyledTableContainer>
 
       {/* Delete Modal */}
       <Modal open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>

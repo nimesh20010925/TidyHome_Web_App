@@ -11,7 +11,6 @@ import { useState } from "react";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const ContactPage = ({ image }) => {
@@ -22,28 +21,24 @@ const ContactPage = ({ image }) => {
   const defaultTitle = "TidyHome | Consumption Home";
   const defaultImage = "https://placehold.co/600x400/png";
 
-
   const [layouts, setLayouts] = useState({
     lg: [
       { i: "Table", x: 0, y: 0, w: 12, h: 5 },
       { i: "Chart", x: 0, y: 4, w: 6, h: 4 },
       { i: "Chart2", x: 6, y: 4, w: 6, h: 4 },
       { i: "Chart3", x: 0, y: 8, w: 6, h: 4 },
-   
     ],
     md: [
       { i: "Chart", x: 0, y: 0, w: 8, h: 5 },
-      { i: "Table", x: 0, y: 4, w: 4, h: 4 },
+      { i: "Table", x: 0, y: 4, w: 8, h: 4 },
       { i: "Chart2", x: 4, y: 4, w: 4, h: 4 },
       { i: "Chart3", x: 0, y: 8, w: 4, h: 4 },
- 
     ],
     sm: [
       { i: "Chart", x: 0, y: 0, w: 6, h: 5 },
       { i: "Table", x: 0, y: 4, w: 6, h: 4 },
       { i: "Chart2", x: 0, y: 8, w: 6, h: 4 },
       { i: "Chart3", x: 0, y: 12, w: 6, h: 4 },
-
     ],
   });
 
@@ -54,7 +49,6 @@ const ContactPage = ({ image }) => {
     setLayouts(allLayouts);
   };
 
-
   return (
     <div style={{ padding: "20px", background: "#ffffff" }}>
       <style>{`
@@ -63,7 +57,6 @@ const ContactPage = ({ image }) => {
           border: 1px solid #ddd;
           border-radius: 10px;
           transition: 0.3s ease;
-          
         }
 
         .grid-item:hover {
@@ -82,19 +75,16 @@ const ContactPage = ({ image }) => {
         .content {
           width: 100%;
         }
-        .create-consumption-button{
+        .create-consumption-button {
           background: linear-gradient(to right, #C799FF, #8f94fb) !important;
           color: white;
           margin: 20px 20px;
-        
-          }
-          .create-consumption-button:hover{
-            background: linear-gradient(to right, #C799FF, #8f94fb) !important;
-            color: white;
-            
-            }
+        }
+        .create-consumption-button:hover {
+          background: linear-gradient(to right, #C799FF, #8f94fb) !important;
+          color: white;
+        }
       `}</style>
-
 
       <div className="container">
         <div className="content">
@@ -118,9 +108,12 @@ const ContactPage = ({ image }) => {
             <meta name="twitter:image" content={image || defaultImage} />
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
-          <div className="button-outer" style={{ padding: "20px 20px 0px 0px" ,marginBottom:"50px"}}>
+          <div
+            className="button-outer"
+            style={{ padding: "20px 20px 0px 0px", marginBottom: "20px" }} // Reduced from 50px to 20px
+          >
             <CategoryCreate />
-            </div>
+          </div>
           <ResponsiveGridLayout
             className="layout"
             layouts={layouts}
@@ -134,8 +127,7 @@ const ContactPage = ({ image }) => {
             margin={[20, 20]}
           >
             <div key="Table" className="grid-item">
-              
-              <div
+              {/* <div
                 className="drag-handle"
                 style={{
                   padding: "10px",
@@ -144,7 +136,7 @@ const ContactPage = ({ image }) => {
                 }}
               >
                 Consumption Table
-              </div>
+              </div> */}
               <div style={{ padding: "20px" }}>
                 <Table />
               </div>
@@ -189,7 +181,6 @@ const ContactPage = ({ image }) => {
                   padding: "10px",
                   cursor: "move",
                   marginBottom: "10px",
-                  
                 }}
               >
                 Pie Chart
@@ -198,8 +189,6 @@ const ContactPage = ({ image }) => {
                 <Chart3 />
               </div>
             </div>
-
-    
           </ResponsiveGridLayout>
         </div>
       </div>
