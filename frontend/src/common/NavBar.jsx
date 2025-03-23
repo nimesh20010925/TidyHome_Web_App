@@ -5,7 +5,7 @@ import { Row, Col } from "reactstrap";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
-import { FaBell } from "react-icons/fa";
+
 import TidyHomeLogo from "../assets/logo/TidyHome_Logo.png";
 import HomeDummyImg from "../assets/navBar/dummy-home.jpg";
 import Language from "../assets/navBar/language.png";
@@ -20,7 +20,7 @@ import InventoryActive from "../assets/navBar/inventory-purple.png";
 import SupplierActive from "../assets/navBar/supplier-purple.png";
 import ShoppingListActive from "../assets/navBar/shopping-purple.png";
 import LanguageSelector from "../translations/languageSelector.jsx";
-
+import NotificationDropdown from "../components/notifications/notification.jsx";
 const NavBar = () => {
   const navigate = useNavigate();
   const location = useLocation(); // <-- Added this
@@ -42,6 +42,10 @@ const NavBar = () => {
     navigate(route);
   };
 
+  const handleProfileClick = () => {
+    navigate("/app/myhome"); // Add the route you want to navigate to when the profile is clicked
+  };
+
   const renderProfileSection = () => (
     <div className="d-flex align-items-center mb-1">
       <div className="position-relative">
@@ -52,6 +56,7 @@ const NavBar = () => {
           width="44"
           height="44"
           style={{ cursor: "pointer" }}
+          onClick={handleProfileClick} // Add the click handler
         />
       </div>
     </div>
@@ -121,7 +126,7 @@ const NavBar = () => {
           </Nav>
           <Row className="d-flex align-items-center justify-content-end">
             <Col className="d-flex align-items-center gap-2 me-1">
-              <FaBell className="bell-icon" />
+              <NotificationDropdown />
               <div className="d-flex align-items-center">
                 <img src={Language} width="32px" height="32px" alt="Language" />
                 <LanguageSelector />

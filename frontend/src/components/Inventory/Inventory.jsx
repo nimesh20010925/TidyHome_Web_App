@@ -156,6 +156,10 @@ const Inventory = () => {
     getAllInventoryItems();
   }, [!addInventoryModal]);
 
+  useEffect(() => {
+    getAllInventoryItems();
+  }, [!updateItemModal]);
+
   const handleDeleteInventory = async (id) => {
     try {
       await InventoryService.deleteInventoryItem(id);

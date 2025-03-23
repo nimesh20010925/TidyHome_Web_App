@@ -218,8 +218,8 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               <option value="Kg">{t("KG")}</option>
               <option value="Litre">{t("LITRE")}</option>
               <option value="Metre">{t("METRE")}</option>
-              <option value="Pack">{t("BOTTLE")}</option>
-              <option value="Bottle">{t("PACK")}</option>
+              <option value="Bottle">{t("BOTTLE")}</option>
+              <option value="Pack">{t("PACK")}</option>
             </Form.Select>
             {formik.errors.itemType && formik.touched.itemType && (
               <div className="text-danger">{formik.errors.itemType}</div>
@@ -273,6 +273,10 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
                       ? t("LITRE")
                       : formik.values.itemType === "Metre"
                       ? t("METRE")
+                      : formik.values.itemType === "Pack"
+                      ? t("PACK")
+                      : formik.values.itemType === "Bottle"
+                      ? t("BOTTLE")
                       : ""
                   })`
                 : ""}

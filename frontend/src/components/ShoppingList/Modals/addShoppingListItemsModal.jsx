@@ -83,6 +83,7 @@ const AddShoppingListItemsModal = ({
             color: "#fff",
           },
         });
+        setUpdatedShoppingListItems([]);
         toggle();
       } else {
         console.error("Failed to update shopping list:", response.message);
@@ -112,10 +113,13 @@ const AddShoppingListItemsModal = ({
       status: "Pending",
     };
 
+    // Add item to all items
     setShoppingListItems((prev) => [...prev, newItem]);
-    setUpdatedShoppingListItems((prev) => [...prev, newItem]);
-    setIsUrgent(false);
 
+    // Track only newly added items
+    setUpdatedShoppingListItems((prev) => [...prev, newItem]);
+
+    setIsUrgent(false);
     setIsInputFocused(false);
     addNewItemToggle();
   };
@@ -558,9 +562,8 @@ const AddShoppingListItemsModal = ({
                     </Col>
                   </Row>
                 )}
-
-              {Array.isArray(selectedShoppingList.itemList) &&
-                selectedShoppingList.itemList.length === 0 && (
+              {Array.isArray(shoppingListItems) &&
+                shoppingListItems.length === 0 && (
                   <div className="mt-5" style={{ color: "#976bdb" }}>
                     No Shopping List Items Added Yet
                   </div>
