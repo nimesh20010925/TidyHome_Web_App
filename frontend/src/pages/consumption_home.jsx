@@ -6,11 +6,17 @@ import AreaChart from "../components/consumption/consumptionChart/areaChart/area
 import PieChart from "../components/consumption/consumptionChart/pieChart/pieChart";
 import RadialBarChart from "../components/consumption/consumptionChart/radialBarChart/radialBarChart";
 import { Responsive, WidthProvider } from "react-grid-layout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import Modal from "../components/consumption/consumptionCreateModel/consumptionCreateModel";
 import ConsumptionSummery from "../components/consumption/consumptionSummery/consumptionSummery";
+import ExportButtons from "../components/consumption/consumptionTable/consumptionReportButton";
+import {
+  generatePDF,
+  generateCSV,
+} from "../components/consumption/consumptionTable/consumptionReport";
+import { ConsumptionService } from "../services/consumptionServices";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -21,6 +27,26 @@ const ContactPage = ({ image }) => {
     "home inventory, stock management, household stock, consumption log, home storage, pantry tracking, home supplies tracker, inventory tracking, stock monitoring, home organization, household management, grocery tracking, smart home stock, kitchen inventory, home essentials, home stock control";
   const defaultTitle = "TidyHome | Consumption Home";
   const defaultImage = "https://placehold.co/600x400/png";
+
+  // State for consumptions data
+  const [consumptions, setConsumptions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Fetch consumptions data
+  useEffect(() => {
+    const fetchConsumptions = async () => {
+      try {
+        const data = await ConsumptionService.getAllConsumptions();
+        setConsumptions(data);
+      } catch {
+        setError("Failed to load consumption data");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchConsumptions();
+  }, []);
 
   // Define layouts for different breakpoints
   const [layouts, setLayouts] = useState({
@@ -73,7 +99,6 @@ const ContactPage = ({ image }) => {
           border: 1px solid #ddd;
           border-radius: 10px;
           transition: 0.3s ease;
-          
         }
 
         .grid-item:hover {
@@ -92,25 +117,24 @@ const ContactPage = ({ image }) => {
         .content {
           width: 100%;
         }
-        .create-consumption-button{
+        .create-consumption-button {
           background: linear-gradient(to right, #C799FF, #8f94fb) !important;
           color: white;
-          margin: 20px 20px;
-            padding: 10px;
-    
-    
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    
-
-        
-          }
-          .create-consumption-button:hover{
-            background: linear-gradient(to right, #C799FF, #8f94fb) !important;
-            color: white;
-            
-            }
+          margin: 20px 10px;
+          padding: 10px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .create-consumption-button:hover {
+          background: linear-gradient(to right, #C799FF, #8f94fb) !important;
+          color: white;
+        }
+        .button-group {
+          display: flex;
+          align-items: center;
+          margin: 20px 10px;
+        }
       `}</style>
 
       <div className="container">
@@ -136,9 +160,17 @@ const ContactPage = ({ image }) => {
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
           <ConsumptionSummery />
-          <button className="create-consumption-button" onClick={openModal}>
-            Create Consumption
-          </button>
+          <div className="button-group">
+            <button className="create-consumption-button" onClick={openModal}>
+              Create Consumption
+            </button>
+            <ExportButtons
+              onExportPDF={() => generatePDF(consumptions)}
+              onExportCSV={() => generateCSV(consumptions)}
+              disabled={consumptions.length === 0}
+            />
+          </div>
+
           <Modal isOpen={isModalOpen} closeModal={closeModal} />
 
           <ResponsiveGridLayout
@@ -158,7 +190,6 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}
@@ -175,7 +206,6 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}
@@ -192,7 +222,6 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}
@@ -209,11 +238,8 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  // background:"linear-gradient(to right, #C799FF, #8f94fb) ",
-                  // borderRadius: "10px",
                   cursor: "move",
                   marginBottom: "10px",
-                  
                 }}
               >
                 Pie Chart
@@ -228,7 +254,6 @@ const ContactPage = ({ image }) => {
                 className="drag-handle"
                 style={{
                   padding: "10px",
-                  
                   cursor: "move",
                   marginBottom: "10px",
                 }}
