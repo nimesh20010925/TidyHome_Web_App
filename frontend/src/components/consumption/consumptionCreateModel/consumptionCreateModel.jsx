@@ -1,31 +1,36 @@
-import { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { ConsumptionService } from '../../../services/consumptionServices';
-import { InventoryService } from '../../../services/InventoryServices';
-import { Modal as BootstrapModal, Form, Button, Spinner, FloatingLabel } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './consumptionCreateModel.css';
-
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { ConsumptionService } from "../../../services/consumptionServices";
+import { InventoryService } from "../../../services/InventoryServices";
+import {
+  Modal as BootstrapModal,
+  Form,
+  Button,
+  Spinner,
+  FloatingLabel,
+} from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./consumptionCreateModel.css";
 
 const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
-    product_name: '',
-    amount_used: '',
-    user: '',
-    date: '',
-    remaining_stock: '',
-    notes: '',
+    product_name: "",
+    amount_used: "",
+    user: "",
+    date: "",
+    remaining_stock: "",
+    notes: "",
   });
   const [itemNames, setItemNames] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
-  const [user, setUser] = useState(null);
+  // Removed unused 'user' state
   const [loading, setLoading] = useState(false);
   const [validated, setValidated] = useState(false);
 
   // Function to get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return today.toISOString().split("T")[0];
   };
 
   useEffect(() => {
@@ -34,10 +39,10 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       try {
         const items = await InventoryService.getAllInventoryItems();
         setInventoryItems(items);
-        const names = items.map(item => item.itemName);
+        const names = items.map((item) => item.itemName);
         setItemNames(names);
       } catch (error) {
-        console.error('Error fetching inventory items:', error);
+        console.error("Error fetching inventory items:", error);
       } finally {
         setLoading(false);
       }
@@ -46,7 +51,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const userData = JSON.parse(storedUser);
-      setUser(userData);
+      // Removed setting unused 'user' state
       setFormData((prev) => ({
         ...prev,
         user: userData.name,
@@ -63,14 +68,15 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   useEffect(() => {
     if (formData.product_name && formData.amount_used) {
       const selectedItem = inventoryItems.find(
-        item => item.itemName === formData.product_name
+        (item) => item.itemName === formData.product_name
       );
       if (selectedItem) {
         const currentStock = selectedItem.quantity;
-        const remaining = parseFloat(currentStock) - parseFloat(formData.amount_used);
-        setFormData(prev => ({
+        const remaining =
+          parseFloat(currentStock) - parseFloat(formData.amount_used);
+        setFormData((prev) => ({
           ...prev,
-          remaining_stock: remaining >= 0 ? remaining.toString() : '0'
+          remaining_stock: remaining >= 0 ? remaining.toString() : "0",
         }));
       }
     }
@@ -97,7 +103,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       await ConsumptionService.createConsumption(formData);
       closeModal();
     } catch (error) {
-      console.error('Error creating consumption:', error);
+      console.error("Error creating consumption:", error);
     }
   };
 
@@ -120,7 +126,11 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
           </div>
         ) : (
           <Form noValidate validated={validated} onSubmit={handleSubmit}>
-            <FloatingLabel controlId="productName" label="Product Name" className="ccm-mb-3">
+            <FloatingLabel
+              controlId="productName"
+              label="Product Name"
+              className="ccm-mb-3"
+            >
               <Form.Select
                 name="product_name"
                 value={formData.product_name}
@@ -130,7 +140,9 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
               >
                 <option value="">Select a product</option>
                 {itemNames.map((name, index) => (
-                  <option key={index} value={name}>{name}</option>
+                  <option key={index} value={name}>
+                    {name}
+                  </option>
                 ))}
               </Form.Select>
               <Form.Control.Feedback type="invalid">
@@ -138,7 +150,11 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
               </Form.Control.Feedback>
             </FloatingLabel>
 
-            <FloatingLabel controlId="amountUsed" label="Amount Used" className="ccm-mb-3">
+            <FloatingLabel
+              controlId="amountUsed"
+              label="Amount Used"
+              className="ccm-mb-3"
+            >
               <Form.Control
                 type="number"
                 name="amount_used"
@@ -179,7 +195,11 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
               </Form.Control.Feedback>
             </FloatingLabel>
 
-            <FloatingLabel controlId="remainingStock" label="Remaining Stock" className="ccm-mb-3">
+            <FloatingLabel
+              controlId="remainingStock"
+              label="Remaining Stock"
+              className="ccm-mb-3"
+            >
               <Form.Control
                 type="text"
                 name="remaining_stock"
@@ -218,11 +238,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
               >
                 Close
               </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                className="ccm-modal-btn"
-              >
+              <Button variant="primary" type="submit" className="ccm-modal-btn">
                 Submit
               </Button>
             </div>

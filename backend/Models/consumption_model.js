@@ -11,7 +11,8 @@ const consumptionSchema = new mongoose.Schema(
       required: true,
     },
     user: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     date: {
@@ -33,7 +34,3 @@ const consumptionSchema = new mongoose.Schema(
 );
 
 export const consumption = mongoose.model("consumptions", consumptionSchema);
-
-
-
-
