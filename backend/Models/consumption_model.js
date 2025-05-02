@@ -1,3 +1,4 @@
+// Models/consumption_model.js
 import mongoose from "mongoose";
 
 const consumptionSchema = new mongoose.Schema(
@@ -7,7 +8,7 @@ const consumptionSchema = new mongoose.Schema(
       required: true,
     },
     amount_used: {
-      type: String,
+      type: String, // Kept as string to match frontend, parsed in controller
       required: true,
     },
     user: {
@@ -20,7 +21,7 @@ const consumptionSchema = new mongoose.Schema(
       required: true,
     },
     remaining_stock: {
-      type: String,
+      type: String, // Kept as string to match frontend, parsed in controller
       required: true,
     },
     notes: {

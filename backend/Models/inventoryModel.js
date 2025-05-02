@@ -25,6 +25,7 @@ const inventorySchema = new mongoose.Schema(
     quantity: {
       type: Number,
       required: false,
+      min: [0, "Quantity cannot be negative"],
     },
     price: {
       type: Number,
