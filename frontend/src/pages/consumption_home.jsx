@@ -17,6 +17,8 @@ import {
   generateCSV,
 } from "../components/consumption/consumptionTable/consumptionReport";
 import { ConsumptionService } from "../services/consumptionServices";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -32,6 +34,16 @@ const ContactPage = ({ image }) => {
   const [consumptions, setConsumptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Initialize AOS
+  useEffect(() => {
+    AOS.init({
+      duration: 800, // Animation duration in milliseconds
+      easing: "ease-out-cubic", // Smooth easing for animations
+      once: false, // Animations trigger only once
+      offset: 100, // Trigger animations 100px before element is in view
+    });
+  }, []);
 
   // Fetch consumptions data
   useEffect(() => {
@@ -159,8 +171,10 @@ const ContactPage = ({ image }) => {
             <meta name="twitter:image" content={image || defaultImage} />
             <meta name="twitter:card" content="summary_large_image" />
           </HelmetProvider>
-          <ConsumptionSummery />
-          <div className="button-group">
+          <div data-aos="zoom-in" data-aos-delay="100">
+            <ConsumptionSummery />
+          </div>
+          <div className="button-group" data-aos="zoom-in" data-aos-delay="200">
             <button className="create-consumption-button" onClick={openModal}>
               Create Consumption
             </button>
@@ -185,7 +199,12 @@ const ContactPage = ({ image }) => {
             draggableHandle=".drag-handle"
             margin={[20, 20]}
           >
-            <div key="consumptionTable" className="grid-item">
+            <div
+              key="consumptionTable"
+              className="grid-item"
+              data-aos="zoom-in"
+              data-aos-delay="300"
+            >
               <div
                 className="drag-handle"
                 style={{
@@ -201,7 +220,12 @@ const ContactPage = ({ image }) => {
               </div>
             </div>
 
-            <div key="barChart" className="grid-item">
+            <div
+              key="barChart"
+              className="grid-item"
+              data-aos="zoom-in"
+              data-aos-delay="400"
+            >
               <div
                 className="drag-handle"
                 style={{
@@ -217,7 +241,12 @@ const ContactPage = ({ image }) => {
               </div>
             </div>
 
-            <div key="areaChart" className="grid-item">
+            <div
+              key="areaChart"
+              className="grid-item"
+              data-aos="zoom-in"
+              data-aos-delay="500"
+            >
               <div
                 className="drag-handle"
                 style={{
@@ -233,7 +262,12 @@ const ContactPage = ({ image }) => {
               </div>
             </div>
 
-            <div key="pieChart" className="grid-item">
+            <div
+              key="pieChart"
+              className="grid-item"
+              data-aos="zoom-in"
+              data-aos-delay="600"
+            >
               <div
                 className="drag-handle"
                 style={{
@@ -249,7 +283,12 @@ const ContactPage = ({ image }) => {
               </div>
             </div>
 
-            <div key="radialBarChart" className="grid-item">
+            <div
+              key="radialBarChart"
+              className="grid-item"
+              data-aos="zoom-in"
+              data-aos-delay="700"
+            >
               <div
                 className="drag-handle"
                 style={{

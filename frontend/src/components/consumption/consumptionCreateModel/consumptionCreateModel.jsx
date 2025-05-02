@@ -1,4 +1,3 @@
-// frontend/src/components/ConsumptionCreateModal.js
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { ConsumptionService } from "../../../services/consumptionServices";
@@ -125,26 +124,42 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       show={isOpen}
       onHide={closeModal}
       centered
-      className="ccm-consumption-modal"
+      className="ccm-modal"
     >
-      <BootstrapModal.Header className="ccm-modal-header bg-gradient-primary text-white">
+      <BootstrapModal.Header className="ccm-modal-header">
         <BootstrapModal.Title>Create Consumption</BootstrapModal.Title>
-        <Button variant="close" onClick={closeModal} aria-label="Close" />
+        <Button
+          variant="link"
+          onClick={closeModal}
+          aria-label="Close"
+          className="ccm-close-btn"
+        >
+          ×
+        </Button>
       </BootstrapModal.Header>
       <BootstrapModal.Body className="ccm-modal-body">
         {loading ? (
-          <div className="ccm-text-center ccm-py-5">
+          <div className="ccm-loading">
             <Spinner animation="border" variant="primary" />
-            <p className="ccm-mt-2">Loading inventory data...</p>
+            <p>Loading inventory data...</p>
           </div>
         ) : (
           <>
-            {error && <Alert variant="danger">{error}</Alert>}
-            <Form noValidate validated={validated} onSubmit={handleSubmit}>
+            {error && (
+              <Alert variant="danger" className="ccm-alert">
+                {error}
+              </Alert>
+            )}
+            <Form
+              noValidate
+              validated={validated}
+              onSubmit={handleSubmit}
+              className="ccm-form"
+            >
               <FloatingLabel
                 controlId="productName"
                 label="Product Name"
-                className="ccm-mb-3"
+                className="ccm-form-group"
               >
                 <Form.Select
                   name="product_name"
@@ -152,6 +167,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                   onChange={handleInputChange}
                   required
                   aria-label="Select product name"
+                  className="ccm-form-control"
                 >
                   <option value="">Select a product</option>
                   {itemNames.map((name, index) => (
@@ -160,7 +176,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                     </option>
                   ))}
                 </Form.Select>
-                <Form.Control.Feedback type="invalid">
+                <Form.Control.Feedback type="invalid" className="ccm-feedback">
                   Please select a product.
                 </Form.Control.Feedback>
               </FloatingLabel>
@@ -168,7 +184,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
               <FloatingLabel
                 controlId="amountUsed"
                 label="Amount Used"
-                className="ccm-mb-3"
+                className="ccm-form-group"
               >
                 <Form.Control
                   type="number"
@@ -179,13 +195,18 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                   min="0"
                   step="0.01"
                   placeholder="Enter amount used"
+                  className="ccm-form-control"
                 />
-                <Form.Control.Feedback type="invalid">
+                <Form.Control.Feedback type="invalid" className="ccm-feedback">
                   Please enter a valid amount (greater than or equal to 0).
                 </Form.Control.Feedback>
               </FloatingLabel>
 
-              <FloatingLabel controlId="user" label="User" className="ccm-mb-3">
+              <FloatingLabel
+                controlId="user"
+                label="User"
+                className="ccm-form-group"
+              >
                 <Form.Control
                   type="text"
                   name="user"
@@ -193,10 +214,15 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                   onChange={handleInputChange}
                   disabled
                   placeholder="User"
+                  className="ccm-form-control ccm-disabled"
                 />
               </FloatingLabel>
 
-              <FloatingLabel controlId="date" label="Date" className="ccm-mb-3">
+              <FloatingLabel
+                controlId="date"
+                label="Date"
+                className="ccm-form-group"
+              >
                 <Form.Control
                   type="date"
                   name="date"
@@ -204,8 +230,9 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                   onChange={handleInputChange}
                   required
                   min={getTodayDate()}
+                  className="ccm-form-control"
                 />
-                <Form.Control.Feedback type="invalid">
+                <Form.Control.Feedback type="invalid" className="ccm-feedback">
                   Please select a date from today onwards.
                 </Form.Control.Feedback>
               </FloatingLabel>
@@ -213,7 +240,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
               <FloatingLabel
                 controlId="remainingStock"
                 label="Remaining Stock"
-                className="ccm-mb-3"
+                className="ccm-form-group"
               >
                 <Form.Control
                   type="text"
@@ -221,13 +248,14 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                   value={formData.remaining_stock}
                   readOnly
                   placeholder="Remaining stock"
+                  className="ccm-form-control ccm-readonly"
                 />
               </FloatingLabel>
 
               <FloatingLabel
                 controlId="notes"
                 label="Notes"
-                className="ccm-mb-3"
+                className="ccm-form-group"
               >
                 <Form.Control
                   as="textarea"
@@ -239,8 +267,9 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                   minLength={5}
                   maxLength={10}
                   placeholder="Add notes (5-10 chars)"
+                  className="ccm-form-control"
                 />
-                <Form.Control.Feedback type="invalid">
+                <Form.Control.Feedback type="invalid" className="ccm-feedback">
                   {formData.notes.length === 0
                     ? "Please add some notes."
                     : formData.notes.length < 5
@@ -249,18 +278,18 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 </Form.Control.Feedback>
               </FloatingLabel>
 
-              <div className="ccm-d-flex ccm-gap-2 ccm-justify-content-end">
+              <div className="ccm-button-group">
                 <Button
-                  variant="secondary"
+                  variant="outline-secondary"
                   onClick={closeModal}
-                  className="ccm-modal-btn"
+                  className="ccm-btn ccm-btn-cancel"
                 >
-                  Close
+                  Cancel
                 </Button>
                 <Button
                   variant="primary"
                   type="submit"
-                  className="ccm-modal-btn"
+                  className="ccm-btn ccm-btn-submit"
                 >
                   Submit
                 </Button>
