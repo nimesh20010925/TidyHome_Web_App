@@ -1817,6 +1817,8 @@ button.home-member-delete-btn:hover {
   margin: 0 auto;
   padding: 20px;
   font-family: 'Arial', sans-serif;
+  overflow-y: auto;
+  max-height: 250px;
 }
 
 .notices-header {
@@ -1832,7 +1834,7 @@ button.home-member-delete-btn:hover {
 }
 
 .add-notice-button {
-  background-color: #3498db;
+  background-color: #9166cc;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -1843,7 +1845,7 @@ button.home-member-delete-btn:hover {
 }
 
 .add-notice-button:hover {
-  background-color: #2980b9;
+  background-color: #935be1;
 }
 
 .notice-form {
@@ -1884,17 +1886,16 @@ button.home-member-delete-btn:hover {
 }
 
 .notices-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  padding: 10px !important;
+  border: 1px solid #ddd !important;
+  background-color: #fff !important;
+  border-radius: 5px !important;
 }
 
 .notice-card {
   background-color: white;
-  border-left: 4px solid #3498db;
-  padding: 15px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   position: relative;
 }
 
@@ -1907,7 +1908,6 @@ button.home-member-delete-btn:hover {
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: #7f8c8d;
 }
 
 .delete-notice {

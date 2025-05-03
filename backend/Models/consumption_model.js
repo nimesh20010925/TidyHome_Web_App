@@ -1,19 +1,36 @@
-// Models/consumption_model.js
 import mongoose from "mongoose";
+import Inventory from "./inventoryModel.js";
 
 const consumptionSchema = new mongoose.Schema(
   {
     product_name: {
       type: String,
       required: true,
+      validate: {
+        validator: async function (value) {
+          // Check if product_name exists in the inventory for the same homeId
+          const consumption = this;
+          const inventoryItem = await Inventory.findOne({
+            homeId: consumption.homeId,
+            itemName: value,
+          });
+          return !!inventoryItem;
+        },
+        message:
+          "Product name must match an item in the inventory for this home.",
+      },
     },
     amount_used: {
       type: String, // Kept as string to match frontend, parsed in controller
       required: true,
     },
-    user: {
+    item_type: {
+      type: String, // New field to store item_type (e.g., "kg", "ml")
+      required: true,
+    },
+    homeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Home",
       required: true,
     },
     date: {

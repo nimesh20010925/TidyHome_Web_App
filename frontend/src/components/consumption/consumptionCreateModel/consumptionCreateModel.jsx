@@ -17,7 +17,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
     product_name: "",
     amount_used: "",
-    user: "",
+    item_type: "",
     date: "",
     remaining_stock: "",
     notes: "",
@@ -27,6 +27,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [loading, setLoading] = useState(false);
   const [validated, setValidated] = useState(false);
   const [error, setError] = useState("");
+  const [homeId, setHomeId] = useState("");
 
   const getTodayDate = () => {
     const today = new Date();
@@ -37,7 +38,14 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
     const fetchInventoryData = async () => {
       setLoading(true);
       try {
-        const items = await InventoryService.getAllInventoryItems();
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || !user.homeID) {
+          setError("User does not belong to any home");
+          setLoading(false);
+          return;
+        }
+        setHomeId(user.homeID);
+        const items = await InventoryService.getAllInventoryItems(user.homeID);
         setInventoryItems(items);
         const names = items.map((item) => item.itemName);
         setItemNames(names);
@@ -49,35 +57,23 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       }
     };
 
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      setFormData((prev) => ({
-        ...prev,
-        user: userData.name,
-      }));
-    } else {
-      console.error("No user data found in localStorage");
-      setError("User not logged in");
-    }
-
     if (isOpen) {
       fetchInventoryData();
-      setFormData((prev) => ({
-        ...prev,
+      setFormData({
+        product_name: "",
+        amount_used: "",
+        item_type: "",
         date: getTodayDate(),
         remaining_stock: "",
-        amount_used: "",
-        product_name: "",
         notes: "",
-      }));
+      });
       setError("");
       setValidated(false);
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (formData.product_name && formData.amount_used) {
+    if (formData.product_name) {
       const selectedItem = inventoryItems.find(
         (item) => item.itemName === formData.product_name
       );
@@ -86,6 +82,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
         const remaining = currentStock - parseFloat(formData.amount_used || 0);
         setFormData((prev) => ({
           ...prev,
+          item_type: selectedItem.itemType || "",
           remaining_stock: remaining >= 0 ? remaining.toString() : "0",
         }));
       }
@@ -111,7 +108,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
     }
 
     try {
-      await ConsumptionService.createConsumption(formData);
+      await ConsumptionService.createConsumption({ ...formData, homeId });
       closeModal();
     } catch (error) {
       console.error("Error creating consumption:", error);
@@ -181,42 +178,47 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 </Form.Control.Feedback>
               </FloatingLabel>
 
-              <FloatingLabel
-                controlId="amountUsed"
-                label="Amount Used"
-                className="ccm-form-group"
-              >
-                <Form.Control
-                  type="number"
-                  name="amount_used"
-                  value={formData.amount_used}
-                  onChange={handleInputChange}
-                  required
-                  min="0"
-                  step="0.01"
-                  placeholder="Enter amount used"
-                  className="ccm-form-control"
-                />
-                <Form.Control.Feedback type="invalid" className="ccm-feedback">
-                  Please enter a valid amount (greater than or equal to 0).
-                </Form.Control.Feedback>
-              </FloatingLabel>
+              <div className="d-flex gap-2">
+                <FloatingLabel
+                  controlId="amountUsed"
+                  label="Amount Used"
+                  className="ccm-form-group flex-grow-1"
+                >
+                  <Form.Control
+                    type="number"
+                    name="amount_used"
+                    value={formData.amount_used}
+                    onChange={handleInputChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="Enter amount used"
+                    className="ccm-form-control"
+                  />
+                  <Form.Control.Feedback
+                    type="invalid"
+                    className="ccm-feedback"
+                  >
+                    Please enter a valid amount (greater than or equal to 0).
+                  </Form.Control.Feedback>
+                </FloatingLabel>
 
-              <FloatingLabel
-                controlId="user"
-                label="User"
-                className="ccm-form-group"
-              >
-                <Form.Control
-                  type="text"
-                  name="user"
-                  value={formData.user}
-                  onChange={handleInputChange}
-                  disabled
-                  placeholder="User"
-                  className="ccm-form-control ccm-disabled"
-                />
-              </FloatingLabel>
+                <FloatingLabel
+                  controlId="itemType"
+                  label="Item Type"
+                  className="ccm-form-group"
+                  style={{ width: "100px" }}
+                >
+                  <Form.Control
+                    type="text"
+                    name="item_type"
+                    value={formData.item_type}
+                    readOnly
+                    placeholder="Item type"
+                    className="ccm-form-control ccm-readonly"
+                  />
+                </FloatingLabel>
+              </div>
 
               <FloatingLabel
                 controlId="date"
@@ -245,13 +247,12 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 <Form.Control
                   type="text"
                   name="remaining_stock"
-                  value={formData.remaining_stock}
+                  value={Number(formData.remaining_stock).toFixed(3)}
                   readOnly
                   placeholder="Remaining stock"
                   className="ccm-form-control ccm-readonly"
                 />
               </FloatingLabel>
-
               <FloatingLabel
                 controlId="notes"
                 label="Notes"
