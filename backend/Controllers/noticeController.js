@@ -3,16 +3,19 @@ import mongoose from 'mongoose';
 
 // Get all notices for the user's home
 export const getAllNotices = async (req, res) => {
-  try {
-    const notices = await Notice.find({ homeId: req.user.homeId })
-      .sort({ createdAt: -1 })
-      .populate('createdBy', 'name');
-
-    res.json(notices);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+    try {
+      const homeId = req.query.homeId || req.user.homeId; // Use homeId from query or from user
+  
+      const notices = await Notice.find({ homeId })
+        .sort({ createdAt: -1 })
+        .populate('createdBy', 'name');
+  
+      res.json(notices);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
 
 // Create a new notice
 export const createNotice = async (req, res) => {

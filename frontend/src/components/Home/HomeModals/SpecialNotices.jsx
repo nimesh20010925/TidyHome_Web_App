@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-// Make sure to create this CSS file
 
 const SpecialNotices = () => {
   const { t } = useTranslation();
@@ -19,14 +18,15 @@ const SpecialNotices = () => {
       try {
         const userData = JSON.parse(localStorage.getItem("user"));
         const token = localStorage.getItem("token");
+        const homeId = localStorage.getItem("homeId");
 
         if (userData && token) {
           setUser({
             ...userData,
             token,
+            homeId
           });
 
-          // Handle both homeID and homeId cases
           const homeIdFromStorage = userData.homeID || userData.homeId;
           if (!homeIdFromStorage) {
             console.error("homeId not found in user data");
@@ -53,11 +53,14 @@ const SpecialNotices = () => {
         setIsLoading(false);
         return;
       }
-
+  
       try {
         const response = await axios.get("http://localhost:3500/api/notices", {
           headers: {
             Authorization: `Bearer ${user.token}`,
+          },
+          params: {
+            homeId: homeId,
           },
         });
         setNotices(response.data);
@@ -68,7 +71,7 @@ const SpecialNotices = () => {
         setIsLoading(false);
       }
     };
-
+  
     fetchNotices();
   }, [user?.token, homeId, t]);
 
@@ -158,7 +161,17 @@ const SpecialNotices = () => {
         </div>
       )}
 
-      <div className="notices-list">
+      <div
+        className="notices-list"
+        style={{
+          maxHeight: "400px",  // Adjust the max height as necessary
+          overflowY: "auto",    // Makes the container scrollable
+          padding: "10px",
+          border: "1px solid #ddd",
+          backgroundColor: "#fff",
+          borderRadius: "5px"
+        }}
+      >
         {notices.length === 0 ? (
           <p className="empty-notices">{t("NO_NOTICES_AVAILABLE")}</p>
         ) : (

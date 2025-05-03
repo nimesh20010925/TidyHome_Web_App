@@ -1813,56 +1813,41 @@ button.home-member-delete-btn:hover {
 }
 
 .special-notices {
-  max-width: 800px;
-  margin: 0 auto;
+  /* You can add general styles for the container here if needed */
   padding: 20px;
-  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
 }
 
 .notices-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 .notices-title {
-  color: #2c3e50;
-  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .add-notice-button {
-  background-color: #3498db;
+  padding: 8px 12px;
+  background-color: #a367e4;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.add-notice-button:hover {
-  background-color: #2980b9;
 }
 
 .notice-form {
-  background-color: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-top: 20px;
 }
 
 .notice-input {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  resize: vertical;
-  min-height: 100px;
   margin-bottom: 10px;
-  font-family: inherit;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
 .form-actions {
@@ -1871,77 +1856,58 @@ button.home-member-delete-btn:hover {
 }
 
 .save-button {
-  background-color: #2ecc71;
+  padding: 8px 12px;
+  background-color: #28a745;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-}
-
-.save-button:hover {
-  background-color: #27ae60;
 }
 
 .notices-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  margin-top: 20px;
+  max-height: 400px; /* Set max height for scrollable area */
+  overflow-y: auto; /* Enable vertical scrolling */
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
 .notice-card {
-  background-color: white;
-  border-left: 4px solid #3498db;
-  padding: 15px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: #f9f9f9;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.notice-content {
+  flex: 1;
 }
 
 .notice-message {
-  margin: 0 0 10px 0;
   font-size: 16px;
+  font-weight: 600;
 }
 
 .notice-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: #7f8c8d;
+  font-size: 12px;
+  color: gray;
+  margin-top: 5px;
+}
+
+.notice-author {
+  margin-right: 10px;
 }
 
 .delete-notice {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background: none;
   border: none;
   font-size: 20px;
+  color: #dc3545;
   cursor: pointer;
-  color: #e74c3c;
-  padding: 0 5px;
-}
-
-.delete-notice:hover {
-  color: #c0392b;
-}
-
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #7f8c8d;
-}
-
-.error-message {
-  color: #e74c3c;
-  background-color: #fadbd8;
-  padding: 10px;
-  border-radius: 4px;
-  margin: 10px 0;
-}
-
-.empty-notices {
-  text-align: center;
-  color: #7f8c8d;
-  padding: 20px;
 }
