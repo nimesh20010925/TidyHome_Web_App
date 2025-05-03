@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Box,
   Button,
@@ -35,6 +34,7 @@ import {
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import HomeSummary from "../../../Home/HomeModals/HomeSummary.jsx";
+import supplierService from "../../../../services/supplierService.jsx";
 
 const SupplierService = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -71,18 +71,21 @@ const SupplierService = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await axios.get("http://localhost:3500/api/supplier");
-      const sortedSuppliers = response.data.suppliers.sort((a, b) => {
+      const response = await supplierService.getAllSuppliers();
+      const sortedSuppliers = response.suppliers.sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
         const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
-        return dateB - dateA;
+        return dateA - dateB; // Oldest first
       });
       setSuppliers(sortedSuppliers);
     } catch (error) {
       console.error("Fetch suppliers error:", error);
-      const errorMessage =
-        error.response?.data?.message || "Error fetching suppliers/stores";
-      showSnackbar(errorMessage, "error");
+      const errorMessage = error.message || "Error fetching suppliers/stores";
+      if (error.status === 403) {
+        window.location.href = "/login";
+      } else {
+        showSnackbar(errorMessage, "error");
+      }
     }
   };
 
@@ -91,7 +94,7 @@ const SupplierService = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleCreate = async () => {
+  const validateForm = (data) => {
     const {
       supplier_id,
       supplier_name,
@@ -99,133 +102,72 @@ const SupplierService = () => {
       supplier_email,
       supplier_address,
       date,
-    } = formData;
+    } = data;
 
     if (supplier_id.length < 5 || supplier_id.length > 10) {
-      showSnackbar(
-        "Supplier/Store ID must be between 5 and 10 characters long",
-        "error"
-      );
-      return;
+      return "Supplier/Store ID must be between 5 and 10 characters long";
     }
     const alphanumericRegex = /^[a-zA-Z0-9.]+$/;
     if (!alphanumericRegex.test(supplier_id)) {
-      showSnackbar(
-        "Supplier/Store ID can only contain letters, numbers, and dots",
-        "error"
-      );
-      return;
-    }
-    try {
-      const response = await axios.get("http://localhost:3500/api/supplier");
-      const existingSuppliers = response.data.suppliers;
-      if (
-        existingSuppliers.some(
-          (supplier) => supplier.supplier_id === supplier_id
-        )
-      ) {
-        showSnackbar("Supplier/Store ID already exists", "error");
-        return;
-      }
-    } catch (error) {
-      console.error("Error checking supplier/store ID uniqueness:", error);
-      showSnackbar("Error validating Supplier/Store ID", "error");
-      return;
+      return "Supplier/Store ID can only contain letters, numbers, and dots";
     }
 
     if (supplier_name.length < 3 || supplier_name.length > 50) {
-      showSnackbar(
-        "Supplier/Store Name must be between 3 and 50 characters long",
-        "error"
-      );
-      return;
+      return "Supplier/Store Name must be between 3 and 50 characters long";
     }
     const nameRegex = /^[a-zA-Z\s]+$/;
     if (!nameRegex.test(supplier_name)) {
-      showSnackbar(
-        "Supplier/Store Name can only contain letters and spaces",
-        "error"
-      );
-      return;
+      return "Supplier/Store Name can only contain letters and spaces";
     }
 
     if (supplier_contact.length !== 10) {
-      showSnackbar(
-        "Supplier/Store Contact must be exactly 10 digits",
-        "error"
-      );
-      return;
+      return "Supplier/Store Contact must be exactly 10 digits";
     }
     const contactRegex = /^[0-9]+$/;
     if (!contactRegex.test(supplier_contact)) {
-      showSnackbar(
-        "Supplier/Store Contact can only contain numbers",
-        "error"
-      );
-      return;
+      return "Supplier/Store Contact can only contain numbers";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(supplier_email)) {
-      showSnackbar("Please enter a valid email address", "error");
-      return;
-    }
-    try {
-      const response = await axios.get("http://localhost:3500/api/supplier");
-      const existingSuppliers = response.data.suppliers;
-      if (
-        existingSuppliers.some(
-          (supplier) => supplier.supplier_email === supplier_email
-        )
-      ) {
-        showSnackbar("Email already exists", "error");
-        return;
-      }
-    } catch (error) {
-      console.error("Error checking email uniqueness:", error);
-      showSnackbar("Error validating Email", "error");
-      return;
+      return "Please enter a valid email address";
     }
 
     if (supplier_address.length < 10 || supplier_address.length > 100) {
-      showSnackbar(
-        "Supplier/Store Address must be between 10 and 100 characters long",
-        "error"
-      );
-      return;
+      return "Supplier/Store Address must be between 10 and 100 characters long";
     }
     const addressRegex = /^[a-zA-Z0-9\s,.-/]+$/;
     if (!addressRegex.test(supplier_address)) {
-      showSnackbar(
-        "Supplier/Store Address can only contain letters, numbers, spaces, and , . - /",
-        "error"
-      );
-      return;
+      return "Supplier/Store Address can only contain letters, numbers, spaces, and , . - /";
     }
 
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      showSnackbar("Date must be in YYYY-MM-DD format", "error");
-      return;
+      return "Date must be in YYYY-MM-DD format";
     }
     const inputDate = new Date(date);
     const currentDate = new Date();
     if (inputDate > currentDate) {
-      showSnackbar("Date cannot be in the future", "error");
-      return;
+      return "Date cannot be in the future";
     }
     const minDate = new Date("2015-03-22");
     if (inputDate < minDate) {
-      showSnackbar("Date cannot be older than 10 years", "error");
+      return "Date cannot be older than 10 years";
+    }
+
+    return null;
+  };
+
+  const handleCreate = async () => {
+    const validationError = validateForm(formData);
+    if (validationError) {
+      showSnackbar(validationError, "error");
       return;
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:3500/api/supplier/create",
-        formData
-      );
+      const response = await supplierService.createSupplier(formData);
       const newSupplier = {
-        ...response.data,
+        ...response.savedsupplier,
         createdAt: new Date().toISOString(),
       };
       setSuppliers((prevSuppliers) => {
@@ -233,7 +175,7 @@ const SupplierService = () => {
         return updatedSuppliers.sort((a, b) => {
           const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
           const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
-          return dateB - dateA;
+          return dateA - dateB; // Oldest first
         });
       });
       setOpenCreate(false);
@@ -241,158 +183,36 @@ const SupplierService = () => {
       showSnackbar("Supplier/Store created successfully");
     } catch (error) {
       console.error("Create supplier/store error:", error);
-      const errorMessage =
-        error.response?.data?.message || "Error creating supplier/store";
-      showSnackbar(errorMessage, "error");
+      const errorMessage = error.message || "Error creating supplier/store";
+      if (error.status === 403) {
+        window.location.href = "/login";
+      } else {
+        showSnackbar(errorMessage, "error");
+      }
     }
   };
 
   const handleUpdate = async () => {
-    const {
-      supplier_id,
-      supplier_name,
-      supplier_contact,
-      supplier_email,
-      supplier_address,
-      date,
-    } = formData;
-
-    if (supplier_id.length < 5 || supplier_id.length > 10) {
-      showSnackbar(
-        "Supplier/Store ID must be between 5 and 10 characters long",
-        "error"
-      );
-      return;
-    }
-    const alphanumericRegex = /^[a-zA-Z0-9.]+$/;
-    if (!alphanumericRegex.test(supplier_id)) {
-      showSnackbar(
-        "Supplier/Store ID can only contain letters, numbers, and dots",
-        "error"
-      );
-      return;
-    }
-    try {
-      const response = await axios.get("http://localhost:3500/api/supplier");
-      const existingSuppliers = response.data.suppliers;
-      if (
-        existingSuppliers.some(
-          (supplier) =>
-            supplier.supplier_id === supplier_id &&
-            supplier._id !== selectedSupplier._id
-        )
-      ) {
-        showSnackbar("Supplier/Store ID already exists", "error");
-        return;
-      }
-    } catch (error) {
-      console.error("Error checking supplier/store ID uniqueness:", error);
-      showSnackbar("Error validating Supplier/Store ID", "error");
-      return;
-    }
-
-    if (supplier_name.length < 3 || supplier_name.length > 50) {
-      showSnackbar(
-        "Supplier/Store Name must be between 3 and 50 characters long",
-        "error"
-      );
-      return;
-    }
-    const nameRegex = /^[a-zA-Z\s]+$/;
-    if (!nameRegex.test(supplier_name)) {
-      showSnackbar(
-        "Supplier/Store Name can only contain letters and spaces",
-        "error"
-      );
-      return;
-    }
-
-    if (supplier_contact.length !== 10) {
-      showSnackbar(
-        "Supplier/Store Contact must be exactly 10 digits",
-        "error"
-      );
-      return;
-    }
-    const contactRegex = /^[0-9]+$/;
-    if (!contactRegex.test(supplier_contact)) {
-      showSnackbar(
-        "Supplier/Store Contact can only contain numbers",
-        "error"
-      );
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(supplier_email)) {
-      showSnackbar("Please enter a valid email address", "error");
-      return;
-    }
-    try {
-      const response = await axios.get("http://localhost:3500/api/supplier");
-      const existingSuppliers = response.data.suppliers;
-      if (
-        existingSuppliers.some(
-          (supplier) =>
-            supplier.supplier_email === supplier_email &&
-            supplier._id !== selectedSupplier._id
-        )
-      ) {
-        showSnackbar("Email already exists", "error");
-        return;
-      }
-    } catch (error) {
-      console.error("Error checking email uniqueness:", error);
-      showSnackbar("Error validating Email", "error");
-      return;
-    }
-
-    if (supplier_address.length < 10 || supplier_address.length > 100) {
-      showSnackbar(
-        "Supplier/Store Address must be between 10 and 100 characters long",
-        "error"
-      );
-      return;
-    }
-    const addressRegex = /^[a-zA-Z0-9\s,.-/]+$/;
-    if (!addressRegex.test(supplier_address)) {
-      showSnackbar(
-        "Supplier/Store Address can only contain letters, numbers, spaces, and , . - /",
-        "error"
-      );
-      return;
-    }
-
-    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      showSnackbar("Date must be in YYYY-MM-DD format", "error");
-      return;
-    }
-    const inputDate = new Date(date);
-    const currentDate = new Date();
-    if (inputDate > currentDate) {
-      showSnackbar("Date cannot be in the future", "error");
-      return;
-    }
-    const minDate = new Date("2015-03-22");
-    if (inputDate < minDate) {
-      showSnackbar("Date cannot be older than 10 years", "error");
+    const validationError = validateForm(formData);
+    if (validationError) {
+      showSnackbar(validationError, "error");
       return;
     }
 
     try {
-      await axios.put(
-        `http://localhost:3500/api/supplier/${selectedSupplier._id}`,
-        formData
-      );
+      await supplierService.updateSupplier(selectedSupplier._id, formData);
       setOpenUpdate(false);
       resetForm();
       fetchSuppliers();
       showSnackbar("Supplier/Store updated successfully");
     } catch (error) {
       console.error("Update supplier/store error:", error);
-      const errorMessage =
-        error.response?.data?.message || "Error updating supplier/store";
-      showSnackbar(errorMessage, "error");
+      const errorMessage = error.message || "Error updating supplier/store";
+      if (error.status === 403) {
+        window.location.href = "/login";
+      } else {
+        showSnackbar(errorMessage, "error");
+      }
     }
   };
 
@@ -403,16 +223,19 @@ const SupplierService = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3500/api/supplier/${supplierToDelete}`);
+      await supplierService.deleteSupplier(supplierToDelete);
       fetchSuppliers();
       showSnackbar("Supplier/Store deleted successfully");
       setOpenDeleteConfirm(false);
       setSupplierToDelete(null);
     } catch (error) {
       console.error("Delete supplier/store error:", error);
-      const errorMessage =
-        error.response?.data?.message || "Error deleting supplier/store";
-      showSnackbar(errorMessage, "error");
+      const errorMessage = error.message || "Error deleting supplier/store";
+      if (error.status === 403) {
+        window.location.href = "/login";
+      } else {
+        showSnackbar(errorMessage, "error");
+      }
       setOpenDeleteConfirm(false);
       setSupplierToDelete(null);
     }
@@ -448,7 +271,7 @@ const SupplierService = () => {
       supplier_contact: supplier.supplier_contact,
       supplier_email: supplier.supplier_email,
       supplier_address: supplier.supplier_address,
-      date: supplier.date.split("T")[0],
+      date: new Date(supplier.date).toISOString().split("T")[0],
       type: supplier.type,
     });
     setOpenUpdate(true);
@@ -473,10 +296,7 @@ const SupplierService = () => {
 
   const generateCSVReport = () => {
     if (suppliers.length === 0) {
-      showSnackbar(
-        "No suppliers/stores available to generate a report",
-        "warning"
-      );
+      showSnackbar("No suppliers/stores available to generate a report", "warning");
       return;
     }
 
@@ -524,10 +344,7 @@ const SupplierService = () => {
 
   const generatePDFReport = () => {
     if (suppliers.length === 0) {
-      showSnackbar(
-        "No suppliers/stores available to generate a report",
-        "warning"
-      );
+      showSnackbar("No suppliers/stores available to generate a report", "warning");
       return;
     }
 
@@ -575,9 +392,7 @@ const SupplierService = () => {
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `suppliers_stores_report_${new Date().toISOString().split(
-        "T"
-      )[0]}.pdf`;
+      link.download = `suppliers_stores_report_${new Date().toISOString().split("T")[0]}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -616,8 +431,7 @@ const SupplierService = () => {
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
 
-    const matchesType =
-      typeFilter === "All" || supplier.type === typeFilter;
+    const matchesType = typeFilter === "All" || supplier.type === typeFilter;
 
     return matchesSearch && matchesType;
   });
@@ -698,7 +512,7 @@ const SupplierService = () => {
               },
             }}
           />
-          <FormControl sx={{ width: 200 }} >
+          <FormControl sx={{ width: 200 }}>
             <InputLabel>Filter by Type</InputLabel>
             <Select
               value={typeFilter}

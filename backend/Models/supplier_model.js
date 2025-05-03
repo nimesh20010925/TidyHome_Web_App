@@ -29,13 +29,22 @@ const supplierSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ['Supplier', 'Store'], // Restrict to these values
-      default: 'Supplier'
+      enum: ["Supplier", "Store"],
+      default: "Supplier",
+    },
+    userID: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true, // Ensure every supplier is tied to a user
     },
   },
   {
     timestamps: true,
   }
 );
+
+// Ensure supplier_id and supplier_email are unique within a user
+supplierSchema.index({ supplier_id: 1, userID: 1 }, { unique: true });
+supplierSchema.index({ supplier_email: 1, userID: 1 }, { unique: true });
 
 export const supplier = mongoose.model("suppliers", supplierSchema);
