@@ -302,7 +302,7 @@ const ConsumptionTable = () => {
                       key={header.label}
                       scope="col"
                       onClick={() => header.key && handleSort(header.key)}
-                      className={header.key ? "sortable" : ""}
+                      className={`${header.key ? "sortable" : ""} action`}
                     >
                       {header.label}
                       {sortConfig.key === header.key && (
