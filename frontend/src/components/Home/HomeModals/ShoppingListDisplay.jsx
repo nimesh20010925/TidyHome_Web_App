@@ -4,11 +4,13 @@ import { useTranslation } from "react-i18next";
 import { Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import Form from "react-bootstrap/Form";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaSearch } from "react-icons/fa";
 import Swal from "sweetalert2";
+
 const ShoppingListDisplay = () => {
     const [shoppingLists, setShoppingLists] = useState([]);
-    const [currentList, setCurrentList] = useState(null); // For editing
+    const [filteredLists, setFilteredLists] = useState([]); // For search results
+    const [currentList, setCurrentList] = useState(null);
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
         listName: "",
@@ -21,6 +23,12 @@ const ShoppingListDisplay = () => {
         useState(false);
     const [updateShoppingScheduleModal, setUpdateShoppingScheduleModal] =
         useState(false);
+    const [searchTerm, setSearchTerm] = useState(""); // For search input
+
+    // Add this useEffect to initialize filteredLists when shoppingLists changes
+    useEffect(() => {
+        setFilteredLists(shoppingLists);
+    }, [shoppingLists]);
 
     const createShoppingScheduleToggle = () => {
         setCreateShoppingScheduleModal(!createShoppingScheduleModal);
@@ -30,7 +38,7 @@ const ShoppingListDisplay = () => {
                 shoppingDate: "",
                 shopVisitors: [],
             });
-            setCurrentList(null); // Ensure no list is selected for editing
+            setCurrentList(null);
         }
     };
 
@@ -54,18 +62,15 @@ const ShoppingListDisplay = () => {
                 }
             );
 
-            console.log("Fetched Shopping Lists Response:", response.data); // Log to confirm structure
-
-            // Extract the shoppingLists array from the response
             if (response.data && Array.isArray(response.data.shoppingLists)) {
                 setShoppingLists(response.data.shoppingLists);
             } else {
                 console.error("Unexpected response format:", response.data);
-                setShoppingLists([]); // Ensure state is always an array
+                setShoppingLists([]);
             }
         } catch (error) {
             console.error("Error fetching shopping lists:", error);
-            setShoppingLists([]); // Prevent UI errors
+            setShoppingLists([]);
         }
     };
 
@@ -84,6 +89,25 @@ const ShoppingListDisplay = () => {
         } catch (error) {
             console.error("Error fetching home members:", error);
         }
+    };
+
+    // Add this function to handle search
+    const handleSearch = (e) => {
+        const term = e.target.value.toLowerCase();
+        setSearchTerm(term);
+        
+        if (!term) {
+            setFilteredLists(shoppingLists);
+            return;
+        }
+
+        const filtered = shoppingLists.filter(list => {
+            const listNameMatch = list.listName.toLowerCase().includes(term);
+            const dateMatch = new Date(list.shoppingDate).toLocaleDateString().includes(term);
+            return listNameMatch || dateMatch;
+        });
+
+        setFilteredLists(filtered);
     };
 
     const handleInputChange = (e) => {
@@ -120,7 +144,6 @@ const ShoppingListDisplay = () => {
             };
 
             if (currentList) {
-                // If editing an existing shopping list
                 await axios.put(
                     `http://localhost:3500/api/shoppingList/shopping-lists/${currentList._id}`,
                     requestData,
@@ -138,7 +161,6 @@ const ShoppingListDisplay = () => {
                 });
                 updateShoppingScheduleToggle();
             } else {
-                // If creating a new shopping list
                 await axios.post(
                     "http://localhost:3500/api/shoppingList/shopping-lists",
                     requestData,
@@ -170,7 +192,7 @@ const ShoppingListDisplay = () => {
             confirmButtonText: "Yes, delete it!",
         });
 
-        if (!result.isConfirmed) return; // Stop if the user cancels
+        if (!result.isConfirmed) return;
 
         const token = localStorage.getItem("token");
         try {
@@ -190,7 +212,6 @@ const ShoppingListDisplay = () => {
         }
     };
 
-
     const handleEdit = (list) => {
         setFormData({
             listName: list.listName,
@@ -207,20 +228,16 @@ const ShoppingListDisplay = () => {
             return member ? member.name : "Unknown Visitor";
         });
     };
+
     const validateForm = () => {
         const newErrors = {};
-
-        // Ensure shopping date is not in the past
         const today = new Date().toISOString().split("T")[0];
         if (!formData.shoppingDate || formData.shoppingDate < today) {
             newErrors.shoppingDate = "Shopping date cannot be in the past.";
         }
-
-        // Ensure at least one visitor is selected
         if (formData.shopVisitors.length === 0) {
             newErrors.shopVisitors = "Please select at least one visitor.";
         }
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -260,6 +277,23 @@ const ShoppingListDisplay = () => {
     return (
         <div className="home-shopping-container">
             <h2 className="home-shopping-h2">{t("SHOPPINGSCHEDULES")}</h2>
+            
+            {/* Add search bar here */}
+            <div className="mb-3 position-relative">
+                <div className="input-group">
+                    <span className="input-group-text">
+                        <FaSearch />
+                    </span>
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Search by name or date..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                    />
+                </div>
+            </div>
+
             {localStorage.getItem("user") &&
                 JSON.parse(localStorage.getItem("user")).role === "homeOwner" && (
                     <button
@@ -272,11 +306,11 @@ const ShoppingListDisplay = () => {
                 )}
 
             <div className="home-shopping-list-wrapper">
-                {Array.isArray(shoppingLists) && shoppingLists.length === 0 ? (
-                    <p>No shopping lists available.</p>
+                {Array.isArray(filteredLists) && filteredLists.length === 0 ? (
+                    <p>No shopping lists found{searchTerm ? ` matching "${searchTerm}"` : ""}.</p>
                 ) : (
-                    Array.isArray(shoppingLists) &&
-                    shoppingLists.map((list) => (
+                    Array.isArray(filteredLists) &&
+                    filteredLists.map((list) => (
                         <div key={list._id} className="home-shopping-card">
                             <div className="home-shopping-header">
                                 <strong>{list.listName}</strong>
@@ -294,7 +328,6 @@ const ShoppingListDisplay = () => {
                                 )}
                             </div>
                             <div className="home-shopping-actions">
-                                {/* Show Edit and Delete buttons only if the user is a homeOwner */}
                                 {localStorage.getItem("user") &&
                                     JSON.parse(localStorage.getItem("user")).role ===
                                     "homeOwner" && (
@@ -321,6 +354,7 @@ const ShoppingListDisplay = () => {
                 )}
             </div>
 
+            {/* Rest of your modal code remains the same */}
             <Modal
                 className="add-inventory-modal"
                 isOpen={updateShoppingScheduleModal}

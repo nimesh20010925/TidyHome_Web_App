@@ -161,29 +161,19 @@ const SpecialNotices = () => {
         </div>
       )}
 
-      <div
-        className="notices-list"
-        style={{
-          maxHeight: "400px",  // Adjust the max height as necessary
-          overflowY: "auto",    // Makes the container scrollable
-          padding: "10px",
-          border: "1px solid #ddd",
-          backgroundColor: "#fff",
-          borderRadius: "5px"
-        }}
-      >
+     
         {notices.length === 0 ? (
           <p className="empty-notices">{t("NO_NOTICES_AVAILABLE")}</p>
         ) : (
           notices.map((notice) => (
-            <div className="notice-card" key={notice._id}>
+            <div className="notice-card" key={notice._id} style={{backgroundColor: "#D84040", padding: "10px", marginBottom: "10px"}}>
               <div className="notice-content">
-                <p className="notice-message">📢 {notice.message}</p>
+                <p className="notice-message" style={{color:"#fff"}}>📢 {notice.message}</p>
                 <div className="notice-meta">
-                  <span className="notice-author">
+                  <span className="notice-author" style={{color:"#fff"}}>
                     {t("POSTED_BY")}: {notice.createdBy?.name || t("UNKNOWN_USER")}
                   </span>
-                  <span className="notice-date">
+                  <span className="notice-date" style={{color:"#fff"}}>
                     {new Date(notice.createdAt).toLocaleDateString()}
                   </span>
                 </div>
@@ -194,6 +184,7 @@ const SpecialNotices = () => {
                     className="delete-notice"
                     onClick={() => removeNotice(notice._id)} onMouseDown={(e) => e.stopPropagation()}
                     aria-label={t("DELETE_NOTICE")}
+                    style={{color:"#fff"}}
                   >
                     ×
                   </button>
@@ -202,7 +193,7 @@ const SpecialNotices = () => {
           ))
         )}
       </div>
-    </div>
+    
   );
 };
 
