@@ -3,7 +3,8 @@ import { ConsumptionService } from "../../../services/consumptionServices";
 import ViewModal from "../consumptionViewModel/consumptionViewModel";
 import EditModal from "../consumptionEditModel/consumptionEditModel";
 import DeleteModal from "../consumptionDeleteModel/consumptionDeleteModel";
-import './ConsumptionTable.css';
+
+import "./ConsumptionTable.css";
 
 const ConsumptionTable = () => {
   const [consumptions, setConsumptions] = useState([]);
@@ -13,7 +14,7 @@ const ConsumptionTable = () => {
   const [openViewModal, setOpenViewModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -32,14 +33,14 @@ const ConsumptionTable = () => {
   }, []);
 
   const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
     const sortedData = [...consumptions].sort((a, b) => {
-      if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
-      if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
       return 0;
     });
     setConsumptions(sortedData);
@@ -107,7 +108,9 @@ const ConsumptionTable = () => {
         <div className="table-responsive">
           <div
             className="table-wrapper"
-            style={shouldScroll ? { maxHeight: '550px', overflowY: 'auto' } : {}}
+            style={
+              shouldScroll ? { maxHeight: "550px", overflowY: "auto" } : {}
+            }
           >
             <table className="table table-hover advanced-table">
               <thead className="table-dark">
@@ -129,7 +132,9 @@ const ConsumptionTable = () => {
                     >
                       {header.label}
                       {sortConfig.key === header.key && (
-                        <span>{sortConfig.direction === 'asc' ? ' ▲' : ' ▼'}</span>
+                        <span>
+                          {sortConfig.direction === "asc" ? " ▲" : " ▼"}
+                        </span>
                       )}
                     </th>
                   ))}
@@ -140,8 +145,12 @@ const ConsumptionTable = () => {
                   <tr key={item._id}>
                     <td data-label="Product Name">{item.product_name}</td>
                     <td data-label="Amount Used">{item.amount_used}</td>
-                    <td data-label="User">{item.user}</td>
-                    <td data-label="Date">{new Date(item.date).toLocaleDateString()}</td>
+                    <td data-label="User">
+                      {item.user?.name || "Unknown User"}
+                    </td>
+                    <td data-label="Date">
+                      {new Date(item.date).toLocaleDateString()}
+                    </td>
                     <td data-label="Remaining Stock">{item.remaining_stock}</td>
                     <td data-label="Notes">{item.notes}</td>
                     <td data-label="Action">
@@ -179,7 +188,9 @@ const ConsumptionTable = () => {
         {totalPages > 1 && (
           <nav aria-label="Table pagination" className="mt-3">
             <ul className="pagination justify-content-center flex-wrap">
-              <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+              <li
+                className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
+              >
                 <button
                   className="page-link"
                   onClick={() => handlePageChange(currentPage - 1)}
@@ -187,20 +198,28 @@ const ConsumptionTable = () => {
                   Previous
                 </button>
               </li>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <li
-                  key={page}
-                  className={`page-item ${currentPage === page ? 'active' : ''}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() => handlePageChange(page)}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <li
+                    key={page}
+                    className={`page-item ${
+                      currentPage === page ? "active" : ""
+                    }`}
                   >
-                    {page}
-                  </button>
-                </li>
-              ))}
-              <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  </li>
+                )
+              )}
+              <li
+                className={`page-item ${
+                  currentPage === totalPages ? "disabled" : ""
+                }`}
+              >
                 <button
                   className="page-link"
                   onClick={() => handlePageChange(currentPage + 1)}

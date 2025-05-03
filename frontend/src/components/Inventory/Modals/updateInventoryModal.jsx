@@ -7,16 +7,45 @@ import * as Yup from "yup";
 import { InventoryService } from "../../../services/InventoryServices.jsx";
 import PropTypes from "prop-types";
 import { toast } from "react-hot-toast";
+import axios from "axios";
+import { CategoryService } from "../../../services/categoryServices";
 
 const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
   const [updatedItem, setUpdatedItem] = useState(selectedItem || {});
   const { t } = useTranslation();
+  const [categories, setCategories] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
 
   useEffect(() => {
     if (selectedItem) {
       setUpdatedItem(selectedItem);
     }
   }, [selectedItem]);
+
+  const getAllCategories = async () => {
+    try {
+      const categoryData = await CategoryService.getAllCategorys();
+      setCategories(categoryData);
+      console.log(categoryData);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const getSuppliers = async () => {
+    try {
+      const response = await axios.get("http://localhost:3500/api/supplier");
+      setSuppliers(response.data.suppliers);
+      console.log(response.data.suppliers);
+    } catch (error) {
+      console.error("Fetch suppliers error:", error);
+    }
+  };
+
+  useEffect(() => {
+    getAllCategories();
+    getSuppliers();
+  }, [isOpen]);
 
   const today = new Date();
   const twoYearsAgo = new Date(today);
@@ -32,7 +61,7 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
       itemType: selectedItem?.itemType || "",
       supplierId: selectedItem?.supplierId || undefined,
       lowStockLevel: selectedItem?.lowStockLevel || "",
-      manufacturedDate: selectedItem?.manufacturedDate || "",
+      expiryDate: selectedItem?.expiryDate || "",
       brandName: selectedItem?.brandName || "",
     },
     enableReinitialize: true,
@@ -51,14 +80,12 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
         .positive(t("LOW_LEVEL_MUST_BE_POSITIVE"))
         .min(0.01, t("LOW_LEVEL_CANNOT_BE_ZERO"))
         .required(t("LOW_LEVEL_REQUIRED")),
-      manufacturedDate: Yup.date().nullable(),
+      expiryDate: Yup.date().nullable(),
     }),
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       const transformedValues = {
         ...values,
-        manufacturedDate: values.manufacturedDate
-          ? new Date(values.manufacturedDate)
-          : null,
+        expiryDate: values.expiryDate ? new Date(values.expiryDate) : null,
       };
 
       try {
@@ -147,12 +174,16 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
               name="categoryId"
               onChange={formik.handleChange}
               value={formik.values.categoryId}
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <option value="" disabled>
                 {t("SELECT_CATEGORY")}
               </option>
-              <option value="Category 1">Category 1</option>
-              <option value="Category 2">Category 2</option>
+              {categories.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.category_name}
+                </option>
+              ))}
             </Form.Select>
             {/* {formik.errors.categoryId && formik.touched.categoryId && (
               <div className="text-danger">{formik.errors.categoryId}</div>
@@ -176,6 +207,8 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
               <option value="Kg">{t("KG")}</option>
               <option value="Litre">{t("LITRE")}</option>
               <option value="Metre">{t("METRE")}</option>
+              <option value="Bottle">{t("BOTTLE")}</option>
+              <option value="Pack">{t("PACK")}</option>
             </Form.Select>
             {formik.errors.itemType && formik.touched.itemType && (
               <div className="text-danger">{formik.errors.itemType}</div>
@@ -278,13 +311,19 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
             <Form.Label>{t("SUPPLIER")}</Form.Label>
             <Form.Select
               className="custom-inventory-form-input"
-              defaultValue=""
+              name="supplierId"
+              onChange={formik.handleChange}
+              value={formik.values.supplierId}
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <option value="" disabled>
                 {t("SELECT_SUPPLIER")}
               </option>
-              <option value="Supplier 1">Supplier 1</option>
-              <option value="Supplier 2">Supplier 2</option>
+              {suppliers.map((supplier) => (
+                <option key={supplier._id} value={supplier._id}>
+                  {supplier.supplier_name}
+                </option>
+              ))}
             </Form.Select>
           </Form.Group>
 
@@ -342,39 +381,37 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
             <Form.Control
               className="custom-inventory-form-input-date"
               type="date"
-              name="manufacturedDate"
+              name="expiryDate"
               value={
-                formik.values.manufacturedDate
-                  ? new Date(formik.values.manufacturedDate)
+                formik.values.expiryDate
+                  ? new Date(formik.values.expiryDate)
                       .toISOString()
                       .split("T")[0]
                   : ""
               }
               onChange={(e) =>
-                formik.setFieldValue("manufacturedDate", e.target.value)
+                formik.setFieldValue("expiryDate", e.target.value)
               }
               onBlur={(e) => {
                 const newDate = new Date(e.target.value);
 
                 // Check if the entered date is valid, not a future date, and within the past 2 years
-                if (newDate > today || newDate < twoYearsAgo) {
+                if (newDate < today) {
                   toast.error(t("INVALID_DATE"), {
                     style: {
                       background: "#B32113",
                       color: "#fff",
                     },
                   });
-                  formik.setFieldValue("manufacturedDate", "");
+                  formik.setFieldValue("expiryDate", "");
                 }
               }}
-              min={twoYearsAgo.toISOString().split("T")[0]}
-              max={today.toISOString().split("T")[0]}
+              min={today.toISOString().split("T")[0]}
             />
-            <Form.Label>{t("MANUFACTURED_DATE")}</Form.Label>
-            {formik.touched.manufacturedDate &&
-              formik.errors.manufacturedDate && (
-                <div className="error">{formik.errors.manufacturedDate}</div>
-              )}
+            <Form.Label>{t("EXPIRY_DATE")}</Form.Label>
+            {formik.touched.expiryDate && formik.errors.expiryDate && (
+              <div className="error">{formik.errors.expiryDate}</div>
+            )}
           </Form.Group>
 
           <Form.Group className="custom-inventory-form-group">

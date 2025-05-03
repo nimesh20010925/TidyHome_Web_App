@@ -81,6 +81,8 @@
     "SHOPPING_ITEM_COST_SUMMARY": "සාප්පු අයිතම ප්‍රමාණ සාරාංශය",
     "SHOPPINGLIST_TOTAL_COST": "මුළු සාප්පු ලැයිස්තු වටිනාකම",
     "HOME_SUMMARY": "නිවෙස් සාරාංශය", 
+    "SAVE": "සුරකින්න",
+    "NO_INVENTORY_ITEMS_FOUND": "බඩු තොග කිසිවක් හමු නොවීය",
 
     "NOTIFICATIONS": "දැනුම්දීම්",
     "Search": "සොයන්න",
@@ -117,7 +119,7 @@
     "CREATENEWSHOPPINGLIST":"නව සාප්පු ලැයිස්තුවක් සාදන්න",
     "ADDNEWINVENTORY":"නව බඩු තොග එකතු කරන්න",
     "ADDSUPPLIER":"සැපයුම්කරු එකතු කරන්න",
-    "EXPORTREPORT":"වාර්තාව බාගත කරගන්න",
+    "EXPORTREPORT":"බඩු තොග වාර්තාව බාගත කරගන්න",
     "FAMILYMEMBERS":"පවුලේ සාමාජිකයන්",
 
     "SPECIALNOTICES":"විශේෂ නිවේදන",

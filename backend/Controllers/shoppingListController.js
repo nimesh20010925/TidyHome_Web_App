@@ -159,33 +159,80 @@ class ShoppingListController {
     const { listId } = req.params;
     const { listName, shoppingDate, shopVisitors, itemList } = req.body;
 
-    console.log(req.body);
-
     try {
       let createdItemIds = [];
+      let updatedItems = [];
+      let errors = [];
 
-      // Create new shopping list items only if `itemList` is provided
       if (Array.isArray(itemList) && itemList.length > 0) {
-        createdItemIds = await Promise.all(
+        await Promise.all(
           itemList.map(async (item) => {
-            const reqClone = { ...req, body: item }; // Mock request for item creation
-            const resClone = {
-              status: () => ({ send: () => {} }), // Mock response
-            };
+            console.log("🔍 Processing item:", item);
 
-            const createdItem =
-              await ShoppingListItemsController.createNewShoppingListItem(
-                reqClone,
-                resClone,
-                next
-              );
+            try {
+              if (item.isUpdated === true) {
+                const { isUpdated, ...itemData } = item;
 
-            return createdItem._id; // Return created item ID
+                console.log("🛠️ Attempting update for item:", item._id);
+
+                // ✅ Properly structured mock response
+                let responseStatus = 200;
+
+                const resClone = {
+                  status(code) {
+                    this.statusCode = code;
+                    return this;
+                  },
+                  json(data) {
+                    if (this.statusCode === 200) {
+                      updatedItems.push(data.shoppingListItem);
+                    } else {
+                      errors.push({
+                        itemId: item._id,
+                        error: data.message || "Update failed",
+                      });
+                    }
+                    return this;
+                  },
+                };
+
+                await ShoppingListItemsController.updateShoppingListItem(
+                  {
+                    ...req,
+                    params: { itemId: item.itemId },
+                    body: itemData,
+                  },
+                  resClone,
+                  next
+                );
+              } else if (!item._id) {
+                console.log("➕ Creating new item:", item);
+
+                const createdItem =
+                  await ShoppingListItemsController.createNewShoppingListItem(
+                    { ...req, body: item },
+                    {
+                      status: () => ({
+                        send: (data) => {
+                          if (data?._id) createdItemIds.push(data._id);
+                        },
+                      }),
+                    },
+                    next
+                  );
+                if (createdItem?._id) createdItemIds.push(createdItem._id);
+              }
+            } catch (error) {
+              console.error("❌ Error processing item:", error);
+              errors.push({
+                itemId: item._id || "new item",
+                error: error.message,
+              });
+            }
           })
         );
       }
 
-      // Update the shopping list with new item details
       const shoppingList = await ShoppingList.findOneAndUpdate(
         { _id: listId },
         {
@@ -202,8 +249,7 @@ class ShoppingListController {
       if (!shoppingList) {
         return res.status(404).json({
           success: false,
-          message:
-            "Shopping list not found or you are not authorized to update this list.",
+          message: "Shopping list not found.",
         });
       }
 
@@ -211,9 +257,12 @@ class ShoppingListController {
         success: true,
         message: "Shopping list updated successfully.",
         shoppingList,
+        updatedItems,
+        createdItemIds,
+        ...(errors.length > 0 && { errors }),
       });
     } catch (error) {
-      console.error("Error updating shopping list:", error);
+      console.error("🔥 Error updating shopping list:", error);
       res.status(500).json({
         success: false,
         message: "Error updating shopping list.",

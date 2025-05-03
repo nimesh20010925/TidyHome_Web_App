@@ -7,7 +7,7 @@ const inventorySchema = new mongoose.Schema(
     homeId: {
       type: Schema.Types.ObjectId,
       ref: "Home",
-      required: false,
+      required: true,
     },
     itemImage: {
       type: String,
@@ -25,6 +25,7 @@ const inventorySchema = new mongoose.Schema(
     quantity: {
       type: Number,
       required: false,
+      min: [0, "Quantity cannot be negative"],
     },
     price: {
       type: Number,
@@ -43,7 +44,7 @@ const inventorySchema = new mongoose.Schema(
       type: Number,
       required: false,
     },
-    manufacturedDate: {
+    expiryDate: {
       type: Date,
       required: false,
     },

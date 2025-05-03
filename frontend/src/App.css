@@ -922,6 +922,7 @@ td.inventory-actions-cell {
   padding: 40px 5%;
   overflow: hidden;
   height: 100vh;
+  padding-top: 120px;
 }
 
 .hero::before,
@@ -937,7 +938,7 @@ td.inventory-actions-cell {
 }
 
 .hero::before {
-  top: -100px;
+  top: -150px;
   left: -50px;
 }
 
@@ -1740,4 +1741,69 @@ button.home-member-delete-btn:hover {
 
 .shopping-total-cost {
   color: #333;
+}
+
+.page_404_container{
+  align-items: center;
+  justify-content: center;
+  margin-left: 250px;
+}
+
+.page_404 {
+  padding: 40px 0;
+  background: #fff;
+  font-family: 'Arvo', serif;
+}
+
+.four_zero_four_bg {
+  background-image: url("./assets/common/pagenotfound.gif");
+  height: 400px;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0 auto;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+}
+
+.four_zero_four_bg h1 {
+  font-size: 80px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -40px;
+  color: #333;
+}
+
+.contant_box_404 {
+  margin-top: 50px;
+  text-align: center;
+}
+
+.contant_box_404 .h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.contant_box_404 p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.link_404 {
+  color: #fff !important;
+  padding: 10px 20px;
+  background: #39ac31;
+  margin: 20px 0;
+  display: inline-block;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.link_404:hover {
+  background: #2d8a27;
+  text-decoration: none;
+  color: #fff;
 }

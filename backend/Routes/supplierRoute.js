@@ -1,16 +1,13 @@
 import express from "express";
 import supplierController from "../Controllers/supplierController.js";
+import { authenticateUser } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+router.post("/create", authenticateUser, supplierController.createsupplier);
+router.get("/", authenticateUser, supplierController.getsupplier);
+router.get("/:id", authenticateUser, supplierController.getsupplierById);
+router.put("/:id", authenticateUser, supplierController.updatesupplier);
+router.delete("/:id", authenticateUser, supplierController.deletesupplier);
 
-router.post("/create", supplierController.createsupplier);
-router.get("/", supplierController.getsupplier);
-router.get("/:id", supplierController.getsupplierById);
-router.put("/:id", supplierController.updatesupplier);
-router.delete("/:id", supplierController.deletesupplier);
-
-export default router;
-
-
-
+export default router;

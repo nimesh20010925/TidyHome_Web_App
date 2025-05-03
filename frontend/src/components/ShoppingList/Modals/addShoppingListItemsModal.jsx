@@ -11,7 +11,7 @@ import {
 import { InventoryService } from "../../../services/InventoryServices.jsx";
 import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
-import { FaSearchPlus } from "react-icons/fa";
+import { FaSearchPlus, FaEdit, FaTrash } from "react-icons/fa";
 import { FiPlusCircle } from "react-icons/fi";
 import { FaCirclePlus, FaCircleMinus } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa";
@@ -27,25 +27,54 @@ const AddShoppingListItemsModal = ({
   const inputRef = useRef(null);
   const [inventories, setInventories] = useState([]);
   const [addNewItemModal, setAddNewItemModal] = useState(false);
+  const [updateItemModal, setUpdateItemModal] = useState(false);
+  const [addNewestItemModal, setAddNewestItemModal] = useState(false);
   const [itemCount, setItemCount] = useState(1);
   const [selectedInventoryItem, setSelectedInventoryItem] = useState();
+  const [selectedListItem, setSelectedListItem] = useState();
   const [totalItemCost, setTotalItemCost] = useState(
     selectedInventoryItem?.price
+  );
+  const [totalUpdatedItemCost, setTotalUpdatedItemCost] = useState(
+    selectedListItem?.price
   );
   const [isUrgent, setIsUrgent] = useState(false);
   const [shoppingListItems, setShoppingListItems] = useState([]);
   const [updatedShoppingListItems, setUpdatedShoppingListItems] = useState([]);
   const [user, setUser] = useState();
+  const [newItem, setNewItem] = useState({
+    itemName: "",
+    itemType: "Unit",
+    quantity: 1,
+    price: null,
+    estimatedItemCost: 0,
+    isUrgent: false,
+  });
+  const [totalCost, setTotalCost] = useState(0);
+  const [urgentItemsCost, setUrgentItemsCost] = useState(0);
+  const [itemQuantity, setItemQuantity] = useState();
+  const [itemPrice, setItemPrice] = useState();
+  const [isItemUrgent, setIsItemUrgent] = useState();
 
   const { t } = useTranslation();
 
   const addNewItemToggle = () => setAddNewItemModal(!addNewItemModal);
+
+  const updateItemToggle = () => setUpdateItemModal(!updateItemModal);
+
+  const addNewestItemToggle = () => setAddNewestItemModal(!addNewestItemModal);
 
   useEffect(() => {
     if (selectedInventoryItem?.price) {
       setTotalItemCost(selectedInventoryItem.price * itemCount);
     }
   }, [selectedInventoryItem?.price, itemCount]);
+
+  useEffect(() => {
+    if (itemPrice) {
+      setTotalUpdatedItemCost(itemPrice * itemQuantity);
+    }
+  }, [itemPrice, itemQuantity]);
 
   useEffect(() => {
     setShoppingListItems(selectedShoppingList.itemList);
@@ -60,6 +89,53 @@ const AddShoppingListItemsModal = ({
     }
   }, []);
 
+  useEffect(() => {
+    try {
+      const sum = (shoppingListItems || []).reduce(
+        (total, item) => total + (item?.estimatedItemCost || 0),
+        0
+      );
+      setTotalCost(sum);
+    } catch (error) {
+      console.error("Error calculating total:", error);
+      setTotalCost(0);
+    }
+  }, [shoppingListItems]);
+
+  useEffect(() => {
+    const { total, urgentTotal } = (shoppingListItems || []).reduce(
+      (acc, item) => {
+        const cost = Number(item?.estimatedItemCost) || 0;
+        return {
+          total: acc.total + cost,
+          urgentTotal: item?.isUrgent
+            ? acc.urgentTotal + cost
+            : acc.urgentTotal,
+        };
+      },
+      { total: 0, urgentTotal: 0 }
+    );
+
+    setTotalCost(total);
+    setUrgentItemsCost(urgentTotal);
+  }, [shoppingListItems]);
+
+  useEffect(() => {
+    setIsUrgent(selectedInventoryItem?.isUrgent || false);
+  }, [selectedInventoryItem]);
+
+  const handleUrgentUpdate = (e) => {
+    const checked = e.target.checked;
+    setIsItemUrgent(checked);
+
+    if (selectedListItem) {
+      setSelectedListItem({
+        ...selectedListItem,
+        isUrgent: checked,
+      });
+    }
+  };
+
   const handleUpdateShoppingList = async () => {
     const updateData = {
       homeId: user.homeID,
@@ -68,6 +144,8 @@ const AddShoppingListItemsModal = ({
       shoppingDate: selectedShoppingList.shoppingDate,
       itemList: updatedShoppingListItems,
     };
+
+    console.log(updateData);
 
     try {
       const response = await ShoppingListService.updateShoppingList(
@@ -83,6 +161,7 @@ const AddShoppingListItemsModal = ({
             color: "#fff",
           },
         });
+        setUpdatedShoppingListItems([]);
         toggle();
       } else {
         console.error("Failed to update shopping list:", response.message);
@@ -113,15 +192,94 @@ const AddShoppingListItemsModal = ({
     };
 
     setShoppingListItems((prev) => [...prev, newItem]);
-    setUpdatedShoppingListItems((prev) => [...prev, newItem]);
-    setIsUrgent(false);
 
+    setUpdatedShoppingListItems((prev) => [...prev, newItem]);
+
+    setIsUrgent(false);
     setIsInputFocused(false);
     addNewItemToggle();
   };
 
+  const handleAddNewItem = (itemToAdd) => {
+    const newItem = {
+      homeId: user.homeID,
+      shoppingListId: selectedShoppingList._id,
+      itemName: itemToAdd.itemName,
+      itemType: itemToAdd.itemType,
+      quantity: parseFloat(itemToAdd.quantity) || 0,
+      price: parseFloat(itemToAdd.price) || 0,
+      estimatedItemCost: parseFloat(itemToAdd.estimatedItemCost) || 0,
+      isUrgent: itemToAdd.isUrgent || false,
+      status: "Pending",
+    };
+
+    console.log(newItem);
+
+    setShoppingListItems((prev) => [...prev, newItem]);
+
+    setUpdatedShoppingListItems((prev) => [...prev, newItem]);
+
+    setNewItem({
+      itemName: "",
+      itemType: "Unit",
+      quantity: "",
+      price: "",
+      estimatedItemCost: "",
+      isUrgent: false,
+    });
+  };
+
+  const handleUpdateItem = () => {
+    if (!selectedListItem) return;
+
+    const updatedItem = {
+      homeId: user.homeID,
+      shoppingListId: selectedShoppingList._id,
+      inventoryId: selectedListItem?.inventoryId || null,
+      itemId: selectedListItem?._id,
+      itemName: selectedListItem.itemName,
+      itemType: selectedListItem.itemType,
+      quantity: itemQuantity,
+      price: itemPrice,
+      estimatedItemCost: totalUpdatedItemCost,
+      isUrgent: isItemUrgent,
+      status: "Pending",
+      isUpdated: true,
+    };
+
+    const existingItemIndex = shoppingListItems.findIndex(
+      (item) => item._id === selectedListItem?._id
+    );
+
+    console.log(updatedItem);
+
+    if (existingItemIndex >= 0) {
+      setShoppingListItems((prev) => [
+        ...prev.slice(0, existingItemIndex),
+        updatedItem,
+        ...prev.slice(existingItemIndex + 1),
+      ]);
+
+      setUpdatedShoppingListItems((prev) => [
+        ...prev.slice(0, existingItemIndex),
+        updatedItem,
+        ...prev.slice(existingItemIndex + 1),
+      ]);
+    } else {
+      setShoppingListItems((prev) => [...prev, updatedItem]);
+      setUpdatedShoppingListItems((prev) => [...prev, updatedItem]);
+    }
+
+    setIsUrgent(false);
+    setIsInputFocused(false);
+    updateItemToggle();
+  };
+
   const getAllInventoryItems = async () => {
-    const data = await InventoryService.getAllInventoryItems();
+    const data = await InventoryService.getAllInventoryItems(
+      user.homeID,
+      user._id
+    );
     setInventories(data);
     console.log(data);
   };
@@ -141,6 +299,18 @@ const AddShoppingListItemsModal = ({
     setItemCount(newCount);
   };
 
+  const handleUpdatedQuantityChange = (e) => {
+    const value = e.target.value.trim();
+    const newCount = value === "" ? 0 : Math.max(0, parseFloat(value));
+    setItemQuantity(newCount);
+  };
+
+  const handleUpdatedPriceChange = (e) => {
+    const value = e.target.value.trim();
+    const newPrice = value === "" ? 0 : Math.max(0, parseFloat(value));
+    setItemPrice(newPrice);
+  };
+
   const handleToggle = () => {
     toggle();
   };
@@ -156,6 +326,16 @@ const AddShoppingListItemsModal = ({
     setItemCount(1);
   };
 
+  const handleUpdateItemBtn = () => {
+    updateItemToggle();
+    setItemCount(1);
+  };
+
+  const handleAddNewestItemBtn = () => {
+    addNewestItemToggle();
+    setItemCount(1);
+  };
+
   const handleClickAddItemBtn = (item) => {
     // setItemPrice(item.price ?? 0);
     // setTotalAmount(item.price ?? 0);
@@ -163,6 +343,26 @@ const AddShoppingListItemsModal = ({
     setSelectedInventoryItem(item);
     handleAddNewItemBtn();
     console.log(item);
+  };
+
+  const handleClickUpdateItemBtn = (item) => {
+    // setItemPrice(item.price ?? 0);
+    // setTotalAmount(item.price ?? 0);
+    // setAvailableQuantity(item.quantity ?? 0);
+    setSelectedListItem(item);
+    setItemQuantity(item.quantity);
+    setIsItemUrgent(item.isUrgent);
+    setItemPrice(item.price);
+    handleUpdateItemBtn();
+    console.log(item);
+  };
+
+  const handleClickAddNewestItemBtn = () => {
+    // setItemPrice(item.price ?? 0);
+    // setTotalAmount(item.price ?? 0);
+    // setAvailableQuantity(item.quantity ?? 0);
+    // setSelectedInventoryItem(item);
+    handleAddNewestItemBtn();
   };
 
   const cancelBtn = (
@@ -193,6 +393,28 @@ const AddShoppingListItemsModal = ({
 
   const closeAddNewItemBtn = (
     <button className="close-btn" onClick={addNewItemToggle} type="button">
+      <img
+        width="20"
+        height="20"
+        src="https://img.icons8.com/ios/20/cancel.png"
+        alt="cancel"
+      />
+    </button>
+  );
+
+  const closeUpdateItemBtn = (
+    <button className="close-btn" onClick={updateItemToggle} type="button">
+      <img
+        width="20"
+        height="20"
+        src="https://img.icons8.com/ios/20/cancel.png"
+        alt="cancel"
+      />
+    </button>
+  );
+
+  const closeAddNewestItemBtn = (
+    <button className="close-btn" onClick={addNewestItemToggle} type="button">
       <img
         width="20"
         height="20"
@@ -233,7 +455,7 @@ const AddShoppingListItemsModal = ({
             ref={inputRef}
             className="mt-3"
             type="text"
-            placeholder="Search New Item"
+            placeholder="Search Existing Item"
             style={{
               border: "none",
               outline: "none",
@@ -472,20 +694,20 @@ const AddShoppingListItemsModal = ({
                   />
                 </div>
 
-                <div className={"pt-3 d-flex justify-content-between mb-1"}>
+                <div className={"pt-3 d-flex justify-content-between mt-3"}>
                   <Button
                     className={"col-5 border-0 rounded-pill bg-black fw-bold"}
                     onClick={addNewItemToggle}
                   >
                     {t("CANCEL")}
                   </Button>
-                  <Button
+                  <button
                     className="col-5 border-0 rounded-pill ms-3 fw-bold"
-                    style={{ backgroundColor: "#976BDB", height: "36px" }}
+                    style={{ backgroundColor: "#976BDB", color: "#ffffff" }}
                     onClick={handleAddItem}
                   >
                     Add Item
-                  </Button>
+                  </button>
                 </div>
               </ModalBody>
             </Modal>
@@ -504,7 +726,7 @@ const AddShoppingListItemsModal = ({
                   zIndex: 10,
                 }}
               />
-              <Row className="mb-4">
+              <Row className="mb-4 align-items-center">
                 <Col>
                   <h5 style={{ fontSize: "20px" }}>
                     {selectedShoppingList.listName}
@@ -521,22 +743,318 @@ const AddShoppingListItemsModal = ({
                       : ""}
                   </h5>
                 </Col>
-                {/* <Col>
-                  {selectedShoppingList.shopVisitors && selectedShoppingList.shopVisitors.length > 0 ? (
-                    getVisitorNames(list.shopVisitors).map(
-                      (visitorName, index) => <p key={index}>{visitorName}</p>
-                    )
-                  ) : (
-                    <p>No visitors</p>
-                  )}
-                </Col> */}
+
+                <Col className="text-end">
+                  <button
+                    className="col-9 border-0 rounded-pill fw-bold"
+                    style={{
+                      backgroundColor: "#976BDB",
+                      height: "36px",
+                      color: "#ffffff",
+                    }}
+                    onClick={() => handleClickAddNewestItemBtn()}
+                  >
+                    Add Newest Item
+                  </button>
+                </Col>
               </Row>
+
+              <Modal
+                isOpen={addNewestItemModal}
+                toggle={addNewestItemToggle}
+                centered={true}
+                onClosed={() => {
+                  setItemCount(1);
+                  setNewItem({
+                    itemName: "",
+                    itemType: "Unit",
+                    quantity: 1,
+                    price: "",
+                    estimatedItemCost: "",
+                    isUrgent: false,
+                  });
+                }}
+              >
+                <ModalHeader
+                  className="border-0 mr-3 mb-0 pb-1 p-2 pb-3"
+                  toggle={addNewestItemToggle}
+                  close={closeAddNewestItemBtn}
+                >
+                  <Col className="pt-3">
+                    <div
+                      className="fw-bold"
+                      style={{ fontSize: "18px", color: "#976bdb" }}
+                    >
+                      Add New Item
+                    </div>
+                  </Col>
+                </ModalHeader>
+
+                <ModalBody className="p-2">
+                  <div className="mb-3">
+                    <label
+                      style={{
+                        fontWeight: "500",
+                        marginBottom: "6px",
+                        marginLeft: "6px",
+                      }}
+                    >
+                      Item Name
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={newItem.itemName}
+                      onChange={(e) =>
+                        setNewItem({ ...newItem, itemName: e.target.value })
+                      }
+                      placeholder="Enter item name"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label
+                      style={{
+                        fontWeight: "500",
+                        marginBottom: "6px",
+                        marginLeft: "6px",
+                      }}
+                    >
+                      Item Type
+                    </label>
+                    <select
+                      className="form-control"
+                      value={newItem.itemType}
+                      onChange={(e) => {
+                        const itemType = e.target.value;
+                        setNewItem((prev) => ({
+                          ...prev,
+                          itemType,
+                          quantity: itemType === "Unit" ? 1 : 0.1,
+                          estimatedItemCost:
+                            prev.price && prev.quantity
+                              ? parseFloat(prev.price) * prev.quantity
+                              : "",
+                        }));
+                      }}
+                    >
+                      <option value="Unit">Unit</option>
+                      <option value="Kg">Kg</option>
+                      <option value="Litre">Litre</option>
+                      <option value="Metre">Metre</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-3">
+                    <label
+                      style={{
+                        fontWeight: "500",
+                        marginBottom: "6px",
+                        marginLeft: "6px",
+                      }}
+                    >
+                      Quantity{" "}
+                      {newItem.itemType !== "Unit" && `(${newItem.itemType})`}
+                    </label>
+                    <div className="d-flex align-items-center">
+                      <button
+                        className="btn btn-outline-secondary rounded-circle"
+                        style={{
+                          width: "40px",
+                          height: "34px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          textAlign: "center",
+                          paddingBottom: "10px",
+                          fontWeight: "bolder",
+                          fontSize: "24px",
+                        }}
+                        onClick={() =>
+                          setNewItem((prev) => {
+                            const currentQty = parseFloat(prev.quantity) || 0;
+                            const newQty = Math.max(
+                              prev.itemType === "Unit" ? 1 : 0.1,
+                              currentQty - (prev.itemType === "Unit" ? 1 : 0.1)
+                            );
+                            return {
+                              ...prev,
+                              quantity: newQty.toString(),
+                              estimatedItemCost: prev.price
+                                ? (parseFloat(prev.price) * newQty).toString()
+                                : "",
+                            };
+                          })
+                        }
+                      >
+                        -
+                      </button>
+
+                      <input
+                        type="number"
+                        className="form-control mx-2 text-center"
+                        value={newItem.quantity}
+                        onChange={(e) => {
+                          const quantity =
+                            e.target.value === ""
+                              ? ""
+                              : parseFloat(e.target.value);
+                          setNewItem((prev) => ({
+                            ...prev,
+                            quantity: quantity.toString(),
+                            estimatedItemCost:
+                              quantity && prev.price
+                                ? (parseFloat(prev.price) * quantity).toString()
+                                : "",
+                          }));
+                        }}
+                        min={newItem.itemType === "Unit" ? "" : ""}
+                        step={newItem.itemType === "Unit" ? "1" : "1"}
+                        placeholder="0"
+                        required
+                      />
+
+                      <button
+                        className="btn btn-outline-secondary rounded-circle"
+                        style={{
+                          width: "38px",
+                          height: "34px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          paddingBottom: "10px",
+                          fontWeight: "bolder",
+                          fontSize: "24px",
+                        }}
+                        onClick={() =>
+                          setNewItem((prev) => {
+                            const currentQty = parseFloat(prev.quantity) || 0;
+                            const newQty =
+                              currentQty + (prev.itemType === "Unit" ? 1 : 0.1);
+                            return {
+                              ...prev,
+                              quantity: newQty.toString(),
+                              estimatedItemCost: prev.price
+                                ? (parseFloat(prev.price) * newQty).toString()
+                                : "",
+                            };
+                          })
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label
+                      style={{
+                        fontWeight: "500",
+                        marginBottom: "6px",
+                        marginLeft: "6px",
+                      }}
+                    >
+                      Estimated Price per{" "}
+                      {newItem.itemType !== "Unit" ? newItem.itemType : "Unit"}{" "}
+                      (LKR)
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={newItem.price}
+                      onChange={(e) => {
+                        const price = e.target.value;
+                        setNewItem((prev) => ({
+                          ...prev,
+                          price,
+                          estimatedItemCost:
+                            price && prev.quantity
+                              ? parseFloat(price) * prev.quantity
+                              : "",
+                        }));
+                      }}
+                      placeholder="Enter price"
+                      required
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <label
+                      style={{
+                        fontWeight: "500",
+                        marginBottom: "6px",
+                        marginLeft: "6px",
+                      }}
+                    >
+                      Estimated Item Cost (LKR)
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={newItem.estimatedItemCost || ""}
+                      readOnly
+                      style={{
+                        backgroundColor: "#f8f9fa",
+                        cursor: "not-allowed",
+                      }}
+                    />
+                  </div>
+
+                  <div className="mb-2 d-flex align-items-center urgent-item">
+                    <input
+                      className="urgent-items-checkbox me-3"
+                      type="checkbox"
+                      id="urgentItemCheck"
+                      checked={newItem.isUrgent}
+                      onChange={(e) =>
+                        setNewItem({ ...newItem, isUrgent: e.target.checked })
+                      }
+                    />
+                    <span>This is an urgent item</span>
+                  </div>
+
+                  <div className="pt-3 d-flex justify-content-between mb-1">
+                    <button
+                      className="col-5 border-0 rounded-pill bg-black fw-bold"
+                      style={{ color: "#ffffff" }}
+                      onClick={addNewestItemToggle}
+                    >
+                      {t("CANCEL")}
+                    </button>
+                    <button
+                      className="col-5 border-0 rounded-pill ms-3 fw-bold"
+                      style={{
+                        backgroundColor: "#976BDB",
+                        height: "36px",
+                        color: "#ffffff",
+                      }}
+                      onClick={() => {
+                        const itemToAdd = {
+                          ...newItem,
+                          price: newItem.price ? parseFloat(newItem.price) : 0,
+                          estimatedItemCost: newItem.estimatedItemCost || 0,
+                        };
+                        handleAddNewItem(itemToAdd);
+                        addNewestItemToggle();
+                      }}
+                      disabled={
+                        !newItem.itemName ||
+                        !newItem.price ||
+                        newItem.quantity <= 0
+                      }
+                    >
+                      Add Item
+                    </button>
+                  </div>
+                </ModalBody>
+              </Modal>
 
               {Array.isArray(selectedShoppingList.itemList) &&
                 selectedShoppingList.itemList.length > 0 && (
-                  <Row className="pb-2 ps-1 pr-2">
+                  <Row className="pb-2 ps-1 pr-2 align-items-center">
                     <Col
-                      xs={6}
+                      xs={5}
                       className="text-start"
                       style={{ fontWeight: 600, color: "#898989" }}
                     >
@@ -558,9 +1076,8 @@ const AddShoppingListItemsModal = ({
                     </Col>
                   </Row>
                 )}
-
-              {Array.isArray(selectedShoppingList.itemList) &&
-                selectedShoppingList.itemList.length === 0 && (
+              {Array.isArray(shoppingListItems) &&
+                shoppingListItems.length === 0 && (
                   <div className="mt-5" style={{ color: "#976bdb" }}>
                     No Shopping List Items Added Yet
                   </div>
@@ -579,7 +1096,7 @@ const AddShoppingListItemsModal = ({
                     style={{ backgroundColor: "#fff" }}
                   >
                     <Row className="align-items-center">
-                      <Col xs={6} className="text-start">
+                      <Col xs={5} className="text-start">
                         <Row className="g-2">
                           <Col
                             xs="auto"
@@ -619,7 +1136,7 @@ const AddShoppingListItemsModal = ({
                       </Col>
 
                       <Col
-                        xs={4}
+                        xs={3}
                         className="text-end"
                         style={{ fontSize: "14px", fontWeight: "bold" }}
                       >
@@ -631,31 +1148,337 @@ const AddShoppingListItemsModal = ({
                           }
                         )}
                       </Col>
+
+                      <Col xs={2} className="text-end pe-3">
+                        <FaEdit
+                          className="me-2"
+                          style={{
+                            color: "#976BDB",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                          }}
+                          onClick={() => handleClickUpdateItemBtn(item)}
+                        />
+                        <FaTrash
+                          style={{
+                            color: "#dc3545",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                          }}
+                          // onClick={() => handleDeleteItem(item.id)}
+                        />
+                      </Col>
                     </Row>
                   </ListGroupItem>
                 ))}
               </div>
+              <Modal
+                isOpen={updateItemModal}
+                toggle={updateItemToggle}
+                centered={true}
+                onClosed={() => setItemCount(1)}
+              >
+                <ModalHeader
+                  className="border-0 mr-3 mb-0 pb-1 p-2"
+                  toggle={updateItemToggle}
+                  close={closeUpdateItemBtn}
+                >
+                  <Col className="pt-3">
+                    <div
+                      className="fw-bold"
+                      style={{ fontSize: "18px", color: "#976bdb" }}
+                    >
+                      <span
+                        style={{
+                          marginLeft: "16px",
+                          marginRight: "20px",
+                          color: "#000000",
+                        }}
+                      >
+                        {selectedListItem?.itemName}
+                      </span>
+                      <span
+                        style={{
+                          marginRight: "20px",
+                          color: "#000000",
+                        }}
+                      >
+                        -
+                      </span>
+                      {Number(selectedListItem?.price).toLocaleString(
+                        undefined,
+                        {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }
+                      )}{" "}
+                      {"LKR"}
+                      {selectedListItem?.itemType === "Litre" ||
+                      selectedListItem?.itemType === "Mitre" ||
+                      selectedListItem?.itemType === "Kg" ||
+                      selectedListItem?.itemType === "Bottle" ||
+                      selectedListItem?.itemType === "Pack"
+                        ? ` per ${selectedListItem?.itemType}`
+                        : ""}
+                    </div>
+                  </Col>
+                </ModalHeader>
+                <ModalBody className="p-4">
+                  <div className="mb-2 d-flex justify-content-between align-items-center pt-0 mt-0 pb-2">
+                    <span style={{ fontWeight: "500" }}>
+                      Quantity{" "}
+                      {selectedListItem?.itemType !== "Unit" &&
+                        selectedListItem?.itemType &&
+                        `(${selectedListItem.itemType})`}
+                    </span>
+                    <div
+                      className="d-flex align-items-center px-3 py-2"
+                      style={{
+                        color: "#5f5f5f",
+                        width: "190px",
+                        border: "1px solid",
+                        borderRadius: "50px",
+                      }}
+                    >
+                      {selectedListItem?.itemType !== "Litre" &&
+                        selectedListItem?.itemType !== "Mitre" &&
+                        selectedListItem?.itemType !== "Kg" && (
+                          <FaCircleMinus
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "22px",
+                            }}
+                            onClick={decrementCount}
+                          />
+                        )}
+                      <input
+                        type="number"
+                        style={{
+                          textAlign:
+                            selectedListItem?.itemType !== "Litre" &&
+                            selectedListItem?.itemType !== "Mitre" &&
+                            selectedListItem?.itemType !== "Kg"
+                              ? "center"
+                              : "left",
+                          color: "#000",
+                          fontSize: "16px",
+                          width: "114px",
+                          border: "none",
+                          outline: "none",
+                        }}
+                        value={itemQuantity}
+                        onChange={handleUpdatedQuantityChange}
+                      />
+                      {selectedListItem?.itemType !== "Litre" &&
+                        selectedListItem?.itemType !== "Mitre" &&
+                        selectedListItem?.itemType !== "Kg" && (
+                          <FaCirclePlus
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "22px",
+                            }}
+                            onClick={incrementCount}
+                          />
+                        )}
+                      {selectedListItem?.itemType !== "Unit" && (
+                        <div className="text-end fw-bold">
+                          {selectedListItem?.itemType}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mb-2 d-flex justify-content-between align-items-center py-2">
+                    <span style={{ fontWeight: "500" }}>
+                      Available Inventory Stock
+                    </span>
+                    <span style={{ fontWeight: "500", marginRight: "140px" }}>
+                      {selectedListItem?.itemType == "Units"
+                        ? selectedListItem?.quantity
+                        : selectedListItem?.quantity.toLocaleString(undefined, {
+                            minimumFractionDigits: 1,
+                            maximumFractionDigits: 1,
+                          })}{" "}
+                      {selectedListItem?.itemType !== "Unit" &&
+                        selectedListItem?.itemType &&
+                        `${selectedListItem.itemType}`}
+                    </span>
+                  </div>
+
+                  <div className="mb-2 d-flex justify-content-between align-items-center py-2">
+                    <span style={{ fontWeight: "500" }}>
+                      Item Latest Price {` per ${selectedListItem?.itemType}`}
+                    </span>
+                    <div
+                      className="d-flex justify-content-between px-3 py-2 rounded-border fw-bold"
+                      style={{
+                        color: "#5f5f5f",
+                        width: "195px",
+                        border: "1px solid #000000",
+                        borderRadius: "50px",
+                      }}
+                    >
+                      <input
+                        type="number"
+                        // value={selectedListItem?.price ?? 0}
+                        // onChange={(e) => {
+                        //   const newPrice = parseFloat(e.target.value) || 0;
+                        //   setSelectedListItem((prev) => ({
+                        //     ...prev,
+                        //     price: newPrice,
+                        //     estimatedItemCost: newPrice * (prev?.quantity || 1),
+                        //   }));
+                        // }}
+                        value={itemPrice}
+                        onChange={handleUpdatedPriceChange}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          outline: "none",
+                          width: "100%",
+                          color: "#000",
+                          fontWeight: "bold",
+                        }}
+                      />
+                      <span className="text-right">LKR</span>
+                    </div>
+                  </div>
+
+                  <div className="mb-2 d-flex justify-content-between align-items-center py-2">
+                    <span style={{ fontWeight: "500" }}>
+                      Estimated Item Cost
+                    </span>
+                    <div
+                      className="d-flex justify-content-between px-3 py-2 rounded-border fw-bold"
+                      style={{
+                        color: "5f5f5f#",
+                        width: "195px",
+                        border: "1px solid #000000",
+                        borderRadius: "50px",
+                      }}
+                    >
+                      <span>
+                        {Number(totalUpdatedItemCost).toLocaleString(
+                          undefined,
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }
+                        )}
+                      </span>
+                      <span className="text-right">LKR</span>
+                    </div>
+                  </div>
+
+                  <div className="mb-2 d-flex align-items-center urgent-item">
+                    <span className="mr-4">This is an urgent item</span>
+                    <input
+                      className="urgent-items-checkbox"
+                      type="checkbox"
+                      checked={isItemUrgent}
+                      onChange={handleUrgentUpdate}
+                    />
+                  </div>
+
+                  <div className={"pt-3 d-flex justify-content-between mt-3"}>
+                    <Button
+                      className={"col-5 border-0 rounded-pill bg-black fw-bold"}
+                      onClick={updateItemToggle}
+                    >
+                      {t("CANCEL")}
+                    </Button>
+                    <Button
+                      className="col-5 border-0 rounded-pill ms-3 fw-bold"
+                      style={{
+                        backgroundColor: "#976BDB",
+                        color: "#ffffff",
+                      }}
+                      onClick={handleUpdateItem}
+                    >
+                      Update
+                    </Button>
+                  </div>
+                </ModalBody>
+              </Modal>
             </div>
           </div>
         )}
       </ModalBody>
 
       {!isInputFocused && (
+        <div className="mb-1 p-3">
+          <div className="d-flex justify-content-between align-items-center">
+            <span style={{ fontWeight: "600", fontSize: "16px" }}>
+              Estimated Total Shopping Cost:
+            </span>
+            <span
+              style={{
+                fontWeight: "700",
+                fontSize: "17px",
+                color: "#976BDB",
+              }}
+            >
+              {Number(totalCost).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{" "}
+              LKR
+            </span>
+          </div>
+        </div>
+      )}
+
+      {!isInputFocused && (
+        <div className="mb-2 ps-3 pe-3">
+          {urgentItemsCost > 0 && (
+            <div className="d-flex justify-content-between align-items-center">
+              <span
+                style={{
+                  fontWeight: "600",
+                  fontSize: "16px",
+                  color: "#dc3545",
+                }}
+              >
+                Estimated Total Urgent Items Cost:
+              </span>
+              <span
+                style={{
+                  fontWeight: "700",
+                  fontSize: "17px",
+                  color: "#dc3545",
+                }}
+              >
+                {urgentItemsCost.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{" "}
+                LKR
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {!isInputFocused && (
         <div className={"pt-3 text-end mx-4 mb-4"}>
-          <Button
+          <button
             className={"col-4 border-0 rounded-pill bg-black fw-bold"}
-            style={{ height: "36px" }}
+            style={{ height: "36px", color: "#ffffff" }}
             onClick={handleToggle}
           >
             {t("CANCEL")}
-          </Button>
-          <Button
+          </button>
+          <button
             className="col-3 border-0 rounded-pill ms-3 fw-bold"
-            style={{ backgroundColor: "#976BDB", height: "36px" }}
+            style={{
+              backgroundColor: "#976BDB",
+              height: "36px",
+              color: "#ffffff",
+            }}
             onClick={handleUpdateShoppingList}
           >
             {t("SAVE")}
-          </Button>
+          </button>
         </div>
       )}
     </Modal>
