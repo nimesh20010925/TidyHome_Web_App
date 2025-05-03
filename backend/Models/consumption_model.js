@@ -1,4 +1,3 @@
-// Models/consumption_model.js
 import mongoose from "mongoose";
 import Inventory from "./inventoryModel.js";
 
@@ -23,6 +22,10 @@ const consumptionSchema = new mongoose.Schema(
     },
     amount_used: {
       type: String, // Kept as string to match frontend, parsed in controller
+      required: true,
+    },
+    item_type: {
+      type: String, // New field to store item_type (e.g., "kg", "ml")
       required: true,
     },
     homeId: {

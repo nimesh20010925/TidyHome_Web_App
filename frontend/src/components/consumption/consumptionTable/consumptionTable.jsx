@@ -1,13 +1,14 @@
-// Frontend/src/components/ConsumptionTable.jsx
 import { useEffect, useState } from "react";
 import { ConsumptionService } from "../../../services/consumptionServices";
 import ViewModal from "../consumptionViewModel/consumptionViewModel";
 import EditModal from "../consumptionEditModel/consumptionEditModel";
 import DeleteModal from "../consumptionDeleteModel/consumptionDeleteModel";
+import { Form, InputGroup } from "react-bootstrap";
 import "./ConsumptionTable.css";
 
 const ConsumptionTable = () => {
   const [consumptions, setConsumptions] = useState([]);
+  const [filteredConsumptions, setFilteredConsumptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
@@ -16,6 +17,14 @@ const ConsumptionTable = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    product_name: "",
+    amount_used: "",
+    item_type: "",
+    date: "",
+    remaining_stock: "",
+  });
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -28,8 +37,11 @@ const ConsumptionTable = () => {
           return;
         }
         const data = await ConsumptionService.getAllConsumptions(user.homeID);
+        console.log("Fetched consumption data:", data); // Debug log
         setConsumptions(data);
-      } catch {
+        setFilteredConsumptions(data);
+      } catch (err) {
+        console.error("Error fetching consumptions:", err);
         setError("Failed to load data");
       } finally {
         setLoading(false);
@@ -38,24 +50,87 @@ const ConsumptionTable = () => {
     fetchConsumptions();
   }, []);
 
+  // Handle search and filtering
+  useEffect(() => {
+    let filtered = [...consumptions];
+
+    // Apply search query
+    if (searchQuery) {
+      filtered = filtered.filter((item) =>
+        [
+          item.product_name?.toLowerCase(),
+          item.item_type?.toLowerCase(),
+          item.notes?.toLowerCase(),
+        ].some((field) => field?.includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Apply filters
+    if (filters.product_name) {
+      filtered = filtered.filter((item) =>
+        item.product_name
+          ?.toLowerCase()
+          .includes(filters.product_name.toLowerCase())
+      );
+    }
+    if (filters.amount_used) {
+      filtered = filtered.filter(
+        (item) => item.amount_used >= parseFloat(filters.amount_used)
+      );
+    }
+    if (filters.item_type) {
+      filtered = filtered.filter(
+        (item) =>
+          item.item_type?.toLowerCase() === filters.item_type.toLowerCase()
+      );
+    }
+    if (filters.date) {
+      filtered = filtered.filter(
+        (item) => item.date.split("T")[0] === filters.date
+      );
+    }
+    if (filters.remaining_stock) {
+      filtered = filtered.filter(
+        (item) => item.remaining_stock >= parseFloat(filters.remaining_stock)
+      );
+    }
+
+    setFilteredConsumptions(filtered);
+    setCurrentPage(1); // Reset to first page on filter change
+  }, [searchQuery, filters, consumptions]);
+
   const handleSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
       direction = "desc";
     }
     setSortConfig({ key, direction });
-    const sortedData = [...consumptions].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+    const sortedData = [...filteredConsumptions].sort((a, b) => {
+      const aValue = a[key] || "";
+      const bValue = b[key] || "";
+      if (aValue < bValue) return direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return direction === "asc" ? 1 : -1;
       return 0;
     });
-    setConsumptions(sortedData);
+    setFilteredConsumptions(sortedData);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = consumptions.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(consumptions.length / itemsPerPage);
+  const currentItems = filteredConsumptions.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const totalPages = Math.ceil(filteredConsumptions.length / itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -76,18 +151,31 @@ const ConsumptionTable = () => {
       item._id === editedItem._id ? editedItem : item
     );
     setConsumptions(updatedConsumptions);
+    setFilteredConsumptions(updatedConsumptions);
     setOpenEditModal(false);
   };
 
   const handleDelete = async (id) => {
     try {
       await ConsumptionService.deleteConsumption(id);
-      setConsumptions((prev) => prev.filter((item) => item._id !== id));
+      const updatedConsumptions = consumptions.filter(
+        (item) => item._id !== id
+      );
+      setConsumptions(updatedConsumptions);
+      setFilteredConsumptions(updatedConsumptions);
       setOpenDeleteModal(false);
     } catch {
       setError("Failed to delete data");
     }
   };
+
+  // Get unique values for filter dropdowns
+  const uniqueProductNames = [
+    ...new Set(consumptions.map((item) => item.product_name)),
+  ];
+  const uniqueItemTypes = [
+    ...new Set(consumptions.map((item) => item.item_type).filter(Boolean)),
+  ];
 
   const shouldScroll = currentItems.length > 4;
 
@@ -111,6 +199,85 @@ const ConsumptionTable = () => {
   } else {
     content = (
       <>
+        {/* Search and Filter Section */}
+        <div className="mb-4">
+          <InputGroup className="mb-3">
+            <InputGroup.Text>Search</InputGroup.Text>
+            <Form.Control
+              type="text"
+              placeholder="Search by product name, item type, or notes..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+          </InputGroup>
+          <div className="d-flex flex-wrap gap-3">
+            <Form.Group style={{ width: "200px" }}>
+              <Form.Label>Product Name</Form.Label>
+              <Form.Select
+                name="product_name"
+                value={filters.product_name}
+                onChange={handleFilterChange}
+              >
+                <option value="">All</option>
+                {uniqueProductNames.map((name, index) => (
+                  <option key={index} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group style={{ width: "150px" }}>
+              <Form.Label>Amount Used</Form.Label>
+              <Form.Control
+                type="number"
+                name="amount_used"
+                value={filters.amount_used}
+                onChange={handleFilterChange}
+                placeholder="Min amount"
+                min="0"
+                step="0.01"
+              />
+            </Form.Group>
+            <Form.Group style={{ width: "150px" }}>
+              <Form.Label>Item Type</Form.Label>
+              <Form.Select
+                name="item_type"
+                value={filters.item_type}
+                onChange={handleFilterChange}
+              >
+                <option value="">All</option>
+                {uniqueItemTypes.map((type, index) => (
+                  <option key={index} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group style={{ width: "150px" }}>
+              <Form.Label>Date</Form.Label>
+              <Form.Control
+                type="date"
+                name="date"
+                value={filters.date}
+                onChange={handleFilterChange}
+              />
+            </Form.Group>
+            <Form.Group style={{ width: "150px" }}>
+              <Form.Label>Remaining Stock</Form.Label>
+              <Form.Control
+                type="number"
+                name="remaining_stock"
+                value={filters.remaining_stock}
+                onChange={handleFilterChange}
+                placeholder="Min stock"
+                min="0"
+                step="0.01"
+              />
+            </Form.Group>
+          </div>
+        </div>
+
+        {/* Table */}
         <div className="table-responsive">
           <div
             className="table-wrapper"
@@ -124,11 +291,12 @@ const ConsumptionTable = () => {
                   {[
                     { label: "Product Name", key: "product_name" },
                     { label: "Amount Used", key: "amount_used" },
+                    { label: "Item Type", key: "item_type" },
                     { label: "Home", key: "homeId" },
                     { label: "Date", key: "date" },
                     { label: "Remaining Stock", key: "remaining_stock" },
                     { label: "Notes", key: "notes" },
-                    { label: "Action", key: "null" },
+                    { label: "Action", key: null },
                   ].map((header) => (
                     <th
                       key={header.label}
@@ -149,16 +317,23 @@ const ConsumptionTable = () => {
               <tbody>
                 {currentItems.map((item) => (
                   <tr key={item._id}>
-                    <td data-label="Product Name">{item.product_name}</td>
-                    <td data-label="Amount Used">{item.amount_used}</td>
+                    <td data-label="Product Name">
+                      {item.product_name || "-"}
+                    </td>
+                    <td data-label="Amount Used">{item.amount_used || "-"}</td>
+                    <td data-label="Item Type">{item.item_type || "-"}</td>
                     <td data-label="Home">
                       {item.homeId?.homeName || "Unknown Home"}
                     </td>
                     <td data-label="Date">
-                      {new Date(item.date).toLocaleDateString()}
+                      {item.date
+                        ? new Date(item.date).toLocaleDateString()
+                        : "-"}
                     </td>
-                    <td data-label="Remaining Stock">{item.remaining_stock}</td>
-                    <td data-label="Notes">{item.notes}</td>
+                    <td data-label="Remaining Stock">
+                      {item.remaining_stock || "-"}
+                    </td>
+                    <td data-label="Notes">{item.notes || "-"}</td>
                     <td data-label="Action">
                       <div className="btn-group" role="group">
                         <button

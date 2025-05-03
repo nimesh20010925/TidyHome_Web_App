@@ -1,4 +1,3 @@
-// Controllers/consumptionController.js
 import { consumption } from "../Models/consumption_model.js";
 import Inventory from "../Models/inventoryModel.js";
 import Notification from "../Models/notificationModel.js";
@@ -6,12 +5,18 @@ import userModel from "../Models/userModel.js";
 
 const createConsumption = async (req, res) => {
   try {
-    const { product_name, amount_used, date, remaining_stock, notes } =
-      req.body;
+    const {
+      product_name,
+      amount_used,
+      item_type,
+      date,
+      remaining_stock,
+      notes,
+    } = req.body;
     const userID = req.user._id; // Extracted from authentication middleware
 
     // Validate input
-    if (!product_name || !amount_used || !date || !notes) {
+    if (!product_name || !amount_used || !item_type || !date || !notes) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -43,6 +48,13 @@ const createConsumption = async (req, res) => {
       });
     }
 
+    // Validate item_type matches inventory
+    if (inventoryItem.itemType !== item_type) {
+      return res.status(400).json({
+        message: `Item type '${item_type}' does not match inventory item type '${inventoryItem.itemType}'`,
+      });
+    }
+
     // Calculate remaining stock
     const currentStock = inventoryItem.quantity;
     const newRemainingStock = currentStock - amountUsed;
@@ -54,6 +66,7 @@ const createConsumption = async (req, res) => {
     const newConsumption = new consumption({
       product_name,
       amount_used: amountUsed,
+      item_type,
       homeId,
       date: new Date(date),
       remaining_stock: newRemainingStock,
@@ -152,10 +165,10 @@ const getConsumptionById = async (req, res) => {
 const updateConsumption = async (req, res) => {
   try {
     const userID = req.user._id;
-    const { product_name, amount_used, date, notes } = req.body;
+    const { product_name, amount_used, item_type, date, notes } = req.body;
 
     // Validate input
-    if (!product_name || !amount_used || !date || !notes) {
+    if (!product_name || !amount_used || !item_type || !date || !notes) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -199,6 +212,13 @@ const updateConsumption = async (req, res) => {
       });
     }
 
+    // Validate item_type matches inventory
+    if (inventoryItem.itemType !== item_type) {
+      return res.status(400).json({
+        message: `Item type '${item_type}' does not match inventory item type '${inventoryItem.itemType}'`,
+      });
+    }
+
     // Calculate stock adjustment
     const oldAmountUsed = parseFloat(consumptionRecord.amount_used);
     const stockDifference = oldAmountUsed - newAmountUsed; // Positive if reducing consumption, negative if increasing
@@ -227,6 +247,7 @@ const updateConsumption = async (req, res) => {
       {
         product_name,
         amount_used: newAmountUsed,
+        item_type,
         date: new Date(date),
         remaining_stock: newInventoryStock,
         notes,

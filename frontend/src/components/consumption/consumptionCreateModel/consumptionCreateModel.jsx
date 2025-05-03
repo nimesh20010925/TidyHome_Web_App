@@ -1,4 +1,3 @@
-// Frontend/src/components/ConsumptionCreateModal.jsx
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { ConsumptionService } from "../../../services/consumptionServices";
@@ -18,6 +17,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
     product_name: "",
     amount_used: "",
+    item_type: "",
     date: "",
     remaining_stock: "",
     notes: "",
@@ -62,6 +62,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       setFormData({
         product_name: "",
         amount_used: "",
+        item_type: "",
         date: getTodayDate(),
         remaining_stock: "",
         notes: "",
@@ -72,7 +73,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   }, [isOpen]);
 
   useEffect(() => {
-    if (formData.product_name && formData.amount_used) {
+    if (formData.product_name) {
       const selectedItem = inventoryItems.find(
         (item) => item.itemName === formData.product_name
       );
@@ -81,11 +82,12 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
         const remaining = currentStock - parseFloat(formData.amount_used || 0);
         setFormData((prev) => ({
           ...prev,
+          item_type: selectedItem.itemType || "",
           remaining_stock: remaining >= 0 ? remaining.toString() : "0",
         }));
       }
     }
-  }, [formData.product_name, formData.amount_used, inventoryItems]); // Fixed dependency
+  }, [formData.product_name, formData.amount_used, inventoryItems]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -176,26 +178,47 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 </Form.Control.Feedback>
               </FloatingLabel>
 
-              <FloatingLabel
-                controlId="amountUsed"
-                label="Amount Used"
-                className="ccm-form-group"
-              >
-                <Form.Control
-                  type="number"
-                  name="amount_used"
-                  value={formData.amount_used}
-                  onChange={handleInputChange}
-                  required
-                  min="0"
-                  step="0.01"
-                  placeholder="Enter amount used"
-                  className="ccm-form-control"
-                />
-                <Form.Control.Feedback type="invalid" className="ccm-feedback">
-                  Please enter a valid amount (greater than or equal to 0).
-                </Form.Control.Feedback>
-              </FloatingLabel>
+              <div className="d-flex gap-2">
+                <FloatingLabel
+                  controlId="amountUsed"
+                  label="Amount Used"
+                  className="ccm-form-group flex-grow-1"
+                >
+                  <Form.Control
+                    type="number"
+                    name="amount_used"
+                    value={formData.amount_used}
+                    onChange={handleInputChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="Enter amount used"
+                    className="ccm-form-control"
+                  />
+                  <Form.Control.Feedback
+                    type="invalid"
+                    className="ccm-feedback"
+                  >
+                    Please enter a valid amount (greater than or equal to 0).
+                  </Form.Control.Feedback>
+                </FloatingLabel>
+
+                <FloatingLabel
+                  controlId="itemType"
+                  label="Item Type"
+                  className="ccm-form-group"
+                  style={{ width: "100px" }}
+                >
+                  <Form.Control
+                    type="text"
+                    name="item_type"
+                    value={formData.item_type}
+                    readOnly
+                    placeholder="Item type"
+                    className="ccm-form-control ccm-readonly"
+                  />
+                </FloatingLabel>
+              </div>
 
               <FloatingLabel
                 controlId="date"
@@ -224,13 +247,12 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 <Form.Control
                   type="text"
                   name="remaining_stock"
-                  value={formData.remaining_stock}
+                  value={Number(formData.remaining_stock).toFixed(3)}
                   readOnly
                   placeholder="Remaining stock"
                   className="ccm-form-control ccm-readonly"
                 />
               </FloatingLabel>
-
               <FloatingLabel
                 controlId="notes"
                 label="Notes"

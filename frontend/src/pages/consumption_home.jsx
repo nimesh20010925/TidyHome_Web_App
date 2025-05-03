@@ -63,21 +63,21 @@ const ContactPage = ({ image }) => {
   // Define layouts for different breakpoints
   const [layouts, setLayouts] = useState({
     lg: [
-      { i: "consumptionTable", x: 0, y: 0, w: 12, h: 5 },
+      { i: "consumptionTable", x: 0, y: 0, w: 12, h: 6 },
       { i: "barChart", x: 0, y: 4, w: 6, h: 4 },
       { i: "areaChart", x: 6, y: 4, w: 6, h: 4 },
       { i: "pieChart", x: 0, y: 8, w: 6, h: 4 },
       { i: "radialBarChart", x: 6, y: 8, w: 6, h: 4 },
     ],
     md: [
-      { i: "consumptionTable", x: 0, y: 0, w: 8, h: 5 },
+      { i: "consumptionTable", x: 0, y: 0, w: 8, h: 6 },
       { i: "barChart", x: 0, y: 4, w: 4, h: 4 },
       { i: "areaChart", x: 4, y: 4, w: 4, h: 4 },
       { i: "pieChart", x: 0, y: 8, w: 4, h: 4 },
       { i: "radialBarChart", x: 4, y: 8, w: 4, h: 4 },
     ],
     sm: [
-      { i: "consumptionTable", x: 0, y: 0, w: 6, h: 5 },
+      { i: "consumptionTable", x: 0, y: 0, w: 6, h: 6 },
       { i: "barChart", x: 0, y: 4, w: 6, h: 4 },
       { i: "areaChart", x: 0, y: 8, w: 6, h: 4 },
       { i: "pieChart", x: 0, y: 12, w: 6, h: 4 },
