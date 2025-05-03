@@ -23,6 +23,7 @@
     "@react-pdf/renderer": "^4.2.4",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
+    "buffer": "^6.0.3",
     "cdbreact": "^1.5.19",
     "chart.js": "^4.4.8",
     "date-fns": "^4.1.0",
@@ -54,6 +55,7 @@
     "simplebar-react": "^3.3.0",
     "sweetalert2": "^11.17.2",
     "swiper": "^11.2.5",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "yup": "^1.6.1"
   },
   "devDependencies": {
