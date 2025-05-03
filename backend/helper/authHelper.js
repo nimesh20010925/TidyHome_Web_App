@@ -7,7 +7,7 @@ export const hashPassword = async (password) => {
     const saltRounds = 10;
     return await bcrypt.hash(password, saltRounds);
   } catch (error) {
-    console.error(error);
+    console.error("Error hashing password:", error);
   }
 };
 
@@ -30,7 +30,7 @@ export const verifyToken = (token) => {
   try {
     return jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
-    console.error("Invalid or expired token:", error);
+    console.error("Token verification failed:", error.message);
     return null;
   }
 };
