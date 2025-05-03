@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import axios from 'axios';
-import logo from '../../assets/logo/TidyHome_Logo.png'; // Make sure this path is correct
+import logo from '../../assets/logo/TidyHome_Logo.png';
 
-// Fix for "Buffer is not defined" error in browser environment
+// Buffer fix for browser environment
 if (typeof window !== 'undefined' && window.Buffer === undefined) {
   window.Buffer = require('buffer').Buffer;
 }
@@ -166,8 +166,13 @@ const InventorySummaryPDF = ({ inventoryData = [], user = {}, loading = false })
   }
 
   // Calculate summary data with proper fallbacks
-  const totalItems = inventoryData.reduce((sum, item) => sum + (item.quantity || 0), 0);
-  const categories = [...new Set(inventoryData.map(item => item.categoryId?.name || 'Uncategorized'))];
+  const totalItems = inventoryData.length;
+
+  // Updated to use categoryId.name (the populated field from backend)
+  const categories = [...new Set(inventoryData.map(item => 
+    item.categoryId?.name || item.categoryId?.category_name || 'Uncategorized'
+  ))];  // Added the missing closing parenthesis
+  
   const lowStockItems = inventoryData.filter(item => (item.quantity || 0) <= (item.lowStockLevel || 0));
   const expiringSoon = inventoryData.filter(item => {
     if (!item.expiryDate) return false;
@@ -181,6 +186,11 @@ const InventorySummaryPDF = ({ inventoryData = [], user = {}, loading = false })
       return false;
     }
   });
+
+  // Helper function to get category name safely
+  const getCategoryName = (item) => {
+    return item.categoryId?.name || item.categoryId?.category_name || 'Uncategorized';
+  };
 
   return (
     <Document>
@@ -215,7 +225,7 @@ const InventorySummaryPDF = ({ inventoryData = [], user = {}, loading = false })
             </View>
             {categories.map((category, index) => {
               const categoryItems = inventoryData.filter(item => 
-                (item.categoryId?.name || 'Uncategorized') === category
+                getCategoryName(item) === category
               );
               const categoryLowStock = categoryItems.filter(item => 
                 (item.quantity || 0) <= (item.lowStockLevel || 0)
@@ -248,7 +258,7 @@ const InventorySummaryPDF = ({ inventoryData = [], user = {}, loading = false })
               {lowStockItems.map((item, index) => (
                 <View key={index} style={styles.tableRow}>
                   <Text style={styles.col1}>{item.itemName || 'Unnamed Item'}</Text>
-                  <Text style={styles.col1}>{item.categoryId?.name || 'Uncategorized'}</Text>
+                  <Text style={styles.col1}>{getCategoryName(item)}</Text>
                   <Text style={[styles.col2, styles.alert]}>{item.quantity || 0}</Text>
                   <Text style={styles.col2}>{item.lowStockLevel || 0}</Text>
                 </View>
@@ -272,7 +282,7 @@ const InventorySummaryPDF = ({ inventoryData = [], user = {}, loading = false })
               {expiringSoon.map((item, index) => (
                 <View key={index} style={styles.tableRow}>
                   <Text style={styles.col1}>{item.itemName || 'Unnamed Item'}</Text>
-                  <Text style={styles.col1}>{item.categoryId?.name || 'Uncategorized'}</Text>
+                  <Text style={styles.col1}>{getCategoryName(item)}</Text>
                   <Text style={[styles.col2, styles.warning]}>
                     {item.expiryDate?.split('T')[0] || 'Unknown'}
                   </Text>
@@ -309,28 +319,25 @@ const InventorySummaryReport = ({ isOpen, toggle }) => {
     try {
       setLoading(true);
       setError(null);
+  
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:3500/api/inventory/getAllInventories', {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const user = JSON.parse(localStorage.getItem('user'));
+  
+      if (!token) throw new Error('Please login to access this feature');
+      if (!user?.homeID) throw new Error('No home assigned to user.');
+  
+      const response = await axios.get(
+        `http://localhost:3500/api/inventory/getAllInventories`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: { homeId: user.homeID }
         }
-      });
-      
-      // Handle both response formats: {success, data} and direct array
-      const data = response.data?.data || response.data;
-      
-      if (Array.isArray(data)) {
-        setInventoryData(data);
-      } else {
-        console.error('Unexpected response format:', response.data);
-        setError('Received unexpected data format from server');
-        setInventoryData([]);
-      }
+      );
+  
+      setInventoryData(response.data.data);
     } catch (error) {
-      console.error('Failed to fetch inventory:', error);
-      setError('Failed to load inventory data. Please try again.');
-      setInventoryData([]);
+      console.error("Error fetching inventory data:", error);
+      setError(error.message || "Failed to fetch inventory data.");
     } finally {
       setLoading(false);
     }
@@ -338,15 +345,10 @@ const InventorySummaryReport = ({ isOpen, toggle }) => {
 
   const fetchUserData = () => {
     try {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      } else {
-        setUser({ name: 'System' });
-      }
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) setUser(user);
     } catch (e) {
-      console.error('Error parsing user data:', e);
-      setUser({ name: 'System' });
+      console.error("Failed to load user from localStorage");
     }
   };
 

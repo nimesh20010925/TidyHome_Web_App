@@ -12,6 +12,7 @@ import supplierRoutes from "./Routes/supplierRoute.js"
 import shoppingListRoutes from './Routes/shoppingListRoute.js';
 
 import notificationRoutes from "./Routes/notificationRoute.js";
+import noticesRoutes from "./Routes/noticeRoutes.js"
 // Load environment variables
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/shoppingList", shoppingListRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/notifications', noticesRoutes);
 
 
 // Connect to MongoDB
