@@ -1,31 +1,36 @@
-import { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { ConsumptionService } from '../../../services/consumptionServices';
-import { InventoryService } from '../../../services/InventoryServices';
-import { Modal as BootstrapModal, Form, Button, Spinner, FloatingLabel } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './consumptionCreateModel.css';
-
+import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { ConsumptionService } from "../../../services/consumptionServices";
+import { InventoryService } from "../../../services/InventoryServices";
+import {
+  Modal as BootstrapModal,
+  Form,
+  Button,
+  Spinner,
+  FloatingLabel,
+  Alert,
+} from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./consumptionCreateModel.css";
 
 const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
-    product_name: '',
-    amount_used: '',
-    user: '',
-    date: '',
-    remaining_stock: '',
-    notes: '',
+    product_name: "",
+    amount_used: "",
+    user: "",
+    date: "",
+    remaining_stock: "",
+    notes: "",
   });
   const [itemNames, setItemNames] = useState([]);
   const [inventoryItems, setInventoryItems] = useState([]);
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [validated, setValidated] = useState(false);
+  const [error, setError] = useState("");
 
-  // Function to get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return today.toISOString().split("T")[0];
   };
 
   useEffect(() => {
@@ -34,10 +39,11 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       try {
         const items = await InventoryService.getAllInventoryItems();
         setInventoryItems(items);
-        const names = items.map(item => item.itemName);
+        const names = items.map((item) => item.itemName);
         setItemNames(names);
       } catch (error) {
-        console.error('Error fetching inventory items:', error);
+        console.error("Error fetching inventory items:", error);
+        setError("Failed to load inventory items");
       } finally {
         setLoading(false);
       }
@@ -46,31 +52,41 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const userData = JSON.parse(storedUser);
-      setUser(userData);
       setFormData((prev) => ({
         ...prev,
         user: userData.name,
       }));
     } else {
       console.error("No user data found in localStorage");
+      setError("User not logged in");
     }
 
     if (isOpen) {
       fetchInventoryData();
+      setFormData((prev) => ({
+        ...prev,
+        date: getTodayDate(),
+        remaining_stock: "",
+        amount_used: "",
+        product_name: "",
+        notes: "",
+      }));
+      setError("");
+      setValidated(false);
     }
   }, [isOpen]);
 
   useEffect(() => {
     if (formData.product_name && formData.amount_used) {
       const selectedItem = inventoryItems.find(
-        item => item.itemName === formData.product_name
+        (item) => item.itemName === formData.product_name
       );
       if (selectedItem) {
         const currentStock = selectedItem.quantity;
-        const remaining = parseFloat(currentStock) - parseFloat(formData.amount_used);
-        setFormData(prev => ({
+        const remaining = currentStock - parseFloat(formData.amount_used || 0);
+        setFormData((prev) => ({
           ...prev,
-          remaining_stock: remaining >= 0 ? remaining.toString() : '0'
+          remaining_stock: remaining >= 0 ? remaining.toString() : "0",
         }));
       }
     }
@@ -82,6 +98,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       ...prevData,
       [name]: value,
     }));
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -97,7 +114,8 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       await ConsumptionService.createConsumption(formData);
       closeModal();
     } catch (error) {
-      console.error('Error creating consumption:', error);
+      console.error("Error creating consumption:", error);
+      setError(error.response?.data?.message || "Failed to create consumption");
     }
   };
 
@@ -106,127 +124,178 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       show={isOpen}
       onHide={closeModal}
       centered
-      className="ccm-consumption-modal"
+      className="ccm-modal"
     >
-      <BootstrapModal.Header className="ccm-modal-header bg-gradient-primary text-white">
+      <BootstrapModal.Header className="ccm-modal-header">
         <BootstrapModal.Title>Create Consumption</BootstrapModal.Title>
-        <Button variant="close" onClick={closeModal} aria-label="Close" />
+        <Button
+          variant="link"
+          onClick={closeModal}
+          aria-label="Close"
+          className="ccm-close-btn"
+        >
+          ×
+        </Button>
       </BootstrapModal.Header>
       <BootstrapModal.Body className="ccm-modal-body">
         {loading ? (
-          <div className="ccm-text-center ccm-py-5">
+          <div className="ccm-loading">
             <Spinner animation="border" variant="primary" />
-            <p className="ccm-mt-2">Loading inventory data...</p>
+            <p>Loading inventory data...</p>
           </div>
         ) : (
-          <Form noValidate validated={validated} onSubmit={handleSubmit}>
-            <FloatingLabel controlId="productName" label="Product Name" className="ccm-mb-3">
-              <Form.Select
-                name="product_name"
-                value={formData.product_name}
-                onChange={handleInputChange}
-                required
-                aria-label="Select product name"
+          <>
+            {error && (
+              <Alert variant="danger" className="ccm-alert">
+                {error}
+              </Alert>
+            )}
+            <Form
+              noValidate
+              validated={validated}
+              onSubmit={handleSubmit}
+              className="ccm-form"
+            >
+              <FloatingLabel
+                controlId="productName"
+                label="Product Name"
+                className="ccm-form-group"
               >
-                <option value="">Select a product</option>
-                {itemNames.map((name, index) => (
-                  <option key={index} value={name}>{name}</option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                Please select a product.
-              </Form.Control.Feedback>
-            </FloatingLabel>
+                <Form.Select
+                  name="product_name"
+                  value={formData.product_name}
+                  onChange={handleInputChange}
+                  required
+                  aria-label="Select product name"
+                  className="ccm-form-control"
+                >
+                  <option value="">Select a product</option>
+                  {itemNames.map((name, index) => (
+                    <option key={index} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid" className="ccm-feedback">
+                  Please select a product.
+                </Form.Control.Feedback>
+              </FloatingLabel>
 
-            <FloatingLabel controlId="amountUsed" label="Amount Used" className="ccm-mb-3">
-              <Form.Control
-                type="number"
-                name="amount_used"
-                value={formData.amount_used}
-                onChange={handleInputChange}
-                required
-                min="0"
-                step="0.01"
-                placeholder="Enter amount used"
-              />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid amount (greater than or equal to 0).
-              </Form.Control.Feedback>
-            </FloatingLabel>
-
-            <FloatingLabel controlId="user" label="User" className="ccm-mb-3">
-              <Form.Control
-                type="text"
-                name="user"
-                value={formData.user}
-                onChange={handleInputChange}
-                disabled
-                placeholder="User"
-              />
-            </FloatingLabel>
-
-            <FloatingLabel controlId="date" label="Date" className="ccm-mb-3">
-              <Form.Control
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                required
-                min={getTodayDate()} // Restrict to today and future dates
-              />
-              <Form.Control.Feedback type="invalid">
-                Please select a date from today onwards.
-              </Form.Control.Feedback>
-            </FloatingLabel>
-
-            <FloatingLabel controlId="remainingStock" label="Remaining Stock" className="ccm-mb-3">
-              <Form.Control
-                type="text"
-                name="remaining_stock"
-                value={formData.remaining_stock}
-                readOnly
-                placeholder="Remaining stock"
-              />
-            </FloatingLabel>
-
-            <FloatingLabel controlId="notes" label="Notes" className="ccm-mb-3">
-              <Form.Control
-                as="textarea"
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                required
-                rows={3}
-                minLength={5}
-                maxLength={10}
-                placeholder="Add notes (5-10 chars)"
-              />
-              <Form.Control.Feedback type="invalid">
-                {formData.notes.length === 0
-                  ? "Please add some notes."
-                  : formData.notes.length < 5
-                  ? "Notes must be at least 5 characters."
-                  : "Notes cannot exceed 10 characters."}
-              </Form.Control.Feedback>
-            </FloatingLabel>
-
-            <div className="ccm-d-flex ccm-gap-2 ccm-justify-content-end">
-              <Button
-                variant="secondary"
-                onClick={closeModal}
-                className="ccm-modal-btn"
+              <FloatingLabel
+                controlId="amountUsed"
+                label="Amount Used"
+                className="ccm-form-group"
               >
-                Close
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                className="ccm-modal-btn"
+                <Form.Control
+                  type="number"
+                  name="amount_used"
+                  value={formData.amount_used}
+                  onChange={handleInputChange}
+                  required
+                  min="0"
+                  step="0.01"
+                  placeholder="Enter amount used"
+                  className="ccm-form-control"
+                />
+                <Form.Control.Feedback type="invalid" className="ccm-feedback">
+                  Please enter a valid amount (greater than or equal to 0).
+                </Form.Control.Feedback>
+              </FloatingLabel>
+
+              <FloatingLabel
+                controlId="user"
+                label="User"
+                className="ccm-form-group"
               >
-                Submit
-              </Button>
-            </div>
-          </Form>
+                <Form.Control
+                  type="text"
+                  name="user"
+                  value={formData.user}
+                  onChange={handleInputChange}
+                  disabled
+                  placeholder="User"
+                  className="ccm-form-control ccm-disabled"
+                />
+              </FloatingLabel>
+
+              <FloatingLabel
+                controlId="date"
+                label="Date"
+                className="ccm-form-group"
+              >
+                <Form.Control
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  required
+                  min={getTodayDate()}
+                  className="ccm-form-control"
+                />
+                <Form.Control.Feedback type="invalid" className="ccm-feedback">
+                  Please select a date from today onwards.
+                </Form.Control.Feedback>
+              </FloatingLabel>
+
+              <FloatingLabel
+                controlId="remainingStock"
+                label="Remaining Stock"
+                className="ccm-form-group"
+              >
+                <Form.Control
+                  type="text"
+                  name="remaining_stock"
+                  value={formData.remaining_stock}
+                  readOnly
+                  placeholder="Remaining stock"
+                  className="ccm-form-control ccm-readonly"
+                />
+              </FloatingLabel>
+
+              <FloatingLabel
+                controlId="notes"
+                label="Notes"
+                className="ccm-form-group"
+              >
+                <Form.Control
+                  as="textarea"
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  required
+                  rows={3}
+                  minLength={5}
+                  maxLength={10}
+                  placeholder="Add notes (5-10 chars)"
+                  className="ccm-form-control"
+                />
+                <Form.Control.Feedback type="invalid" className="ccm-feedback">
+                  {formData.notes.length === 0
+                    ? "Please add some notes."
+                    : formData.notes.length < 5
+                    ? "Notes must be at least 5 characters."
+                    : "Notes cannot exceed 10 characters."}
+                </Form.Control.Feedback>
+              </FloatingLabel>
+
+              <div className="ccm-button-group">
+                <Button
+                  variant="outline-secondary"
+                  onClick={closeModal}
+                  className="ccm-btn ccm-btn-cancel"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="ccm-btn ccm-btn-submit"
+                >
+                  Submit
+                </Button>
+              </div>
+            </Form>
+          </>
         )}
       </BootstrapModal.Body>
     </BootstrapModal>

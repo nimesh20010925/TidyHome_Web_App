@@ -1,51 +1,143 @@
-/* App.css or your CSS file */
+.ccm-modal {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+}
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
+.ccm-modal-header {
+  background: linear-gradient(to right, #c799ff, #8f94fb);
+  color: white;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  padding: 1.5rem;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-  
+.ccm-modal-header .modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
 
-  
- 
-  
-  :root {
-    --ccm-primary-gradient-start: #007bff;
-    --ccm-primary-gradient-end: #0056b3;
-    --ccm-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  }
-  
-  .ccm-consumption-modal .modal-dialog {
-    max-width: 600px;
-  }
-  
-  .ccm-modal-header.bg-gradient-primary {
-    background: linear-gradient(to right, #C799FF, #8f94fb) !important;
-    border-bottom: none;
-    padding: 1.5rem;
-  }
-  
-  .ccm-modal-header .modal-title {
-    font-weight: 600;
-    font-size: 1.5rem;
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.ccm-close-btn {
+  color: white;
+  font-size: 1.5rem;
+  text-decoration: none;
+  padding: 0;
+  margin: -0.5rem;
+}
 
+.ccm-close-btn:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
 
-/* Responsive Design */
+.ccm-modal-body {
+  padding: 2rem;
+  background: #f8f9fa;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.ccm-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #6c757d;
+}
+
+.ccm-loading p {
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+.ccm-alert {
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.ccm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ccm-form-group {
+  margin-bottom: 0;
+}
+
+.ccm-form-control {
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ccm-form-control:focus {
+  border-color: #8f94fb;
+  box-shadow: 0 0 0 0.2rem rgba(143, 148, 251, 0.25);
+}
+
+.ccm-form-control.ccm-disabled,
+.ccm-form-control.ccm-readonly {
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
+.ccm-form-control::placeholder {
+  color: #adb5bd;
+}
+
+.ccm-feedback {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.ccm-button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.ccm-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.ccm-btn-cancel {
+  border: 1px solid #6c757d;
+  color: #6c757d;
+  background: transparent;
+}
+
+.ccm-btn-cancel:hover {
+  background: #6c757d;
+  color: white;
+}
+
+.ccm-btn-submit {
+  background: linear-gradient(to right, #c799ff, #8f94fb);
+  border: none;
+  color: white;
+}
+
+.ccm-btn-submit:hover {
+  background: linear-gradient(to right, #b589ff, #7f84eb);
+}
+
+.ccm-btn-submit:disabled {
+  background: #adb5bd;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
 @media (max-width: 576px) {
   .ccm-modal-body {
     padding: 1.5rem;
@@ -55,12 +147,12 @@
     padding: 1rem;
   }
 
-  .ccm-modal-title {
+  .ccm-modal-header .modal-title {
     font-size: 1.25rem;
   }
 
-  .ccm-modal-btn {
-    padding: 0.4rem 1rem;
+  .ccm-btn {
+    padding: 0.5rem 1rem;
     font-size: 0.9rem;
   }
 }

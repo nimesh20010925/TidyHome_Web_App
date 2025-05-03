@@ -1,13 +1,12 @@
-// controllers/NotificationController.js
-
+// Controllers/notificationController.js
 import Notification from "../Models/notificationModel.js";
 
-// Get the latest notifications
 const getLatestNotifications = async (req, res) => {
   try {
-    const notifications = await Notification.find()
-      .sort({ createdAt: -1 }) // Sort by newest first
-      
+    const userID = req.user._id;
+    const notifications = await Notification.find({ user: userID })
+      .sort({ createdAt: -1 })
+      .populate("user", "name email");
 
     res.status(200).json({ notifications });
   } catch (error) {
@@ -16,17 +15,25 @@ const getLatestNotifications = async (req, res) => {
   }
 };
 
-// Create a new notification
 const createNotification = async (req, res) => {
   try {
-    const { message } = req.body; // Assume message is passed in the body
-    const newNotification = new Notification({ message });
+    const { message } = req.body;
+    const userID = req.user._id;
 
-    await newNotification.save();
+    if (!message) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+
+    const newNotification = new Notification({
+      message,
+      user: userID,
+    });
+
+    const savedNotification = await newNotification.save();
 
     res.status(201).json({
       message: "Notification created successfully",
-      notification: newNotification,
+      notification: savedNotification,
     });
   } catch (error) {
     console.error("Error creating notification:", error);
@@ -34,29 +41,67 @@ const createNotification = async (req, res) => {
   }
 };
 
-// Mark a notification as read
 const markAsRead = async (req, res) => {
   try {
-    const { id } = req.params; // Notification ID
+    const { id } = req.params;
+    const userID = req.user._id;
 
-    const notification = await Notification.findByIdAndUpdate(id, {
-      read: true,
-    });
-
+    const notification = await Notification.findById(id);
     if (!notification) {
       return res.status(404).json({ message: "Notification not found" });
     }
 
-    res.status(200).json({ message: "Notification marked as read" });
+    if (notification.user.toString() !== userID.toString()) {
+      return res.status(403).json({
+        message:
+          "Unauthorized: You can only mark your own notifications as read",
+      });
+    }
+
+    const updatedNotification = await Notification.findByIdAndUpdate(
+      id,
+      { read: true },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Notification marked as read",
+      notification: updatedNotification,
+    });
   } catch (error) {
     console.error("Error marking notification as read:", error);
     res.status(500).json({ message: "Error marking notification as read" });
   }
 };
 
-// Exporting the functions
+const deleteNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userID = req.user._id;
+
+    const notification = await Notification.findById(id);
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    if (notification.user.toString() !== userID.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized: You can only delete your own notifications",
+      });
+    }
+
+    await Notification.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Notification deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    res.status(500).json({ message: "Error deleting notification" });
+  }
+};
+
 export {
   getLatestNotifications,
   createNotification,
-  markAsRead
+  markAsRead,
+  deleteNotification,
 };

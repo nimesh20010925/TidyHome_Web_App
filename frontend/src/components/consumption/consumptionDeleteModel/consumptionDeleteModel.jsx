@@ -7,7 +7,11 @@ import {
   CircularProgress,
   Fade,
 } from "@mui/material";
-import { Warning as WarningIcon, Delete as DeleteIcon, Cancel as CancelIcon } from "@mui/icons-material";
+import {
+  Warning as WarningIcon,
+  Delete as DeleteIcon,
+  Cancel as CancelIcon,
+} from "@mui/icons-material";
 import PropTypes from "prop-types";
 
 const DeleteModal = ({ open, onClose, item, onDelete }) => {

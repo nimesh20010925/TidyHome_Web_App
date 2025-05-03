@@ -1,3 +1,4 @@
+// Models/consumption_model.js
 import mongoose from "mongoose";
 
 const consumptionSchema = new mongoose.Schema(
@@ -7,11 +8,12 @@ const consumptionSchema = new mongoose.Schema(
       required: true,
     },
     amount_used: {
-      type: String,
+      type: String, // Kept as string to match frontend, parsed in controller
       required: true,
     },
     user: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     date: {
@@ -19,7 +21,7 @@ const consumptionSchema = new mongoose.Schema(
       required: true,
     },
     remaining_stock: {
-      type: String,
+      type: String, // Kept as string to match frontend, parsed in controller
       required: true,
     },
     notes: {
@@ -33,7 +35,3 @@ const consumptionSchema = new mongoose.Schema(
 );
 
 export const consumption = mongoose.model("consumptions", consumptionSchema);
-
-
-
-

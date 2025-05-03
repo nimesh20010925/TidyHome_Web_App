@@ -10,10 +10,15 @@ const customNotificationSchema = new mongoose.Schema(
     send_notification_via: { type: String, required: true },
     priority_level: { type: String, required: true },
     date: { type: Date, required: true },
-    time: { type: String, required: true }, 
+    time: { type: String, required: true },
     message: { type: String, required: true },
     actions: { type: String, required: true },
     notes: { type: String, required: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );

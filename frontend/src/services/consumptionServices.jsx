@@ -1,29 +1,44 @@
 import axios from "axios";
-
 import { API_BASE_URL } from "../config/config";
 import { NotificationService } from "./NotificationService";
-export class ConsumptionService {
 
-    static async getAllConsumptions() {
-        try {
-          const response = await axios.get(`${API_BASE_URL}/consumption`);
-          
-          if (response.data && Array.isArray(response.data.consumptions)) {
-            return response.data.consumptions;
-          } else {
-            console.error("Unexpected API response format:", response.data);
-            return [];
-          }
-        } catch (error) {
-          console.error("Error fetching consumptions:", error);
-          return [];
-        }
+export class ConsumptionService {
+  static async getAllConsumptions() {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/consumption`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("API Response:", response.data);
+      if (response.data && Array.isArray(response.data.consumptions)) {
+        return response.data.consumptions;
+      } else {
+        console.error("Unexpected API response format:", response.data);
+        NotificationService.error("Unexpected response format from server");
+        return [];
       }
+    } catch (error) {
+      console.error("Error fetching consumptions:", error);
+      if (error.response && error.response.status === 401) {
+        NotificationService.error("Session expired. Please log in again.");
+        window.location.href = "/login";
+      } else {
+        NotificationService.error("Failed to fetch consumptions");
+      }
+      return [];
+    }
+  }
 
   static async getConsumptionById(id) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/consumption/${id}`);
-
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/consumption/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.data.success) {
         return response.data.data;
       } else {
@@ -38,15 +53,19 @@ export class ConsumptionService {
 
   static async createConsumption(consumptionData) {
     try {
-      console.log("Consuming Data:", consumptionData);  // Log the data to check the content
-  
-      const response = await axios.post(`${API_BASE_URL}/consumption/create`, consumptionData);
-  
-      // Ensure you are using the correct field name: 'product_name'
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${API_BASE_URL}/consumption/create`,
+        consumptionData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       NotificationService.sendNotification({
         message: `New consumption created for ${consumptionData.product_name}`,
       });
-  
       return response.data;
     } catch (error) {
       console.error("Error creating consumption:", error);
@@ -54,10 +73,18 @@ export class ConsumptionService {
     }
   }
 
-
   static async updateConsumption(id, updatedData) {
     try {
-      const response = await axios.put(`${API_BASE_URL}/consumption/${id}`, updatedData);
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${API_BASE_URL}/consumption/${id}`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error updating consumption:", error);
@@ -67,8 +94,12 @@ export class ConsumptionService {
 
   static async deleteConsumption(id) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/consumption/${id}`);
-
+      const token = localStorage.getItem("token");
+      const response = await axios.delete(`${API_BASE_URL}/consumption/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.data.success) {
         return response.data;
       } else {

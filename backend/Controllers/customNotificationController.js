@@ -16,6 +16,7 @@ const createCustomNotification = async (req, res) => {
       actions,
       notes,
     } = req.body;
+    const userID = req.user._id; // Extracted from authentication middleware
 
     if (
       !notification_title ||
@@ -47,6 +48,7 @@ const createCustomNotification = async (req, res) => {
       message,
       actions,
       notes,
+      user: userID,
     });
 
     const savedNotification = await newNotification.save();
@@ -63,7 +65,10 @@ const createCustomNotification = async (req, res) => {
 
 const getCustomNotifications = async (req, res) => {
   try {
-    const notifications = await customNotification.find();
+    const userID = req.user._id; // Extracted from authentication middleware
+    const notifications = await customNotification
+      .find({ user: userID })
+      .populate("user", "name email");
     res
       .status(200)
       .json({ message: "Notifications fetched successfully", notifications });
@@ -76,9 +81,17 @@ const getCustomNotifications = async (req, res) => {
 
 const getCustomNotificationById = async (req, res) => {
   try {
-    const notification = await customNotification.findById(req.params.id);
+    const userID = req.user._id; // Extracted from authentication middleware
+    const notification = await customNotification
+      .findById(req.params.id)
+      .populate("user", "name email");
     if (!notification) {
       return res.status(404).json({ message: "Notification not found" });
+    }
+    if (notification.user.toString() !== userID.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized: You can only access your own notifications",
+      });
     }
     res
       .status(200)
@@ -92,9 +105,15 @@ const getCustomNotificationById = async (req, res) => {
 
 const updateCustomNotification = async (req, res) => {
   try {
+    const userID = req.user._id; // Extracted from authentication middleware
     const notification = await customNotification.findById(req.params.id);
     if (!notification) {
       return res.status(404).json({ message: "Notification not found" });
+    }
+    if (notification.user.toString() !== userID.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized: You can only update your own notifications",
+      });
     }
 
     const updatedNotification = await customNotification.findByIdAndUpdate(
@@ -103,9 +122,10 @@ const updateCustomNotification = async (req, res) => {
       { new: true }
     );
 
-    res
-      .status(200)
-      .json({ message: "Notification updated successfully", updatedNotification });
+    res.status(200).json({
+      message: "Notification updated successfully",
+      updatedNotification,
+    });
   } catch (error) {
     res
       .status(500)
@@ -115,9 +135,15 @@ const updateCustomNotification = async (req, res) => {
 
 const deleteCustomNotification = async (req, res) => {
   try {
+    const userID = req.user._id; // Extracted from authentication middleware
     const notification = await customNotification.findById(req.params.id);
     if (!notification) {
       return res.status(404).json({ message: "Notification not found" });
+    }
+    if (notification.user.toString() !== userID.toString()) {
+      return res.status(403).json({
+        message: "Unauthorized: You can only delete your own notifications",
+      });
     }
 
     await customNotification.findByIdAndDelete(req.params.id);
