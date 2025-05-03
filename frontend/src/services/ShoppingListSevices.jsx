@@ -29,7 +29,7 @@ export class ShoppingListService {
     }
   }
 
-  static async  getShoppingLists() {
+  static async getShoppingLists() {
     try {
       const token = localStorage.getItem("token");
 
@@ -47,6 +47,32 @@ export class ShoppingListService {
       }
     } catch (error) {
       console.error("Error fetching shopping lists:", error);
+      throw error;
+    }
+  }
+
+  static async deleteShoppingListItem(itemId) {
+    console.log(itemId);
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.delete(
+        `${API_URL}/shopping-list-items/${itemId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        return response.data;
+      } else {
+        console.error("Error:", response.data.message);
+        throw new Error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting shopping list item:", error);
       throw error;
     }
   }

@@ -4,6 +4,7 @@ import {
   authenticateUser,
   authorizeHomeOwner,
 } from "../middleware/authMiddleware.js";
+import ShoppingListItemsController from "../Controllers/shoppingListItemsController.js";
 
 const router = express.Router();
 
@@ -35,7 +36,11 @@ router.post(
 );
 
 // Route to update a shopping list (only accessible by home owner)
-router.put("/shopping-lists/:listId", authenticateUser, ShoppingListController.updateShoppingList);
+router.put(
+  "/shopping-lists/:listId",
+  authenticateUser,
+  ShoppingListController.updateShoppingList
+);
 
 // Route to delete a shopping list (only accessible by home owner)
 router.delete(
@@ -43,6 +48,14 @@ router.delete(
   authenticateUser,
   authorizeHomeOwner,
   ShoppingListController.deleteShoppingList
+);
+
+// Route to delete a shopping list item (only accessible by home owner)
+router.delete(
+  "/shopping-list-items/:itemId",
+  authenticateUser,
+  authorizeHomeOwner,
+  ShoppingListItemsController.deleteShoppingListItem
 );
 
 export default router;

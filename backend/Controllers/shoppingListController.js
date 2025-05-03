@@ -175,7 +175,6 @@ class ShoppingListController {
 
                 console.log("🛠️ Attempting update for item:", item._id);
 
-                // ✅ Properly structured mock response
                 let responseStatus = 200;
 
                 const resClone = {
