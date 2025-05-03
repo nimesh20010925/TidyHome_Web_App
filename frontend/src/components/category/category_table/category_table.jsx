@@ -1,4 +1,3 @@
-// CategoryTable.jsx
 import { useEffect, useState } from "react";
 import { CategoryService } from "../../../services/categoryServices";
 import "./category_table.css";
@@ -24,9 +23,21 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Menu,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import { Edit, Delete, Visibility, ArrowBack, ArrowForward } from "@mui/icons-material";
+import {
+  Edit,
+  Delete,
+  Visibility,
+  ArrowBack,
+  ArrowForward,
+  Download,
+} from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: "12px",
@@ -74,12 +85,29 @@ const CategoryTable = () => {
   const [imageFile, setImageFile] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(3);
-  const [searchQuery, setSearchQuery] = useState(""); // New state for search
+  const [searchQuery, setSearchQuery] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
-  // Define category type options
-  const categoryTypes = ["Food", "Grocery", "Cleaning Supplies"];
+  const categoryTypes = [
+    "Food & Grocery", 
+    "Cleaning Supplies",
+    "Personal Care & Hygiene",
+    "Emergency & Safety Items",
+    "Clothing & Accessories",
+    "Electronics & Gadgets",
+    "Outdoor & Gardening",
+    "Automotive & Accessories",
+    "Pet Supplies",
+    "Kitchenware & Dining",];
 
-  // Purple theme from SupplierService
+
+  const openMenu = Boolean(anchorEl);
+
   const purpleTheme = {
     lightPurple: "#DAD5FB",
     buttonPurple: "#AC9EFF",
@@ -94,15 +122,15 @@ const CategoryTable = () => {
   const fetchCategories = async () => {
     try {
       const categoryData = await CategoryService.getAllCategorys();
-      // Sort categories by date in descending order (newest first)
       const sortedCategories = categoryData.sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
-        return dateB - dateA; // Descending order
+        return dateB - dateA;
       });
       setCategories(sortedCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
+      showSnackbar("Error fetching categories", "error");
     } finally {
       setLoading(false);
     }
@@ -118,8 +146,10 @@ const CategoryTable = () => {
       if (categories.length - 1 <= page * rowsPerPage) {
         setPage(Math.max(0, page - 1));
       }
+      showSnackbar("Category deleted successfully");
     } catch (error) {
       console.error("Error deleting category:", error);
+      showSnackbar("Error deleting category", "error");
     }
   };
 
@@ -129,13 +159,19 @@ const CategoryTable = () => {
       const formData = new FormData();
       formData.append("category_name", editCategory.category_name);
       formData.append("category_type", editCategory.category_type);
-      formData.append("category_description", editCategory.category_description);
+      formData.append(
+        "category_description",
+        editCategory.category_description
+      );
       formData.append("date", editCategory.date);
       if (imageFile) {
         formData.append("category_image", imageFile);
       }
 
-      const updatedCategory = await CategoryService.updateCategory(editCategory._id, formData);
+      const updatedCategory = await CategoryService.updateCategory(
+        editCategory._id,
+        formData
+      );
       setCategories(
         categories.map((cat) =>
           cat._id === updatedCategory._id ? updatedCategory : cat
@@ -144,9 +180,118 @@ const CategoryTable = () => {
       setOpenEditModal(false);
       setEditCategory(null);
       setImageFile(null);
+      showSnackbar("Category updated successfully");
     } catch (error) {
       console.error("Error updating category:", error);
+      showSnackbar("Error updating category", "error");
     }
+  };
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const generateCSVReport = () => {
+    if (filteredCategories.length === 0) {
+      showSnackbar("No categories available to generate a report", "warning");
+      return;
+    }
+
+    const headers = ["Name", "Type", "Description", "Date"];
+    const rows = filteredCategories.map((category) => [
+      `"${category.category_name.replace(/"/g, '""')}"`,
+      `"${category.category_type.replace(/"/g, '""')}"`,
+      `"${category.category_description.replace(/"/g, '""')}"`,
+      new Date(category.date).toLocaleDateString(),
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `category_report_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showSnackbar("CSV report generated successfully");
+    handleMenuClose();
+  };
+
+  const generatePDFReport = () => {
+    if (filteredCategories.length === 0) {
+      showSnackbar("No categories available to generate a report", "warning");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text("Category Report", 14, 22);
+      doc.setFontSize(11);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+
+      const tableData = filteredCategories.map((category) => [
+        category.category_name || "",
+        category.category_type || "",
+        category.category_description || "",
+        new Date(category.date).toLocaleDateString(),
+      ]);
+
+      autoTable(doc, {
+        startY: 40,
+        head: [["Name", "Type", "Description", "Date"]],
+        body: tableData,
+        theme: "striped",
+        headStyles: {
+          fillColor: [172, 158, 255],
+          textColor: [255, 255, 255],
+        },
+        styles: {
+          cellPadding: 3,
+          fontSize: 10,
+          overflow: "linebreak",
+        },
+        columnStyles: {
+          2: { cellWidth: 60 }, // Wider column for Description
+        },
+      });
+
+      const pdfBlob = doc.output("blob");
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `category_report_${
+        new Date().toISOString().split("T")[0]
+      }.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showSnackbar("PDF report generated successfully");
+    } catch (error) {
+      console.error("Error generating PDF report:", error);
+      showSnackbar("Failed to generate PDF report", "error");
+    }
+    handleMenuClose();
   };
 
   const handleChangePage = (newPage) => {
@@ -158,12 +303,11 @@ const CategoryTable = () => {
     setPage(0);
   };
 
-  // Filter categories based on search query
   const filteredCategories = categories.filter((category) =>
     [
-      category.category_name,
-      category.category_type,
-      category.category_description
+      category.category_name || "",
+      category.category_type || "",
+      category.category_description || "",
     ]
       .join(" ")
       .toLowerCase()
@@ -175,7 +319,6 @@ const CategoryTable = () => {
     page * rowsPerPage + rowsPerPage
   );
 
-  // Pagination Logic from SupplierService
   const totalPages = Math.ceil(filteredCategories.length / rowsPerPage);
   const pageNumbers = [];
   for (let i = Math.max(0, page - 2); i < Math.min(totalPages, page + 3); i++) {
@@ -196,7 +339,14 @@ const CategoryTable = () => {
 
   return (
     <Box sx={{ p: 4, background: "white" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
         <Typography
           variant="h4"
           sx={{
@@ -209,50 +359,109 @@ const CategoryTable = () => {
         >
           Category Management
         </Typography>
-        {/* Advanced Search Bar */}
-        <TextField
-          label="Search Categories"
-          variant="outlined"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          sx={{
-            width: 300,
-            backgroundColor: "#fff",
-            borderRadius: "25px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-            "& .MuiOutlinedInput-root": {
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <TextField
+            label="Search Categories"
+            variant="outlined"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{
+              width: 300,
+              backgroundColor: "#fff",
               borderRadius: "25px",
-              "& fieldset": {
-                borderColor: purpleTheme.accentPurple,
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "25px",
+                "& fieldset": {
+                  borderColor: purpleTheme.accentPurple,
+                },
+                "&:hover fieldset": {
+                  borderColor: purpleTheme.buttonHover,
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: purpleTheme.buttonPurple,
+                },
               },
-              "&:hover fieldset": {
+              "& .MuiInputLabel-root": {
+                color: purpleTheme.accentPurple,
+                fontWeight: "500",
+                "&.Mui-focused": {
+                  color: purpleTheme.buttonPurple,
+                },
+              },
+              "& .MuiOutlinedInput-input": {
+                padding: "12px 20px",
+                fontSize: "16px",
+              },
+            }}
+            InputProps={{
+              sx: {
+                "&::placeholder": {
+                  color: "#9CA3AF",
+                  opacity: 1,
+                },
+              },
+            }}
+          />
+          <StyledButton
+            variant="outlined"
+            startIcon={<Download />}
+            onClick={handleMenuOpen}
+            sx={{
+              borderColor: purpleTheme.buttonPurple,
+              color: purpleTheme.buttonPurple,
+              borderRadius: "25px",
+              borderWidth: "2px",
+              fontWeight: "600",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              padding: "10px 20px",
+              transition: "all 0.3s ease",
+              "&:hover": {
                 borderColor: purpleTheme.buttonHover,
+                color: purpleTheme.buttonHover,
+                backgroundColor: `${purpleTheme.buttonPurple}10`,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
               },
-              "&.Mui-focused fieldset": {
-                borderColor: purpleTheme.buttonPurple,
+            }}
+          >
+            Generate Report
+          </StyledButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={openMenu}
+            onClose={handleMenuClose}
+            PaperProps={{
+              sx: {
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
               },
-            },
-            "& .MuiInputLabel-root": {
-              color: purpleTheme.accentPurple,
-              fontWeight: "500",
-              "&.Mui-focused": {
+            }}
+          >
+            <MenuItem
+              onClick={generateCSVReport}
+              sx={{
                 color: purpleTheme.buttonPurple,
-              },
-            },
-            "& .MuiOutlinedInput-input": {
-              padding: "12px 20px",
-              fontSize: "16px",
-            },
-          }}
-          InputProps={{
-            sx: {
-              "&::placeholder": {
-                color: "#9CA3AF",
-                opacity: 1,
-              },
-            },
-          }}
-        />
+                "&:hover": {
+                  backgroundColor: `${purpleTheme.buttonPurple}10`,
+                },
+              }}
+            >
+              Generate CSV Report
+            </MenuItem>
+            <MenuItem
+              onClick={generatePDFReport}
+              sx={{
+                color: purpleTheme.buttonPurple,
+                "&:hover": {
+                  backgroundColor: `${purpleTheme.buttonPurple}10`,
+                },
+              }}
+            >
+              Generate PDF Report
+            </MenuItem>
+          </Menu>
+        </Box>
       </Box>
 
       <StyledTableContainer component={Paper}>
@@ -337,7 +546,6 @@ const CategoryTable = () => {
           </TableBody>
         </Table>
 
-        {/* Advanced Pagination from SupplierService */}
         {filteredCategories.length > 3 && (
           <Box
             sx={{
@@ -448,7 +656,6 @@ const CategoryTable = () => {
         )}
       </StyledTableContainer>
 
-      {/* Delete Modal */}
       <Modal open={openDeleteModal} onClose={() => setOpenDeleteModal(false)}>
         <Fade in={openDeleteModal}>
           <Box sx={modalStyle}>
@@ -459,7 +666,11 @@ const CategoryTable = () => {
               Are you sure you want to delete this category?
             </Typography>
             <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
-              <StyledButton variant="contained" color="error" onClick={handleDelete}>
+              <StyledButton
+                variant="contained"
+                color="error"
+                onClick={handleDelete}
+              >
                 Delete
               </StyledButton>
               <StyledButton
@@ -473,7 +684,6 @@ const CategoryTable = () => {
         </Fade>
       </Modal>
 
-      {/* Edit Modal */}
       <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
         <Fade in={openEditModal}>
           <Box sx={modalStyle}>
@@ -495,11 +705,19 @@ const CategoryTable = () => {
                         })
                       }
                       variant="outlined"
-                      sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <FormControl fullWidth variant="outlined" sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}>
+                    <FormControl
+                      fullWidth
+                      variant="outlined"
+                      sx={{
+                        "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                      }}
+                    >
                       <InputLabel id="category-type-label">Type</InputLabel>
                       <Select
                         labelId="category-type-label"
@@ -534,7 +752,9 @@ const CategoryTable = () => {
                         })
                       }
                       variant="outlined"
-                      sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                      }}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -544,11 +764,13 @@ const CategoryTable = () => {
                       onChange={(e) => setImageFile(e.target.files[0])}
                       inputProps={{ accept: "image/*" }}
                       variant="outlined"
-                      sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                      sx={{
+                        "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                      }}
                     />
                     {editCategory.category_image && (
                       <img
-                        src={`http://localhost:5000${editCategory.category_image}`}
+                        src={`http://localhost:3500${editCategory.category_image}`}
                         alt="Preview"
                         style={{
                           width: 100,
@@ -561,8 +783,18 @@ const CategoryTable = () => {
                     )}
                   </Grid>
                   <Grid item xs={12}>
-                    <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
-                      <StyledButton variant="contained" color="primary" type="submit">
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 2,
+                        justifyContent: "flex-end",
+                      }}
+                    >
+                      <StyledButton
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                      >
                         Save
                       </StyledButton>
                       <StyledButton
@@ -580,12 +812,16 @@ const CategoryTable = () => {
         </Fade>
       </Modal>
 
-      {/* View Modal */}
       <Modal open={openViewModal} onClose={() => setOpenViewModal(false)}>
         <Fade in={openViewModal}>
           <Box sx={modalStyle}>
             {viewCategory && (
-              <Card sx={{ borderRadius: "12px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}>
+              <Card
+                sx={{
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                }}
+              >
                 <CardContent>
                   <Typography
                     variant="h5"
@@ -597,7 +833,7 @@ const CategoryTable = () => {
                   <img
                     src={
                       viewCategory.category_image
-                        ? `http://localhost:5000${viewCategory.category_image}`
+                        ? `http://localhost:3500${viewCategory.category_image}`
                         : "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
                     }
                     alt={viewCategory.category_name}
@@ -613,10 +849,12 @@ const CategoryTable = () => {
                     <strong>Type:</strong> {viewCategory.category_type}
                   </Typography>
                   <Typography sx={{ mb: 1 }}>
-                    <strong>Description:</strong> {viewCategory.category_description}
+                    <strong>Description:</strong>{" "}
+                    {viewCategory.category_description}
                   </Typography>
                   <Typography sx={{ mb: 2 }}>
-                    <strong>Date:</strong> {new Date(viewCategory.date).toLocaleDateString()}
+                    <strong>Date:</strong>{" "}
+                    {new Date(viewCategory.date).toLocaleDateString()}
                   </Typography>
                   <StyledButton
                     variant="contained"
@@ -631,6 +869,20 @@ const CategoryTable = () => {
           </Box>
         </Fade>
       </Modal>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
