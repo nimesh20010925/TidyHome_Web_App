@@ -1,5 +1,4 @@
-// frontend/src/components/EditModal.js
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Modal,
   Box,
@@ -9,6 +8,7 @@ import {
   Divider,
   Fade,
   InputAdornment,
+  MenuItem,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import {
@@ -22,38 +22,57 @@ import {
 import { InventoryService } from "../../../services/InventoryServices";
 
 const EditModal = ({ open, onClose, item, onSave }) => {
-  const [editedItem, setEditedItem] = useState(null);
+  const [editedItem, setEditedItem] = useState({
+    product_name: "",
+    amount_used: "",
+    user: "",
+    date: "",
+    remaining_stock: "",
+    notes: "",
+    _id: "",
+  });
   const [errors, setErrors] = useState({});
   const [inventoryItems, setInventoryItems] = useState([]);
 
   useEffect(() => {
     const fetchInventoryData = async () => {
       try {
-        const items = await InventoryService.getAllInventoryItems();
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || !user.homeID) {
+          setErrors({ general: "User does not belong to any home" });
+          return;
+        }
+        const items = await InventoryService.getAllInventoryItems(user.homeID);
         setInventoryItems(items);
       } catch (error) {
         console.error("Error fetching inventory items:", error);
+        setErrors({ general: "Failed to load inventory items" });
       }
     };
 
     fetchInventoryData();
 
-    // Only set editedItem if item is valid
+    // Initialize editedItem with item data and logged-in user's name
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userName = user?.name || "Unknown User"; // Adjust based on your user object structure
+
     if (item && typeof item === "object") {
       setEditedItem({
-        ...item,
+        _id: item._id || "",
+        product_name: item.product_name || "",
+        amount_used: item.amount_used?.toString() || "",
+        user: item.user || userName, // Pre-populate with logged-in user's name if item.user is empty
         date: item.date ? new Date(item.date).toISOString().split("T")[0] : "",
+        remaining_stock: item.remaining_stock?.toString() || "",
+        notes: item.notes || "",
       });
-    } else {
-      setEditedItem(null); // Reset if item is invalid
+      setErrors({});
     }
-    setErrors({});
   }, [item]);
 
   useEffect(() => {
-    // Only calculate remaining_stock if editedItem is valid
+    // Calculate remaining_stock when product_name or amount_used changes
     if (
-      editedItem &&
       editedItem.product_name &&
       editedItem.amount_used &&
       inventoryItems.length > 0
@@ -68,11 +87,11 @@ const EditModal = ({ open, onClose, item, onSave }) => {
         const newStock = selectedItem.quantity + stockDifference;
         setEditedItem((prev) => ({
           ...prev,
-          remaining_stock: newStock >= 0 ? newStock.toString() : "0",
+          remaining_stock: newStock >= 0 ? newStock.toFixed(3) : "0",
         }));
       }
     }
-  }, [editedItem?.product_name, editedItem?.amount_used, inventoryItems, item]);
+  }, [editedItem.product_name, editedItem.amount_used, inventoryItems, item]);
 
   const getTodayDate = () => {
     const today = new Date();
@@ -92,23 +111,24 @@ const EditModal = ({ open, onClose, item, onSave }) => {
     const newErrors = {};
     const today = getTodayDate();
 
-    if (!editedItem?.product_name)
+    if (!editedItem.product_name)
       newErrors.product_name = "Product name is required";
     if (
-      !editedItem?.amount_used ||
+      !editedItem.amount_used ||
       isNaN(editedItem.amount_used) ||
-      parseFloat(editedItem.amount_used) < 0
+      parseFloat(editedItem.amount_used) <= 0
     )
-      newErrors.amount_used = "Enter a valid amount (≥ 0)";
-    if (!editedItem?.user) newErrors.user = "User is required";
+      newErrors.amount_used = "Enter a valid amount (> 0)";
+    if (!editedItem.user) newErrors.user = "User is required";
     if (
-      !editedItem?.remaining_stock ||
+      !editedItem.remaining_stock ||
       isNaN(editedItem.remaining_stock) ||
       parseFloat(editedItem.remaining_stock) < 0
     )
       newErrors.remaining_stock = "Remaining stock cannot be negative";
-    if (!editedItem?.notes) newErrors.notes = "Notes are required";
-    if (!editedItem?.date) {
+    if (!editedItem.notes || editedItem.notes.length < 5)
+      newErrors.notes = "Notes must be at least 5 characters";
+    if (!editedItem.date) {
       newErrors.date = "Date is required";
     } else if (editedItem.date < today) {
       newErrors.date = "Date must be today or a future date";
@@ -119,16 +139,15 @@ const EditModal = ({ open, onClose, item, onSave }) => {
   };
 
   const handleSave = () => {
-    if (editedItem && validateForm()) {
-      onSave(editedItem);
+    if (validateForm()) {
+      onSave({
+        ...editedItem,
+        amount_used: parseFloat(editedItem.amount_used),
+        remaining_stock: parseFloat(editedItem.remaining_stock),
+      });
       onClose();
     }
   };
-
-  // Don't render the modal content if editedItem is not initialized
-  if (!editedItem) {
-    return null;
-  }
 
   return (
     <Modal
@@ -171,8 +190,14 @@ const EditModal = ({ open, onClose, item, onSave }) => {
               Edit Consumption
             </Typography>
           </Box>
-
+          -OrReplace
+          {errors.general && (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {errors.general}
+            </Typography>
+          )}
           <TextField
+            select
             label="Product Name"
             name="product_name"
             value={editedItem.product_name || ""}
@@ -180,6 +205,7 @@ const EditModal = ({ open, onClose, item, onSave }) => {
             fullWidth
             margin="normal"
             variant="outlined"
+            disabled
             error={!!errors.product_name}
             helperText={errors.product_name}
             InputProps={{
@@ -190,8 +216,13 @@ const EditModal = ({ open, onClose, item, onSave }) => {
               ),
             }}
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-          />
-
+          >
+            {inventoryItems.map((inv, index) => (
+              <MenuItem key={index} value={inv.itemName}>
+                {inv.itemName}
+              </MenuItem>
+            ))}
+          </TextField>
           <TextField
             label="Amount Used"
             name="amount_used"
@@ -209,10 +240,10 @@ const EditModal = ({ open, onClose, item, onSave }) => {
                   <InventoryIcon />
                 </InputAdornment>
               ),
+              inputProps: { min: 0, step: 0.01 },
             }}
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
           />
-
           <TextField
             label="User"
             name="user"
@@ -231,8 +262,8 @@ const EditModal = ({ open, onClose, item, onSave }) => {
               ),
             }}
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+            // disabled // Uncomment this line to make the user field read-only
           />
-
           <TextField
             label="Date"
             name="date"
@@ -248,7 +279,6 @@ const EditModal = ({ open, onClose, item, onSave }) => {
             inputProps={{ min: getTodayDate() }}
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
           />
-
           <TextField
             label="Remaining Stock"
             name="remaining_stock"
@@ -269,7 +299,6 @@ const EditModal = ({ open, onClose, item, onSave }) => {
             }}
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
           />
-
           <TextField
             label="Notes"
             name="notes"
@@ -291,9 +320,7 @@ const EditModal = ({ open, onClose, item, onSave }) => {
             }}
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
           />
-
           <Divider sx={{ my: 2 }} />
-
           <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
             <Button
               variant="contained"
@@ -345,13 +372,14 @@ EditModal.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   item: PropTypes.shape({
+    _id: PropTypes.string,
     product_name: PropTypes.string,
     amount_used: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     user: PropTypes.string,
     date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     remaining_stock: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     notes: PropTypes.string,
-  }), // Allow item to be null/undefined
+  }),
   onSave: PropTypes.func.isRequired,
 };
 
