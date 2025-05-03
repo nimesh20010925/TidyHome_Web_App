@@ -16,16 +16,23 @@ export const getAllNotices = async (req, res) => {
 
 // Create a new notice
 export const createNotice = async (req, res) => {
-  const { message } = req.body;
+  const { message, homeId } = req.body;
 
   if (!message) {
     return res.status(400).json({ message: 'Notice message is required' });
   }
 
+  // Use homeId from body if provided, otherwise from authenticated user
+  const noticeHomeId = homeId || req.user.homeId;
+  
+  if (!noticeHomeId) {
+    return res.status(400).json({ message: 'homeId is required' });
+  }
+
   try {
     const newNotice = new Notice({
       message,
-      homeId: req.user.homeId,
+      homeId: noticeHomeId,
       createdBy: req.user._id
     });
 
