@@ -1,16 +1,47 @@
-import { Modal, ModalHeader, ModalBody, Button } from "reactstrap";
+import { useState, useEffect } from "react";
+import { Modal, ModalHeader, ModalBody } from "reactstrap";
 import PropTypes from "prop-types";
-import deleteIcon from "../../../assets/inventory/delete-red.png";
-import editIcon from "../../../assets/shoppingList/edit-item-black.png";
 
-const ShoppingListModal = ({ isOpen, toggle }) => {
-  const items = [
-    { name: "BELLOSE Conditioner (100ml)", price: 1000, urgent: true },
-    { name: "POND’S White Beauty Cream (50ml)", price: 1500, urgent: true },
-    { name: "Nature’s Secrets Aloera Cream (50ml)", price: 800 },
-    { name: "Nature’s Secrets Carrot Face Wash (100ml)", price: 1400 },
-    { name: "Gillette Sensor 3 Razor x 3", price: 300 },
-  ];
+const ShoppingListModal = ({ isOpen, toggle, selectedShoppingList }) => {
+  const [shoppingListItems, setShoppingListItems] = useState([]);
+  const [urgentItemsCost, setUrgentItemsCost] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+
+  useEffect(() => {
+    setShoppingListItems(selectedShoppingList.itemList);
+    console.log(selectedShoppingList);
+  }, [selectedShoppingList]);
+
+  useEffect(() => {
+    try {
+      const sum = (shoppingListItems || []).reduce(
+        (total, item) => total + (item?.estimatedItemCost || 0),
+        0
+      );
+      setTotalCost(sum);
+    } catch (error) {
+      console.error("Error calculating total:", error);
+      setTotalCost(0);
+    }
+  }, [shoppingListItems]);
+
+  useEffect(() => {
+    const { total, urgentTotal } = (shoppingListItems || []).reduce(
+      (acc, item) => {
+        const cost = Number(item?.estimatedItemCost) || 0;
+        return {
+          total: acc.total + cost,
+          urgentTotal: item?.isUrgent
+            ? acc.urgentTotal + cost
+            : acc.urgentTotal,
+        };
+      },
+      { total: 0, urgentTotal: 0 }
+    );
+
+    setTotalCost(total);
+    setUrgentItemsCost(urgentTotal);
+  }, [shoppingListItems]);
 
   return (
     <Modal
@@ -20,39 +51,142 @@ const ShoppingListModal = ({ isOpen, toggle }) => {
       scrollable
     >
       <ModalHeader toggle={toggle} className="shopping-list-modal-header">
-        Personal & Beauty Care Shopping List
+        {selectedShoppingList.listName}
       </ModalHeader>
       <ModalBody className="shopping-list-modal-body">
         <div className="shopping-details-section">
-          <p className="shopping-date">Shopping Date: 2025-03-21</p>
-          <p className="shopping-items-count">No. of Items: {items.length}</p>
+          <p className="shopping-date">
+            Shopping Date:{" "}
+            {new Date(selectedShoppingList.shoppingDate).toLocaleDateString()}
+          </p>
+          <p className="shopping-items-count">
+            No. of Items: {shoppingListItems?.length}
+          </p>
         </div>
 
-        {items.map((item, index) => (
-          <div className="shopping-item-card" key={index}>
-            {item.urgent && <span className="shopping-urgent-icon">★</span>}
-            <div className="shopping-item-info">
-              <p className="shopping-item-name">{item.name}</p>
-              <p className="shopping-item-price">Rs.{item.price.toFixed(2)}</p>
+        {shoppingListItems?.map((item, index) => (
+          <div
+            className="shopping-item-card"
+            key={index}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              padding: "10px",
+              borderBottom: "1px solid #ddd",
+            }}
+          >
+            {item.isUrgent && <span className="shopping-urgent-icon">★</span>}
+
+            <div style={{ flex: 2 }}>
+              <p style={{ fontSize: "16px", fontWeight: "bold", margin: 0 }}>
+                {item.itemName}
+              </p>
+              <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>
+                {Number(item.price).toLocaleString(undefined, {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1,
+                })}{" "}
+                LKR
+              </p>
             </div>
-            <div className="shopping-action-icons">
-              <Button className="shopping-modal-delete-btn">
-                <img src={deleteIcon} alt="Delete" width={40} height={40}/>
-              </Button>
-              <Button className="shopping-model-edit-btn">
-                <img src={editIcon} alt="Delete" width={40} height={36}/>
-              </Button>
+
+            <div
+              style={{
+                flex: 1,
+                fontSize: "18px",
+                fontWeight: "bold",
+                textAlign: "center",
+                color: "#976bdb",
+                marginLeft: item.isUrgent ? "0px" : "36px",
+              }}
+            >
+              {item?.itemType === "Kg" ||
+              item?.itemType === "Litre" ||
+              item?.itemType === "Mitre"
+                ? Number(item?.quantity).toFixed(1)
+                : item?.quantity}{" "}
+              {item?.itemType !== "Unit" && item?.itemType}
+            </div>
+
+            <div
+              style={{
+                flex: 1,
+                fontSize: "16px",
+                fontWeight: "bold",
+                textAlign: "right",
+              }}
+            >
+              {Number(item?.estimatedItemCost).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{" "}
+              LKR
             </div>
           </div>
         ))}
 
         <div className="shopping-summary">
-          <p className="shopping-urgent-cost">
-            Estimated Urgent Items Cost: Rs. 2,500.00
-          </p>
-          <p className="shopping-total-cost">
-            Estimated Total Shopping Cost: Rs. 5,000.00
-          </p>
+          <div className="mb-1 p-3">
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontWeight: "600", fontSize: "16px" }}>
+                Estimated Total Shopping Cost:
+              </span>
+              <span
+                style={{
+                  fontWeight: "700",
+                  fontSize: "17px",
+                  color: "#976BDB",
+                }}
+              >
+                {Number(totalCost).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{" "}
+                LKR
+              </span>
+            </div>
+          </div>
+          <div className="ps-3 pe-3">
+            <div className="d-flex justify-content-between align-items-center">
+              <span
+                style={{
+                  fontWeight: "600",
+                  fontSize: "16px",
+                  color: "#dc3545",
+                }}
+              >
+                Estimated Total Urgent Items Cost:
+              </span>
+              <span
+                style={{
+                  fontWeight: "700",
+                  fontSize: "17px",
+                  color: "#dc3545",
+                }}
+              >
+                {urgentItemsCost.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}{" "}
+                LKR
+              </span>
+            </div>
+          </div>
+          {totalCost > urgentItemsCost && (
+            <div className="ps-3 pe-3 pt-4">
+              <div className="alert alert-success mt-2 mb-0" role="alert">
+                You can save{" "}
+                <strong>
+                  {(totalCost - urgentItemsCost).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}{" "}
+                  LKR
+                </strong>{" "}
+                if you only buy urgent items.
+              </div>
+            </div>
+          )}
         </div>
       </ModalBody>
     </Modal>
@@ -62,6 +196,7 @@ const ShoppingListModal = ({ isOpen, toggle }) => {
 ShoppingListModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
+  selectedShoppingList: PropTypes.any.isRequired,
 };
 
 export default ShoppingListModal;

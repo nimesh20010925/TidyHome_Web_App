@@ -20,13 +20,16 @@ import {
   FaCalculator,
   FaDollarSign,
   FaShoppingBag,
+  FaFileDownload,
 } from "react-icons/fa";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import AddShoppingListItemsModal from "./Modals/addShoppingListItemsModal.jsx";
 import ShoppingListModal from "./Modals/viewShoppingListModal.jsx";
 import { ShoppingListService } from "../../services/ShoppingListSevices.jsx";
 import axios from "axios";
 import { Modal, ModalHeader, ModalBody, Col, Row, Button } from "reactstrap";
 import { useTranslation } from "react-i18next";
+import ShoppingListPDF from "./ShoppingListPDF.jsx";
 
 const cardData = [
   {
@@ -102,48 +105,51 @@ const ShoppingList = () => {
   const [deleteItemModal, setDeleteItemModal] = useState(false);
   const [viewShoppingListModal, setViewShoppingListModal] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState();
+  const [totalShoppingCost, setTotalShoppingCost] = useState(0);
 
   const { t } = useTranslation();
 
   useEffect(() => {
-    const fetchShoppingLists = async () => {
-      try {
-        const lists = await ShoppingListService.getShoppingLists();
-        console.log("Fetched Shopping Lists:", lists);
-
-        if (Array.isArray(lists.shoppingLists)) {
-          setShoppingLists(lists.shoppingLists);
-        } else {
-          console.error("Unexpected response format", lists);
-          setShoppingLists([]);
-        }
-      } catch (error) {
-        console.error("Error fetching shopping lists:", error);
-      }
-    };
-
     fetchShoppingLists();
   }, []);
 
-  useEffect(() => {
-    const fetchShoppingLists = async () => {
-      try {
-        const lists = await ShoppingListService.getShoppingLists();
-        console.log("Fetched Shopping Lists:", lists);
+  // useEffect(() => {
+  //   const fetchShoppingLists = async () => {
+  //     try {
+  //       const lists = await ShoppingListService.getShoppingLists();
+  //       console.log("Fetched Shopping Lists:", lists);
 
-        if (Array.isArray(lists.shoppingLists)) {
-          setShoppingLists(lists.shoppingLists);
-        } else {
-          console.error("Unexpected response format", lists);
-          setShoppingLists([]);
-        }
-      } catch (error) {
-        console.error("Error fetching shopping lists:", error);
-      }
+  //       if (Array.isArray(lists.shoppingLists)) {
+  //         setShoppingLists(lists.shoppingLists);
+  //       } else {
+  //         console.error("Unexpected response format", lists);
+  //         setShoppingLists([]);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching shopping lists:", error);
+  //     }
+  //   };
+
+  //   fetchShoppingLists();
+  // }, [!addShoppingItemsModal]);
+
+  useEffect(() => {
+    // Calculate total cost whenever shoppingLists changes
+    const calculateTotalCost = () => {
+      const total = shoppingLists.reduce((sum, list) => {
+        const listTotal = Array.isArray(list.itemList)
+          ? list.itemList.reduce((listSum, item) => {
+              return listSum + (item.estimatedItemCost || 0);
+            }, 0)
+          : 0;
+        return sum + listTotal;
+      }, 0);
+
+      setTotalShoppingCost(total);
     };
 
-    fetchShoppingLists();
-  }, [!addShoppingItemsModal]);
+    calculateTotalCost();
+  }, [shoppingLists]);
 
   const fetchShoppingLists = async () => {
     try {
@@ -198,8 +204,17 @@ const ShoppingList = () => {
     }
   };
 
-  const addShoppingItemsToggle = () =>
+  const addShoppingItemsToggle = async () => {
     setAddShoppingItemsModal(!addShoppingItemsModal);
+    if (addShoppingItemsModal) {
+      await fetchShoppingLists();
+    }
+  };
+
+  const handleBtnSelectToView = (list) => {
+    viewShoppingListToggle();
+    setSelectedShoppingList(list);
+  };
 
   const handleAddShoppingItemsBtnSelect = (list) => {
     addShoppingItemsToggle();
@@ -269,7 +284,12 @@ const ShoppingList = () => {
         <div className="d-flex justify-content-between align-items-center mb-2 mt-3">
           <h4 className="fw-bold">Shopping Lists</h4>
           <h5 className="shopping-cost">
-            Shopping Lists Total Cost :- Rs. 15,000.00
+            Shopping Lists Total Cost :-{" "}
+            {totalShoppingCost.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}{" "}
+            LKR
           </h5>
         </div>
 
@@ -304,7 +324,7 @@ const ShoppingList = () => {
               <div className="shopping-card-icon-group">
                 <FaEye
                   className="shopping-card-icon view-icon"
-                  onClick={viewShoppingListToggle}
+                  onClick={() => handleBtnSelectToView(list)}
                 />
                 <FaEdit
                   className="shopping-card-icon edit-icon"
@@ -312,9 +332,21 @@ const ShoppingList = () => {
                 />
                 <FaTrash
                   className="shopping-card-icon delete-icon"
-                  // onClick={() => handleDelete(list._id)}
+                  style={{ color: "#A50034" }}
                   onClick={() => handleDeleteShoppingListModal(list._id)}
                 />
+                <PDFDownloadLink
+                  document={<ShoppingListPDF selectedShoppingList={list} />}
+                  fileName={`${list.listName.replace(/\s+/g, "_")}.pdf`}
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <FaFileDownload className="shopping-card-icon delete-icon" />
+                </PDFDownloadLink>
               </div>
             </motion.div>
           ))}
@@ -324,6 +356,7 @@ const ShoppingList = () => {
       <ShoppingListModal
         isOpen={viewShoppingListModal}
         toggle={viewShoppingListToggle}
+        selectedShoppingList={selectedShoppingList}
       />
 
       <Modal
