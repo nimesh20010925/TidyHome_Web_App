@@ -1,5 +1,5 @@
-import  { useState } from 'react';
-import './store_table.css'; // Importing the CSS file
+import { useState } from "react";
+import "./store_table.css"; // Importing the CSS file
 
 const SupplierTable = () => {
   // State for showing the add new supplier modal
@@ -15,23 +15,42 @@ const SupplierTable = () => {
   const [editModal, setEditModal] = useState(false); // New state for editing
 
   // State for form inputs
-  const [supplierName, setSupplierName] = useState('');
-  const [contact, setContact] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
+  const [supplierName, setSupplierName] = useState("");
+  const [contact, setContact] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
 
   // State for supplier list
   const [suppliers, setSuppliers] = useState([
-    { id: 1, name: 'Mark Otto', contact: '123-456-7890', email: 'mark@example.com', address: '1234 Elm St, Springfield' },
-    { id: 2, name: 'Jacob Thornton', contact: '987-654-3210', email: 'jacob@example.com', address: '5678 Oak St, Shelbyville' },
-    { id: 3, name: 'Larry the Bird', contact: '555-123-4567', email: 'larry@example.com', address: '9101 Pine St, Capital City' }
+    {
+      id: 1,
+      name: "Mark Otto",
+      contact: "123-456-7890",
+      email: "mark@example.com",
+      address: "1234 Elm St, Springfield",
+    },
+    {
+      id: 2,
+      name: "Jacob Thornton",
+      contact: "987-654-3210",
+      email: "jacob@example.com",
+      address: "5678 Oak St, Shelbyville",
+    },
+    {
+      id: 3,
+      name: "Larry the Bird",
+      contact: "555-123-4567",
+      email: "larry@example.com",
+      address: "9101 Pine St, Capital City",
+    },
   ]);
 
   // State for the selected supplier details (for viewing)
   const [selectedSupplier, setSelectedSupplier] = useState(null);
 
   // State for the supplier to delete
-  const [selectedSupplierForDelete, setSelectedSupplierForDelete] = useState(null);
+  const [selectedSupplierForDelete, setSelectedSupplierForDelete] =
+    useState(null);
 
   // State for the supplier to edit
   const [selectedSupplierForEdit, setSelectedSupplierForEdit] = useState(null); // New state for editing supplier
@@ -58,10 +77,10 @@ const SupplierTable = () => {
     setSuppliers([...suppliers, newSupplier]);
 
     // Reset form fields and close the modal
-    setSupplierName('');
-    setContact('');
-    setEmail('');
-    setAddress('');
+    setSupplierName("");
+    setContact("");
+    setEmail("");
+    setAddress("");
     setShowModal(false);
   };
 
@@ -85,7 +104,11 @@ const SupplierTable = () => {
   // Function to handle deleting the supplier
   const handleDelete = () => {
     // Remove the supplier from the list
-    setSuppliers(suppliers.filter(supplier => supplier.id !== selectedSupplierForDelete.id));
+    setSuppliers(
+      suppliers.filter(
+        (supplier) => supplier.id !== selectedSupplierForDelete.id
+      )
+    );
     setDeleteModal(false); // Close the delete confirmation modal
   };
 
@@ -126,10 +149,10 @@ const SupplierTable = () => {
     setSuppliers(updatedSuppliers);
 
     // Reset form fields and close the modal
-    setSupplierName('');
-    setContact('');
-    setEmail('');
-    setAddress('');
+    setSupplierName("");
+    setContact("");
+    setEmail("");
+    setAddress("");
     setEditModal(false);
   };
 
@@ -195,8 +218,16 @@ const SupplierTable = () => {
                 />
               </div>
               <div className="modal-buttons">
-                <button type="submit" className="btn btn-primary">Save</button>
-                <button type="button" className="btn btn-danger" onClick={toggleModal}>Cancel</button>
+                <button type="submit" className="btn btn-primary">
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={toggleModal}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -208,12 +239,22 @@ const SupplierTable = () => {
         <div className="modal-overlay" onClick={closeViewModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>Supplier Details</h2>
-            <p><strong>Name:</strong> {selectedSupplier.name}</p>
-            <p><strong>Contact:</strong> {selectedSupplier.contact}</p>
-            <p><strong>Email:</strong> {selectedSupplier.email}</p>
-            <p><strong>Address:</strong> {selectedSupplier.address}</p>
+            <p>
+              <strong>Name:</strong> {selectedSupplier.name}
+            </p>
+            <p>
+              <strong>Contact:</strong> {selectedSupplier.contact}
+            </p>
+            <p>
+              <strong>Email:</strong> {selectedSupplier.email}
+            </p>
+            <p>
+              <strong>Address:</strong> {selectedSupplier.address}
+            </p>
             <div className="modal-buttons">
-              <button className="btn btn-danger" onClick={closeViewModal}>Close</button>
+              <button className="btn btn-danger" onClick={closeViewModal}>
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -224,10 +265,16 @@ const SupplierTable = () => {
         <div className="modal-overlay" onClick={closeDeleteModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>Are you sure you want to delete this supplier?</h2>
-            <p><strong>Name:</strong> {selectedSupplierForDelete.name}</p>
+            <p>
+              <strong>Name:</strong> {selectedSupplierForDelete.name}
+            </p>
             <div className="modal-buttons">
-              <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
-              <button className="btn btn-secondary" onClick={closeDeleteModal}>Cancel</button>
+              <button className="btn btn-danger" onClick={handleDelete}>
+                Delete
+              </button>
+              <button className="btn btn-secondary" onClick={closeDeleteModal}>
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -281,8 +328,16 @@ const SupplierTable = () => {
                 />
               </div>
               <div className="modal-buttons">
-                <button type="submit" className="btn btn-primary">Save Changes</button>
-                <button type="button" className="btn btn-danger" onClick={closeEditModal}>Cancel</button>
+                <button type="submit" className="btn btn-primary">
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={closeEditModal}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -335,6 +390,6 @@ const SupplierTable = () => {
       </table>
     </div>
   );
-}
+};
 
 export default SupplierTable;

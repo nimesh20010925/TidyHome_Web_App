@@ -39,7 +39,7 @@ const CategoryTable = () => {
       return;
     }
 
-    const nameRegex = /^[a-zA-Z0-9\s]+$/;
+    const nameRegex = /^[a-zA-Z0-9\s&]+$/;
     if (!nameRegex.test(categoryName)) {
       alert(
         "Category Name can only contain letters, numbers, and spaces. No special characters allowed."

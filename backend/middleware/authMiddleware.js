@@ -6,24 +6,27 @@ export const authenticateUser = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
+      console.error("Authentication failed: No token provided");
       return res.status(403).json({ success: false, message: "No token provided" });
     }
 
     const decoded = verifyToken(token);
     if (!decoded) {
+      console.error("Authentication failed: Invalid or expired token");
       return res.status(403).json({ success: false, message: "Invalid or expired token" });
     }
 
     const user = await userModel.findById(decoded.id);
     if (!user) {
+      console.error(`Authentication failed: User not found for ID ${decoded.id}`);
       return res.status(403).json({ success: false, message: "User not found" });
     }
 
-    req.user = user;  // Add user to request object
+    req.user = user; // Add user to request object
     next();
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Authentication failed", error });
+    console.error("Authentication error:", error.message);
+    res.status(500).json({ success: false, message: "Authentication failed", error: error.message });
   }
 };
 

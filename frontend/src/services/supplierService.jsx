@@ -1,56 +1,73 @@
-// supplierService.jsx
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/supplier'; // Adjust based on your server URL
+import { API_BASE_URL } from '../config/config';
 
 const supplierService = {
-  // Create a new supplier
+  getAuthToken() {
+    return localStorage.getItem("token");
+  },
+
   createSupplier: async (supplierData) => {
     try {
-      const response = await axios.post(`${API_URL}/create`, supplierData);
+      const response = await axios.post(`${API_BASE_URL}/supplier/create`, supplierData, {
+        headers: {
+          Authorization: `Bearer ${supplierService.getAuthToken()}`,
+        },
+      });
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { message: error.message };
     }
   },
 
-  // Get all suppliers
   getAllSuppliers: async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(`${API_BASE_URL}/supplier`, {
+        headers: {
+          Authorization: `Bearer ${supplierService.getAuthToken()}`,
+        },
+      });
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { message: error.message };
     }
   },
 
-  // Get supplier by ID
   getSupplierById: async (id) => {
     try {
-      const response = await axios.get(`${API_URL}/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/supplier/${id}`, {
+        headers: {
+          Authorization: `Bearer ${supplierService.getAuthToken()}`,
+        },
+      });
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { message: error.message };
     }
   },
 
-  // Update supplier
   updateSupplier: async (id, supplierData) => {
     try {
-      const response = await axios.put(`${API_URL}/${id}`, supplierData);
+      const response = await axios.put(`${API_BASE_URL}/supplier/${id}`, supplierData, {
+        headers: {
+          Authorization: `Bearer ${supplierService.getAuthToken()}`,
+        },
+      });
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { message: error.message };
     }
   },
 
-  // Delete supplier
   deleteSupplier: async (id) => {
     try {
-      const response = await axios.delete(`${API_URL}/${id}`);
+      const response = await axios.delete(`${API_BASE_URL}/supplier/${id}`, {
+        headers: {
+          Authorization: `Bearer ${supplierService.getAuthToken()}`,
+        },
+      });
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data || { message: error.message };
     }
   }
 };

@@ -1,31 +1,69 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
 import {
-  Box, Button, TextField, Typography, Modal, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper, IconButton, Grid, Snackbar, Alert,
-  MenuItem, Select, InputLabel, FormControl
-} from '@mui/material';
-import { Edit, Delete, Add, Visibility, ArrowBack, ArrowForward } from '@mui/icons-material';
-import HomeSummary from "../../../Home/HomeModals/HomeSummary.jsx"
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Modal,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Grid,
+  Snackbar,
+  Alert,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Menu,
+} from "@mui/material";
+import {
+  Edit,
+  Delete,
+  Add,
+  Visibility,
+  ArrowBack,
+  ArrowForward,
+  Download,
+} from "@mui/icons-material";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import HomeSummary from "../../../Home/HomeModals/HomeSummary.jsx";
+import supplierService from "../../../../services/supplierService.jsx";
+
 const SupplierService = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openView, setOpenView] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [supplierToDelete, setSupplierToDelete] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const [formData, setFormData] = useState({
-    supplier_id: '',
-    supplier_name: '',
-    supplier_contact: '',
-    supplier_email: '',
-    supplier_address: '',
-    date: '',
-    type: 'Supplier'
+    supplier_id: "",
+    supplier_name: "",
+    supplier_contact: "",
+    supplier_email: "",
+    supplier_address: "",
+    date: "",
+    type: "Supplier",
   });
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(4);
-  const [searchQuery, setSearchQuery] = useState(''); // New state for search
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
 
   useEffect(() => {
     fetchSuppliers();
@@ -33,18 +71,21 @@ const SupplierService = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await axios.get('http://localhost:3500/api/supplier');
-      // Sort suppliers by createdAt if available, otherwise by date, in descending order
-      const sortedSuppliers = response.data.suppliers.sort((a, b) => {
+      const response = await supplierService.getAllSuppliers();
+      const sortedSuppliers = response.suppliers.sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
         const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
-        return dateB - dateA;
+        return dateA - dateB; // Oldest first
       });
       setSuppliers(sortedSuppliers);
     } catch (error) {
-      console.error('Fetch suppliers error:', error);
-      const errorMessage = error.response?.data?.message || 'Error fetching suppliers';
-      showSnackbar(errorMessage, 'error');
+      console.error("Fetch suppliers error:", error);
+      const errorMessage = error.message || "Error fetching suppliers/stores";
+      if (error.status === 403) {
+        window.location.href = "/login";
+      } else {
+        showSnackbar(errorMessage, "error");
+      }
     }
   };
 
@@ -53,246 +94,150 @@ const SupplierService = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleCreate = async () => {
-    const { supplier_id, supplier_name, supplier_contact, supplier_email, supplier_address, date } = formData;
+  const validateForm = (data) => {
+    const {
+      supplier_id,
+      supplier_name,
+      supplier_contact,
+      supplier_email,
+      supplier_address,
+      date,
+    } = data;
 
-    // Supplier ID Validation
     if (supplier_id.length < 5 || supplier_id.length > 10) {
-      showSnackbar('Supplier ID must be between 5 and 10 characters long', 'error');
-      return;
+      return "Supplier/Store ID must be between 5 and 10 characters long";
     }
-    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    const alphanumericRegex = /^[a-zA-Z0-9.]+$/;
     if (!alphanumericRegex.test(supplier_id)) {
-      showSnackbar('Supplier ID can only contain letters and numbers', 'error');
-      return;
-    }
-    try {
-      const response = await axios.get('http://localhost:3500/api/supplier');
-      const existingSuppliers = response.data.suppliers;
-      if (existingSuppliers.some((supplier) => supplier.supplier_id === supplier_id)) {
-        showSnackbar('Supplier ID already exists', 'error');
-        return;
-      }
-    } catch (error) {
-      console.error('Error checking supplier ID uniqueness:', error);
-      showSnackbar('Error validating Supplier ID', 'error');
-      return;
+      return "Supplier/Store ID can only contain letters, numbers, and dots";
     }
 
-    // Supplier Name Validation
     if (supplier_name.length < 3 || supplier_name.length > 50) {
-      showSnackbar('Supplier Name must be between 3 and 50 characters long', 'error');
-      return;
+      return "Supplier/Store Name must be between 3 and 50 characters long";
     }
     const nameRegex = /^[a-zA-Z\s]+$/;
     if (!nameRegex.test(supplier_name)) {
-      showSnackbar('Supplier Name can only contain letters and spaces', 'error');
-      return;
+      return "Supplier/Store Name can only contain letters and spaces";
     }
 
-    // Supplier Contact Validation
     if (supplier_contact.length !== 10) {
-      showSnackbar('Supplier Contact must be exactly 10 digits', 'error');
-      return;
+      return "Supplier/Store Contact must be exactly 10 digits";
     }
     const contactRegex = /^[0-9]+$/;
     if (!contactRegex.test(supplier_contact)) {
-      showSnackbar('Supplier Contact can only contain numbers', 'error');
-      return;
+      return "Supplier/Store Contact can only contain numbers";
     }
 
-    // Email Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(supplier_email)) {
-      showSnackbar('Please enter a valid email address', 'error');
-      return;
-    }
-    try {
-      const response = await axios.get('http://localhost:3500/api/supplier');
-      const existingSuppliers = response.data.suppliers;
-      if (existingSuppliers.some((supplier) => supplier.supplier_email === supplier_email)) {
-        showSnackbar('Email already exists', 'error');
-        return;
-      }
-    } catch (error) {
-      console.error('Error checking email uniqueness:', error);
-      showSnackbar('Error validating Email', 'error');
-      return;
+      return "Please enter a valid email address";
     }
 
-    // Address Validation
     if (supplier_address.length < 10 || supplier_address.length > 100) {
-      showSnackbar('Supplier Address must be between 10 and 100 characters long', 'error');
-      return;
+      return "Supplier/Store Address must be between 10 and 100 characters long";
     }
     const addressRegex = /^[a-zA-Z0-9\s,.-/]+$/;
     if (!addressRegex.test(supplier_address)) {
-      showSnackbar('Supplier Address can only contain letters, numbers, spaces, and , . - /', 'error');
-      return;
+      return "Supplier/Store Address can only contain letters, numbers, spaces, and , . - /";
     }
 
-    // Date Validation
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      showSnackbar('Date must be in YYYY-MM-DD format', 'error');
-      return;
+      return "Date must be in YYYY-MM-DD format";
     }
     const inputDate = new Date(date);
-    const currentDate = new Date(); // Dynamically set to today's date (e.g., 2025-03-23)
+    const currentDate = new Date();
     if (inputDate > currentDate) {
-      showSnackbar('Date cannot be in the future', 'error');
-      return;
+      return "Date cannot be in the future";
     }
-    const minDate = new Date('2015-03-22');
+    const minDate = new Date("2015-03-22");
     if (inputDate < minDate) {
-      showSnackbar('Date cannot be older than 10 years', 'error');
+      return "Date cannot be older than 10 years";
+    }
+
+    return null;
+  };
+
+  const handleCreate = async () => {
+    const validationError = validateForm(formData);
+    if (validationError) {
+      showSnackbar(validationError, "error");
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:3500/api/supplier/create', formData);
+      const response = await supplierService.createSupplier(formData);
       const newSupplier = {
-        ...response.data,
-        createdAt: new Date().toISOString()
+        ...response.savedsupplier,
+        createdAt: new Date().toISOString(),
       };
       setSuppliers((prevSuppliers) => {
         const updatedSuppliers = [newSupplier, ...prevSuppliers];
         return updatedSuppliers.sort((a, b) => {
           const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
           const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
-          return dateB - dateA;
+          return dateA - dateB; // Oldest first
         });
       });
       setOpenCreate(false);
       resetForm();
-      showSnackbar('Supplier created successfully');
+      showSnackbar("Supplier/Store created successfully");
     } catch (error) {
-      console.error('Create supplier error:', error);
-      const errorMessage = error.response?.data?.message || 'Error creating supplier';
-      showSnackbar(errorMessage, 'error');
+      console.error("Create supplier/store error:", error);
+      const errorMessage = error.message || "Error creating supplier/store";
+      if (error.status === 403) {
+        window.location.href = "/login";
+      } else {
+        showSnackbar(errorMessage, "error");
+      }
     }
   };
 
   const handleUpdate = async () => {
-    const { supplier_id, supplier_name, supplier_contact, supplier_email, supplier_address, date } = formData;
-
-    if (supplier_id.length < 5 || supplier_id.length > 10) {
-      showSnackbar('Supplier ID must be between 5 and 10 characters long', 'error');
-      return;
-    }
-    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
-    if (!alphanumericRegex.test(supplier_id)) {
-      showSnackbar('Supplier ID can only contain letters and numbers', 'error');
-      return;
-    }
-    try {
-      const response = await axios.get('http://localhost:3500/api/supplier');
-      const existingSuppliers = response.data.suppliers;
-      if (
-        existingSuppliers.some(
-          (supplier) => supplier.supplier_id === supplier_id && supplier._id !== selectedSupplier._id
-        )
-      ) {
-        showSnackbar('Supplier ID already exists', 'error');
-        return;
-      }
-    } catch (error) {
-      console.error('Error checking supplier ID uniqueness:', error);
-      showSnackbar('Error validating Supplier ID', 'error');
-      return;
-    }
-
-    if (supplier_name.length < 3 || supplier_name.length > 50) {
-      showSnackbar('Supplier Name must be between 3 and 50 characters long', 'error');
-      return;
-    }
-    const nameRegex = /^[a-zA-Z\s]+$/;
-    if (!nameRegex.test(supplier_name)) {
-      showSnackbar('Supplier Name can only contain letters and spaces', 'error');
-      return;
-    }
-
-    if (supplier_contact.length !== 10) {
-      showSnackbar('Supplier Contact must be exactly 10 digits', 'error');
-      return;
-    }
-    const contactRegex = /^[0-9]+$/;
-    if (!contactRegex.test(supplier_contact)) {
-      showSnackbar('Supplier Contact can only contain numbers', 'error');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(supplier_email)) {
-      showSnackbar('Please enter a valid email address', 'error');
-      return;
-    }
-    try {
-      const response = await axios.get('http://localhost:3500/api/supplier');
-      const existingSuppliers = response.data.suppliers;
-      if (
-        existingSuppliers.some(
-          (supplier) => supplier.supplier_email === supplier_email && supplier._id !== selectedSupplier._id
-        )
-      ) {
-        showSnackbar('Email already exists', 'error');
-        return;
-      }
-    } catch (error) {
-      console.error('Error checking email uniqueness:', error);
-      showSnackbar('Error validating Email', 'error');
-      return;
-    }
-
-    if (supplier_address.length < 10 || supplier_address.length > 100) {
-      showSnackbar('Supplier Address must be between 10 and 100 characters long', 'error');
-      return;
-    }
-    const addressRegex = /^[a-zA-Z0-9\s,.-/]+$/;
-    if (!addressRegex.test(supplier_address)) {
-      showSnackbar('Supplier Address can only contain letters, numbers, spaces, and , . - /', 'error');
-      return;
-    }
-
-    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      showSnackbar('Date must be in YYYY-MM-DD format', 'error');
-      return;
-    }
-    const inputDate = new Date(date);
-    const currentDate = new Date('2025-03-22');
-    if (inputDate > currentDate) {
-      showSnackbar('Date cannot be in the future', 'error');
-      return;
-    }
-    const minDate = new Date('2015-03-22');
-    if (inputDate < minDate) {
-      showSnackbar('Date cannot be older than 10 years', 'error');
+    const validationError = validateForm(formData);
+    if (validationError) {
+      showSnackbar(validationError, "error");
       return;
     }
 
     try {
-      await axios.put(`http://localhost:3500/api/supplier/${selectedSupplier._id}`, formData);
+      await supplierService.updateSupplier(selectedSupplier._id, formData);
       setOpenUpdate(false);
       resetForm();
       fetchSuppliers();
-      showSnackbar('Supplier updated successfully');
+      showSnackbar("Supplier/Store updated successfully");
     } catch (error) {
-      console.error('Update supplier error:', error);
-      const errorMessage = error.response?.data?.message || 'Error updating supplier';
-      showSnackbar(errorMessage, 'error');
+      console.error("Update supplier/store error:", error);
+      const errorMessage = error.message || "Error updating supplier/store";
+      if (error.status === 403) {
+        window.location.href = "/login";
+      } else {
+        showSnackbar(errorMessage, "error");
+      }
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this supplier?')) {
-      try {
-        await axios.delete(`http://localhost:3500/api/supplier/${id}`);
-        fetchSuppliers();
-        showSnackbar('Supplier deleted successfully');
-      } catch (error) {
-        console.error('Delete supplier error:', error);
-        const errorMessage = error.response?.data?.message || 'Error deleting supplier';
-        showSnackbar(errorMessage, 'error');
+    setSupplierToDelete(id);
+    setOpenDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await supplierService.deleteSupplier(supplierToDelete);
+      fetchSuppliers();
+      showSnackbar("Supplier/Store deleted successfully");
+      setOpenDeleteConfirm(false);
+      setSupplierToDelete(null);
+    } catch (error) {
+      console.error("Delete supplier/store error:", error);
+      const errorMessage = error.message || "Error deleting supplier/store";
+      if (error.status === 403) {
+        window.location.href = "/login";
+      } else {
+        showSnackbar(errorMessage, "error");
       }
+      setOpenDeleteConfirm(false);
+      setSupplierToDelete(null);
     }
   };
 
@@ -303,18 +248,18 @@ const SupplierService = () => {
 
   const resetForm = () => {
     setFormData({
-      supplier_id: '',
-      supplier_name: '',
-      supplier_contact: '',
-      supplier_email: '',
-      supplier_address: '',
-      date: '',
-      type: 'Supplier'
+      supplier_id: "",
+      supplier_name: "",
+      supplier_contact: "",
+      supplier_email: "",
+      supplier_address: "",
+      date: "",
+      type: "Supplier",
     });
     setSelectedSupplier(null);
   };
 
-  const showSnackbar = (message, severity = 'success') => {
+  const showSnackbar = (message, severity = "success") => {
     setSnackbar({ open: true, message, severity });
   };
 
@@ -326,8 +271,8 @@ const SupplierService = () => {
       supplier_contact: supplier.supplier_contact,
       supplier_email: supplier.supplier_email,
       supplier_address: supplier.supplier_address,
-      date: supplier.date.split('T')[0],
-      type: supplier.type
+      date: new Date(supplier.date).toISOString().split("T")[0],
+      type: supplier.type,
     });
     setOpenUpdate(true);
   };
@@ -341,44 +286,168 @@ const SupplierService = () => {
     setPage(0);
   };
 
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const generateCSVReport = () => {
+    if (suppliers.length === 0) {
+      showSnackbar("No suppliers/stores available to generate a report", "warning");
+      return;
+    }
+
+    const headers = [
+      "Supplier/Store ID",
+      "Supplier/Store Name",
+      "Contact",
+      "Email",
+      "Address",
+      "Date",
+      "Type",
+    ];
+
+    const rows = suppliers.map((supplier) => [
+      supplier.supplier_id,
+      `"${supplier.supplier_name.replace(/"/g, '""')}"`,
+      supplier.supplier_contact,
+      supplier.supplier_email,
+      `"${supplier.supplier_address.replace(/"/g, '""')}"`,
+      new Date(supplier.date).toLocaleDateString(),
+      supplier.type,
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `suppliers_stores_report_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showSnackbar("CSV report generated successfully");
+    handleMenuClose();
+  };
+
+  const generatePDFReport = () => {
+    if (suppliers.length === 0) {
+      showSnackbar("No suppliers/stores available to generate a report", "warning");
+      return;
+    }
+
+    try {
+      const doc = new jsPDF();
+      doc.setFontSize(18);
+      doc.text("Supplier/Store Report", 14, 22);
+      doc.setFontSize(11);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+
+      const headers = [
+        "Supplier/Store ID",
+        "Name",
+        "Contact",
+        "Email",
+        "Address",
+        "Date",
+        "Type",
+      ];
+
+      const data = suppliers.map((supplier) => [
+        supplier.supplier_id || "",
+        supplier.supplier_name || "",
+        supplier.supplier_contact || "",
+        supplier.supplier_email || "",
+        supplier.supplier_address || "",
+        supplier.date ? new Date(supplier.date).toLocaleDateString() : "",
+        supplier.type || "",
+      ]);
+
+      autoTable(doc, {
+        head: [headers],
+        body: data,
+        startY: 40,
+        theme: "grid",
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [172, 158, 255] },
+        columnStyles: {
+          4: { cellWidth: 40 },
+          3: { cellWidth: 30 },
+        },
+      });
+
+      const pdfBlob = doc.output("blob");
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `suppliers_stores_report_${new Date().toISOString().split("T")[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showSnackbar("PDF report generated successfully");
+    } catch (error) {
+      console.error("Error generating PDF report:", error);
+      showSnackbar("Failed to generate PDF report", "error");
+    }
+    handleMenuClose();
+  };
+
   const modalStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: { xs: '90%', sm: 400 }, // Responsive width: 90% on small screens, 400px on larger
-    bgcolor: 'white',
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: { xs: "90%", sm: 400 },
+    bgcolor: "white",
     boxShadow: 24,
     p: 4,
     borderRadius: 8,
   };
 
-  // Filter suppliers based on search query
-  const filteredSuppliers = suppliers.filter((supplier) =>
-    [
-      supplier.supplier_id,
-      supplier.supplier_name,
-      supplier.supplier_contact,
-      supplier.supplier_email,
-      supplier.supplier_address,
-      supplier.type
+  const filteredSuppliers = suppliers.filter((supplier) => {
+    const matchesSearch = [
+      supplier.supplier_id || "",
+      supplier.supplier_name || "",
+      supplier.supplier_contact || "",
+      supplier.supplier_email || "",
+      supplier.supplier_address || "",
+      supplier.type || "",
     ]
-      .join(' ')
+      .join(" ")
       .toLowerCase()
-      .includes(searchQuery.toLowerCase())
+      .includes(searchQuery.toLowerCase());
+
+    const matchesType = typeFilter === "All" || supplier.type === typeFilter;
+
+    return matchesSearch && matchesType;
+  });
+
+  const paginatedSuppliers = filteredSuppliers.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
   );
 
-  const paginatedSuppliers = filteredSuppliers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-
-  // Custom Purple Theme
   const purpleTheme = {
-    lightPurple: '#DAD5FB',
-    buttonPurple: '#AC9EFF',
-    buttonHover: '#9a80ff',
-    accentPurple: '#7b1fa2',
+    lightPurple: "#DAD5FB",
+    buttonPurple: "#AC9EFF",
+    buttonHover: "#9a80ff",
+    accentPurple: "#7b1fa2",
   };
 
-  // Pagination Logic
   const totalPages = Math.ceil(filteredSuppliers.length / rowsPerPage);
   const pageNumbers = [];
   for (let i = Math.max(0, page - 2); i < Math.min(totalPages, page + 3); i++) {
@@ -387,114 +456,288 @@ const SupplierService = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <HomeSummary/>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1F2937' }}>
-          Supplier Management
+      <HomeSummary />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#1F2937" }}>
+          Supplier/Store Management
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {/* Advanced Search Bar */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <TextField
-            label="Search Suppliers"
+            label="Search Suppliers/Stores"
             variant="outlined"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{
               width: 300,
-              backgroundColor: '#fff',
-              borderRadius: '25px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '25px',
-                '& fieldset': {
+              backgroundColor: "#fff",
+              borderRadius: "25px",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "25px",
+                "& fieldset": {
                   borderColor: purpleTheme.accentPurple,
                 },
-                '&:hover fieldset': {
+                "&:hover fieldset": {
                   borderColor: purpleTheme.buttonHover,
                 },
-                '&.Mui-focused fieldset': {
+                "&.Mui-focused fieldset": {
                   borderColor: purpleTheme.buttonPurple,
                 },
               },
-              '& .MuiInputLabel-root': {
+              "& .MuiInputLabel-root": {
                 color: purpleTheme.accentPurple,
-                fontWeight: '500',
-                '&.Mui-focused': {
+                fontWeight: "500",
+                "&.Mui-focused": {
                   color: purpleTheme.buttonPurple,
                 },
               },
-              '& .MuiOutlinedInput-input': {
-                padding: '12px 20px',
-                fontSize: '16px',
+              "& .MuiOutlinedInput-input": {
+                padding: "12px 20px",
+                fontSize: "16px",
               },
             }}
             InputProps={{
               sx: {
-                '&::placeholder': {
-                  color: '#9CA3AF',
+                "&::placeholder": {
+                  color: "#9CA3AF",
                   opacity: 1,
                 },
               },
             }}
           />
+          <FormControl sx={{ width: 200 }}>
+            <InputLabel>Filter by Type</InputLabel>
+            <Select
+              value={typeFilter}
+              onChange={(e) => {
+                setTypeFilter(e.target.value);
+                setPage(0);
+              }}
+              label="Filter by Type"
+              sx={{
+                backgroundColor: "#fff",
+                borderRadius: "25px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "25px",
+                  "& fieldset": {
+                    borderColor: purpleTheme.accentPurple,
+                  },
+                  "&:hover fieldset": {
+                    borderColor: purpleTheme.buttonHover,
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: purpleTheme.buttonPurple,
+                  },
+                },
+                "& .MuiInputLabel-root": {
+                  color: purpleTheme.accentPurple,
+                  fontWeight: "500",
+                  "&.Mui-focused": {
+                    color: purpleTheme.buttonPurple,
+                  },
+                },
+              }}
+            >
+              <MenuItem value="All">All</MenuItem>
+              <MenuItem value="Supplier">Supplier</MenuItem>
+              <MenuItem value="Store">Store</MenuItem>
+            </Select>
+          </FormControl>
+          <Button
+            variant="outlined"
+            startIcon={<Download />}
+            onClick={handleMenuOpen}
+            sx={{
+              borderColor: purpleTheme.buttonPurple,
+              color: purpleTheme.buttonPurple,
+              borderRadius: "25px",
+              borderWidth: "2px",
+              fontWeight: "600",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              padding: "10px 20px",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                borderColor: purpleTheme.buttonHover,
+                color: purpleTheme.buttonHover,
+                backgroundColor: `${purpleTheme.buttonPurple}10`,
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+              },
+            }}
+          >
+            Generate Report
+          </Button>
+          <Menu
+            anchorEl={anchorEl}
+            open={openMenu}
+            onClose={handleMenuClose}
+            PaperProps={{
+              sx: {
+                borderRadius: "8px",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+              },
+            }}
+          >
+            <MenuItem
+              onClick={generateCSVReport}
+              sx={{
+                color: purpleTheme.buttonPurple,
+                "&:hover": {
+                  backgroundColor: `${purpleTheme.buttonPurple}10`,
+                },
+              }}
+            >
+              Generate CSV Report
+            </MenuItem>
+            <MenuItem
+              onClick={generatePDFReport}
+              sx={{
+                color: purpleTheme.buttonPurple,
+                "&:hover": {
+                  backgroundColor: `${purpleTheme.buttonPurple}10`,
+                },
+              }}
+            >
+              Generate PDF Report
+            </MenuItem>
+          </Menu>
           <Button
             variant="contained"
             startIcon={<Add />}
             onClick={() => setOpenCreate(true)}
             sx={{
-              background: 'linear-gradient(135deg, #AC9EFF 0%, #7B68EE 100%)',
-              color: 'white',
-              borderRadius: '25px',
-              border: '2px solid #6A5ACD',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-              fontWeight: '600',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-              transition: 'all 0.3s ease',
-              padding: '10px 20px',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #AC9EFF 0%, #7B68EE 100%)',
-                boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+              background: "linear-gradient(135deg, #AC9EFF 0%, #7B68EE 100%)",
+              color: "white",
+              borderRadius: "25px",
+              border: "2px solid #6A5ACD",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
+              fontWeight: "600",
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              transition: "all 0.3s ease",
+              padding: "10px 20px",
+              "&:hover": {
+                background: "linear-gradient(135deg, #AC9EFF 0%, #7B68EE 100%)",
+                boxShadow: "0 6px 16px rgba(0, 0, 0, 0.3)",
               },
             }}
           >
-            Add Supplier
+            Add Supplier/Store
           </Button>
         </Box>
       </Box>
 
       <TableContainer component={Paper} elevation={3} sx={{ mt: 2 }}>
-        <Table sx={{ width: '100%' }}>
-          <TableHead sx={{ backgroundColor: '#AC9EFF' }}>
+        <Table sx={{ width: "100%" }}>
+          <TableHead sx={{ backgroundColor: "#AC9EFF" }}>
             <TableRow>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>ID</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Name</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Contact</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Email</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Address</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Date</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Type</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Actions</TableCell>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Supplier/Store ID
+              </TableCell>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Supplier/Store Name
+              </TableCell>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Supplier/Store Contact
+              </TableCell>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Supplier/Store Email
+              </TableCell>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Supplier/Store Address
+              </TableCell>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Date
+              </TableCell>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Type
+              </TableCell>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedSuppliers.map((supplier) => (
               <TableRow key={supplier._id} hover>
-                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_id}</TableCell>
-                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_name}</TableCell>
-                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_contact}</TableCell>
-                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_email}</TableCell>
-                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.supplier_address}</TableCell>
-                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{new Date(supplier.date).toLocaleDateString()}</TableCell>
-                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>{supplier.type}</TableCell>
-                <TableCell sx={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                  <IconButton color="primary" onClick={() => handleViewClick(supplier)}>
+                <TableCell
+                  sx={{ textAlign: "center", verticalAlign: "middle" }}
+                >
+                  {supplier.supplier_id}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", verticalAlign: "middle" }}
+                >
+                  {supplier.supplier_name}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", verticalAlign: "middle" }}
+                >
+                  {supplier.supplier_contact}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", verticalAlign: "middle" }}
+                >
+                  {supplier.supplier_email}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", verticalAlign: "middle" }}
+                >
+                  {supplier.supplier_address}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", verticalAlign: "middle" }}
+                >
+                  {new Date(supplier.date).toLocaleDateString()}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", verticalAlign: "middle" }}
+                >
+                  {supplier.type}
+                </TableCell>
+                <TableCell
+                  sx={{ textAlign: "center", verticalAlign: "middle" }}
+                >
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleViewClick(supplier)}
+                  >
                     <Visibility />
                   </IconButton>
-                  <IconButton color="primary" onClick={() => handleEditClick(supplier)}>
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleEditClick(supplier)}
+                  >
                     <Edit />
                   </IconButton>
-                  <IconButton color="error" onClick={() => handleDelete(supplier._id)}>
+                  <IconButton
+                    color="error"
+                    onClick={() => handleDelete(supplier._id)}
+                  >
                     <Delete />
                   </IconButton>
                 </TableCell>
@@ -503,16 +746,15 @@ const SupplierService = () => {
           </TableBody>
         </Table>
 
-        {/* Advanced Pagination */}
         {filteredSuppliers.length > 4 && (
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               p: 2,
-              backgroundColor: '#f9f9f9',
-              borderTop: '1px solid #e0e0e0',
+              backgroundColor: "#f9f9f9",
+              borderTop: "1px solid #e0e0e0",
             }}
           >
             <FormControl sx={{ minWidth: 120 }}>
@@ -523,10 +765,10 @@ const SupplierService = () => {
                 label="Rows per page"
                 sx={{
                   color: purpleTheme.accentPurple,
-                  '& .MuiOutlinedInput-notchedOutline': {
+                  "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: purpleTheme.accentPurple,
                   },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
                     borderColor: purpleTheme.buttonHover,
                   },
                 }}
@@ -537,17 +779,17 @@ const SupplierService = () => {
               </Select>
             </FormControl>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <IconButton
                 onClick={() => handleChangePage(page - 1)}
                 disabled={page === 0}
                 sx={{
-                  color: page === 0 ? '#bdbdbd' : purpleTheme.accentPurple,
-                  '&:hover': {
+                  color: page === 0 ? "#bdbdbd" : purpleTheme.accentPurple,
+                  "&:hover": {
                     backgroundColor: `${purpleTheme.accentPurple}20`,
-                    transform: 'scale(1.1)',
+                    transform: "scale(1.1)",
                   },
-                  transition: 'all 0.2s ease-in-out',
+                  transition: "all 0.2s ease-in-out",
                 }}
               >
                 <ArrowBack />
@@ -558,17 +800,21 @@ const SupplierService = () => {
                   key={num}
                   onClick={() => handleChangePage(num)}
                   sx={{
-                    minWidth: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    backgroundColor: page === num ? purpleTheme.accentPurple : 'transparent',
-                    color: page === num ? 'white' : purpleTheme.accentPurple,
-                    '&:hover': {
-                      backgroundColor: page === num ? purpleTheme.accentPurple : `${purpleTheme.accentPurple}20`,
-                      transform: 'scale(1.1)',
+                    minWidth: "36px",
+                    height: "36px",
+                    borderRadius: "50%",
+                    backgroundColor:
+                      page === num ? purpleTheme.accentPurple : "transparent",
+                    color: page === num ? "white" : purpleTheme.accentPurple,
+                    "&:hover": {
+                      backgroundColor:
+                        page === num
+                          ? purpleTheme.accentPurple
+                          : `${purpleTheme.accentPurple}20`,
+                      transform: "scale(1.1)",
                     },
-                    transition: 'all 0.2s ease-in-out',
-                    fontWeight: 'bold',
+                    transition: "all 0.2s ease-in-out",
+                    fontWeight: "bold",
                   }}
                 >
                   {num + 1}
@@ -579,12 +825,15 @@ const SupplierService = () => {
                 onClick={() => handleChangePage(page + 1)}
                 disabled={page >= totalPages - 1}
                 sx={{
-                  color: page >= totalPages - 1 ? '#bdbdbd' : purpleTheme.accentPurple,
-                  '&:hover': {
+                  color:
+                    page >= totalPages - 1
+                      ? "#bdbdbd"
+                      : purpleTheme.accentPurple,
+                  "&:hover": {
                     backgroundColor: `${purpleTheme.accentPurple}20`,
-                    transform: 'scale(1.1)',
+                    transform: "scale(1.1)",
                   },
-                  transition: 'all 0.2s ease-in-out',
+                  transition: "all 0.2s ease-in-out",
                 }}
               >
                 <ArrowForward />
@@ -594,22 +843,26 @@ const SupplierService = () => {
             <Typography
               sx={{
                 color: purpleTheme.accentPurple,
-                fontWeight: 'bold',
+                fontWeight: "bold",
               }}
             >
-              {`${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, filteredSuppliers.length)} of ${filteredSuppliers.length}`}
+              {`${page * rowsPerPage + 1}-${Math.min(
+                (page + 1) * rowsPerPage,
+                filteredSuppliers.length
+              )} of ${filteredSuppliers.length}`}
             </Typography>
           </Box>
         )}
       </TableContainer>
 
-      {/* Create Modal */}
       <Modal open={openCreate} onClose={() => setOpenCreate(false)}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" gutterBottom>Create Supplier</Typography>
+          <Typography variant="h6" gutterBottom>
+            Create Supplier/Store
+          </Typography>
           <Grid container spacing={2}>
             {Object.keys(formData).map((key) =>
-              key === 'type' ? (
+              key === "type" ? (
                 <Grid item xs={12} key={key}>
                   <FormControl fullWidth variant="outlined">
                     <InputLabel>Type</InputLabel>
@@ -624,7 +877,7 @@ const SupplierService = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-              ) : key === 'date' ? (
+              ) : key === "date" ? (
                 <Grid item xs={12} key={key}>
                   <TextField
                     fullWidth
@@ -638,12 +891,12 @@ const SupplierService = () => {
                       shrink: true,
                     }}
                     sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          borderColor: '#6A5ACD',
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "#6A5ACD",
                         },
-                        '&:hover fieldset': {
-                          borderColor: '#7B68EE',
+                        "&:hover fieldset": {
+                          borderColor: "#7B68EE",
                         },
                       },
                     }}
@@ -653,7 +906,10 @@ const SupplierService = () => {
                 <Grid item xs={12} key={key}>
                   <TextField
                     fullWidth
-                    label={key.replace('_', ' ').toUpperCase()}
+                    label={key
+                      .replace("supplier_", "Supplier/Store ")
+                      .replace("_", " ")
+                      .toUpperCase()}
                     name={key}
                     value={formData[key]}
                     onChange={handleInputChange}
@@ -670,8 +926,8 @@ const SupplierService = () => {
                 fullWidth
                 sx={{
                   backgroundColor: purpleTheme.buttonPurple,
-                  color: 'white',
-                  '&:hover': { backgroundColor: purpleTheme.buttonHover },
+                  color: "white",
+                  "&:hover": { backgroundColor: purpleTheme.buttonHover },
                 }}
               >
                 Create
@@ -681,20 +937,21 @@ const SupplierService = () => {
         </Box>
       </Modal>
 
-      {/* Update Modal */}
       <Modal open={openUpdate} onClose={() => setOpenUpdate(false)}>
         <Box sx={modalStyle}>
           <Box
             sx={{
-              maxHeight: '80vh', // Limit height to 80% of viewport height
-              overflowY: 'auto', // Add vertical scrollbar when content overflows
-              p: 2, // Internal padding
+              maxHeight: "80vh",
+              overflowY: "auto",
+              p: 2,
             }}
           >
-            <Typography variant="h6" gutterBottom>Update Supplier</Typography>
+            <Typography variant="h6" gutterBottom>
+              Update Supplier/Store
+            </Typography>
             <Grid container spacing={2}>
               {Object.keys(formData).map((key) =>
-                key === 'type' ? (
+                key === "type" ? (
                   <Grid item xs={12} key={key}>
                     <FormControl fullWidth variant="outlined">
                       <InputLabel>Type</InputLabel>
@@ -709,7 +966,7 @@ const SupplierService = () => {
                       </Select>
                     </FormControl>
                   </Grid>
-                ) : key === 'date' ? (
+                ) : key === "date" ? (
                   <Grid item xs={12} key={key}>
                     <TextField
                       fullWidth
@@ -723,12 +980,12 @@ const SupplierService = () => {
                         shrink: true,
                       }}
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '& fieldset': {
-                            borderColor: '#6A5ACD',
+                        "& .MuiOutlinedInput-root": {
+                          "& fieldset": {
+                            borderColor: "#6A5ACD",
                           },
-                          '&:hover fieldset': {
-                            borderColor: '#7B68EE',
+                          "&:hover fieldset": {
+                            borderColor: "#7B68EE",
                           },
                         },
                       }}
@@ -738,7 +995,10 @@ const SupplierService = () => {
                   <Grid item xs={12} key={key}>
                     <TextField
                       fullWidth
-                      label={key.replace('_', ' ').toUpperCase()}
+                      label={key
+                        .replace("supplier_", "Supplier/Store ")
+                        .replace("_", " ")
+                        .toUpperCase()}
                       name={key}
                       value={formData[key]}
                       onChange={handleInputChange}
@@ -751,14 +1011,14 @@ const SupplierService = () => {
               <Grid item xs={12}>
                 <Box
                   sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
+                    display: "flex",
+                    justifyContent: "flex-end",
                     gap: 2,
-                    pt: 2, // Add padding to separate buttons from content
-                    position: 'sticky', // Make buttons stick to the bottom
+                    pt: 2,
+                    position: "sticky",
                     bottom: 0,
-                    backgroundColor: 'white', // Ensure buttons are readable
-                    zIndex: 1, // Ensure buttons stay above scrolling content
+                    backgroundColor: "white",
+                    zIndex: 1,
                   }}
                 >
                   <Button
@@ -766,8 +1026,8 @@ const SupplierService = () => {
                     onClick={handleUpdate}
                     sx={{
                       backgroundColor: purpleTheme.buttonPurple,
-                      color: 'white',
-                      '&:hover': { backgroundColor: purpleTheme.buttonHover },
+                      color: "white",
+                      "&:hover": { backgroundColor: purpleTheme.buttonHover },
                     }}
                   >
                     Update
@@ -778,7 +1038,10 @@ const SupplierService = () => {
                     sx={{
                       color: purpleTheme.buttonPurple,
                       borderColor: purpleTheme.buttonPurple,
-                      '&:hover': { borderColor: purpleTheme.buttonHover, color: purpleTheme.buttonHover },
+                      "&:hover": {
+                        borderColor: purpleTheme.buttonHover,
+                        color: purpleTheme.buttonHover,
+                      },
                     }}
                   >
                     Cancel
@@ -790,16 +1053,17 @@ const SupplierService = () => {
         </Box>
       </Modal>
 
-      {/* View Modal */}
       <Modal open={openView} onClose={() => setOpenView(false)}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" gutterBottom>View Supplier Details</Typography>
+          <Typography variant="h6" gutterBottom>
+            View Supplier/Store Details
+          </Typography>
           {selectedSupplier && (
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER ID"
+                  label="SUPPLIER/STORE ID"
                   value={selectedSupplier.supplier_id}
                   variant="outlined"
                   InputProps={{ readOnly: true }}
@@ -808,7 +1072,7 @@ const SupplierService = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER NAME"
+                  label="SUPPLIER/STORE NAME"
                   value={selectedSupplier.supplier_name}
                   variant="outlined"
                   InputProps={{ readOnly: true }}
@@ -817,7 +1081,7 @@ const SupplierService = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER CONTACT"
+                  label="SUPPLIER/STORE CONTACT"
                   value={selectedSupplier.supplier_contact}
                   variant="outlined"
                   InputProps={{ readOnly: true }}
@@ -826,7 +1090,7 @@ const SupplierService = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER EMAIL"
+                  label="SUPPLIER/STORE EMAIL"
                   value={selectedSupplier.supplier_email}
                   variant="outlined"
                   InputProps={{ readOnly: true }}
@@ -835,7 +1099,7 @@ const SupplierService = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER ADDRESS"
+                  label="SUPPLIER/STORE ADDRESS"
                   value={selectedSupplier.supplier_address}
                   variant="outlined"
                   InputProps={{ readOnly: true }}
@@ -867,7 +1131,10 @@ const SupplierService = () => {
                   sx={{
                     color: purpleTheme.buttonPurple,
                     borderColor: purpleTheme.buttonPurple,
-                    '&:hover': { borderColor: purpleTheme.buttonHover, color: purpleTheme.buttonHover },
+                    "&:hover": {
+                      borderColor: purpleTheme.buttonHover,
+                      color: purpleTheme.buttonHover,
+                    },
                   }}
                 >
                   Close
@@ -875,6 +1142,46 @@ const SupplierService = () => {
               </Grid>
             </Grid>
           )}
+        </Box>
+      </Modal>
+
+      <Modal open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)}>
+        <Box sx={{ ...modalStyle, width: { xs: "90%", sm: 350 } }}>
+          <Typography variant="h6" gutterBottom>
+            Confirm Deletion
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Are you sure you want to delete this supplier/store?
+          </Typography>
+          <Box
+            sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 3 }}
+          >
+            <Button
+              variant="contained"
+              onClick={confirmDelete}
+              sx={{
+                backgroundColor: "#d32f2f",
+                color: "white",
+                "&:hover": { backgroundColor: "#b71c1c" },
+              }}
+            >
+              Yes
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => setOpenDeleteConfirm(false)}
+              sx={{
+                color: purpleTheme.buttonPurple,
+                borderColor: purpleTheme.buttonPurple,
+                "&:hover": {
+                  borderColor: purpleTheme.buttonHover,
+                  color: purpleTheme.buttonHover,
+                },
+              }}
+            >
+              No
+            </Button>
+          </Box>
         </Box>
       </Modal>
 
@@ -886,7 +1193,7 @@ const SupplierService = () => {
         <Alert
           onClose={() => setSnackbar({ ...snackbar, open: false })}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>

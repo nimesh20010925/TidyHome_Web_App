@@ -31,13 +31,13 @@ const ContactPage = ({ image }) => {
     ],
     md: [
       { i: "Chart", x: 0, y: 0, w: 8, h: 5 },
-      { i: "Table", x: 0, y: 4, w: 8, h: 4 },
+      { i: "Table", x: 0, y: 4, w: 12, h: 5 },
       { i: "Chart2", x: 4, y: 4, w: 4, h: 4 },
       { i: "Chart3", x: 0, y: 8, w: 4, h: 4 },
     ],
     sm: [
       { i: "Chart", x: 0, y: 0, w: 6, h: 5 },
-      { i: "Table", x: 0, y: 4, w: 6, h: 4 },
+      { i: "Table", x: 0, y: 4, w: 12, h: 5 },
       { i: "Chart2", x: 0, y: 8, w: 6, h: 4 },
       { i: "Chart3", x: 0, y: 12, w: 6, h: 4 },
     ],
