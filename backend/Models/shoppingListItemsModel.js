@@ -17,7 +17,7 @@ const shoppingListItemsSchema = new mongoose.Schema(
     inventoryId: {
       type: Schema.Types.ObjectId,
       ref: "Inventory",
-      required: true,
+      required: false,
     },
     itemName: {
       type: String,

@@ -9,7 +9,10 @@ import addNotification from "../assets/sideBar/add-notification.png";
 import addShopping from "../assets/sideBar/add-shopping.png";
 import categories from "../assets/sideBar/categories.png";
 import AddHomeMembers from "../components/Home/AddHomeMembers";
-import { TbLayoutSidebarRightExpandFilled, TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
+import {
+  TbLayoutSidebarRightExpandFilled,
+  TbLayoutSidebarLeftExpandFilled,
+} from "react-icons/tb";
 import NotificationModal from "../components/custom_notification/customnotificationCreate/custom_notification";
 // import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
 // import { TbLayoutSidebarLeftExpandFilled } from "react-icons/tb";
@@ -82,24 +85,44 @@ const SideBar = () => {
         className="sidebar-toggle-btn"
         onClick={() => setIsSidebarVisible((prev) => !prev)}
       >
-        {isSidebarVisible ? <TbLayoutSidebarLeftExpandFilled /> : <TbLayoutSidebarRightExpandFilled />}
+        {isSidebarVisible ? (
+          <TbLayoutSidebarLeftExpandFilled />
+        ) : (
+          <TbLayoutSidebarRightExpandFilled />
+        )}
       </Button>
 
-      <div className={`sidebar border-start h-100 ${isSidebarVisible ? "visible" : "d-none d-lg-block"}`}>
+      <div
+        className={`sidebar border-start h-100 ${
+          isSidebarVisible ? "visible" : "d-none d-lg-block"
+        }`}
+      >
         <Card className="mb-3 border-0 shadow-none">
           <Card.Body className="d-flex align-items-center justify-content-between pb-0">
             <div className="d-flex align-items-center">
-              <img src={userAvatar} alt="User Avatar" className="rounded-circle me-2" width="40" />
+              <img
+                src={userAvatar}
+                alt="User Avatar"
+                className="rounded-circle me-2"
+                width="40"
+              />
               <div>
                 <h6 className="mb-0">{t("USER")}</h6>
-                <small>{userRole === "homeOwner" ? "Home Owner" : "Member"}</small>
+                <small>
+                  {userRole === "homeOwner" ? "Home Owner" : "Member"}
+                </small>
               </div>
             </div>
             <Dropdown className="ms-2">
-              <Dropdown.Toggle variant="light" size="sm" className="border-0">⋮</Dropdown.Toggle>
+              <Dropdown.Toggle variant="light" size="sm" className="border-0">
+                ⋮
+              </Dropdown.Toggle>
               <Dropdown.Menu>
                 <Dropdown.Item>Profile</Dropdown.Item>
-                <Dropdown.Item onClick={handleLogout} className="sidebar-logout">
+                <Dropdown.Item
+                  onClick={handleLogout}
+                  className="sidebar-logout"
+                >
                   Logout
                 </Dropdown.Item>
               </Dropdown.Menu>
@@ -193,7 +216,12 @@ const SideBar = () => {
         <div className="d-flex align-items-center justify-content-between mt-3 ms-3">
           <h6 className="fw-bold">{t("FAMILYMEMBERS")}</h6>
           {userRole === "homeOwner" && (
-            <Button variant="" size="sm" className="me-3" onClick={setAddHomeMembersModal}>
+            <Button
+              variant=""
+              size="sm"
+              className="me-3"
+              onClick={setAddHomeMembersModal}
+            >
               <FaPlus />
             </Button>
           )}
@@ -204,8 +232,16 @@ const SideBar = () => {
             <p className="ms-3 mt-2">Loading...</p>
           ) : familyMembers.length > 0 ? (
             familyMembers.map((member) => (
-              <ListGroup.Item key={member._id} className="d-flex align-items-center border-0">
-                <img src={member.avatar || userAvatar} alt="Member Avatar" className="rounded-circle me-2" width="30" />
+              <ListGroup.Item
+                key={member._id}
+                className="d-flex align-items-center border-0"
+              >
+                <img
+                  src={member.avatar || userAvatar}
+                  alt="Member Avatar"
+                  className="rounded-circle me-2"
+                  width="30"
+                />
                 {member.name}
               </ListGroup.Item>
             ))

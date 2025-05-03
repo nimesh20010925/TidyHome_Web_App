@@ -13,14 +13,27 @@ import axios from "axios";
 const AddInventoryModal = ({ isOpen, toggle }) => {
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [user, setUser] = useState();
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
   const { t } = useTranslation();
 
   const today = new Date();
   const twoYearsAgo = new Date(today);
   twoYearsAgo.setFullYear(today.getFullYear() - 2);
 
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+    }
+    setIsUserLoaded(true);
+  }, []);
+
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
+      homeId: user?.homeID || "",
       itemImage: null,
       itemName: "",
       categoryId: "",
@@ -29,7 +42,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
       itemType: "",
       supplierId: "",
       lowStockLevel: "",
-      manufacturedDate: "",
+      expiryDate: "",
       brandName: "",
     },
     validationSchema: Yup.object({
@@ -47,33 +60,25 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
         .positive(t("LOW_LEVEL_MUST_BE_POSITIVE"))
         .min(0.01, t("LOW_LEVEL_CANNOT_BE_ZERO"))
         .required(t("LOW_LEVEL_REQUIRED")),
-      manufacturedDate: Yup.date().nullable(),
+      expiryDate: Yup.date().nullable(),
     }),
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       const transformedValues = {
         ...values,
-        manufacturedDate: values.manufacturedDate
-          ? new Date(values.manufacturedDate)
-          : null,
+        expiryDate: values.expiryDate ? new Date(values.expiryDate) : null,
       };
 
       try {
         await InventoryService.createInventoryItem(transformedValues);
         toast.success(t("INVENTORY_ITEM_ADDED_SUCCESS"), {
-          style: {
-            background: "#4caf50",
-            color: "#fff",
-          },
+          style: { background: "#4caf50", color: "#fff" },
         });
         resetForm();
         toggle();
       } catch (error) {
         console.error("Error adding inventory item:", error);
         toast.error(t("INVENTORY_ITEM_ADD_FAILED"), {
-          style: {
-            background: "#f44336",
-            color: "#fff",
-          },
+          style: { background: "#f44336", color: "#fff" },
         });
       } finally {
         setSubmitting(false);
@@ -126,6 +131,8 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
       />
     </button>
   );
+
+  if (!isUserLoaded) return null;
 
   return (
     <Modal
@@ -218,8 +225,8 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               <option value="Kg">{t("KG")}</option>
               <option value="Litre">{t("LITRE")}</option>
               <option value="Metre">{t("METRE")}</option>
-              <option value="Pack">{t("BOTTLE")}</option>
-              <option value="Bottle">{t("PACK")}</option>
+              <option value="Bottle">{t("BOTTLE")}</option>
+              <option value="Pack">{t("PACK")}</option>
             </Form.Select>
             {formik.errors.itemType && formik.touched.itemType && (
               <div className="text-danger">{formik.errors.itemType}</div>
@@ -273,6 +280,10 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
                       ? t("LITRE")
                       : formik.values.itemType === "Metre"
                       ? t("METRE")
+                      : formik.values.itemType === "Pack"
+                      ? t("PACK")
+                      : formik.values.itemType === "Bottle"
+                      ? t("BOTTLE")
                       : ""
                   })`
                 : ""}
@@ -401,40 +412,38 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
             <Form.Control
               className="custom-inventory-form-input-date"
               type="date"
-              name="manufacturedDate"
+              name="expiryDate"
               value={
-                formik.values.manufacturedDate
-                  ? new Date(formik.values.manufacturedDate)
+                formik.values.expiryDate
+                  ? new Date(formik.values.expiryDate)
                       .toISOString()
                       .split("T")[0]
                   : ""
               }
               onChange={(e) =>
-                formik.setFieldValue("manufacturedDate", e.target.value)
+                formik.setFieldValue("expiryDate", e.target.value)
               }
               onMouseDown={(e) => e.stopPropagation()}
               onBlur={(e) => {
                 const newDate = new Date(e.target.value);
 
                 // Check if the entered date is valid, not a future date, and within the past 2 years
-                if (newDate > today || newDate < twoYearsAgo) {
+                if (newDate < today) {
                   toast.error(t("INVALID_DATE"), {
                     style: {
                       background: "#B32113",
                       color: "#fff",
                     },
                   });
-                  formik.setFieldValue("manufacturedDate", "");
+                  formik.setFieldValue("expiryDate", "");
                 }
               }}
-              min={twoYearsAgo.toISOString().split("T")[0]}
-              max={today.toISOString().split("T")[0]}
+              min={today.toISOString().split("T")[0]}
             />
-            <Form.Label>{t("MANUFACTURED_DATE")}</Form.Label>
-            {formik.touched.manufacturedDate &&
-              formik.errors.manufacturedDate && (
-                <div className="error">{formik.errors.manufacturedDate}</div>
-              )}
+            <Form.Label>{t("EXPIRY_DATE")}</Form.Label>
+            {formik.touched.expiryDate && formik.errors.expiryDate && (
+              <div className="error">{formik.errors.expiryDate}</div>
+            )}
           </Form.Group>
 
           <Form.Group className="custom-inventory-form-group">

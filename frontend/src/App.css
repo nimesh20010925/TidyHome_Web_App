@@ -922,6 +922,7 @@ td.inventory-actions-cell {
   padding: 40px 5%;
   overflow: hidden;
   height: 100vh;
+  padding-top: 120px;
 }
 
 .hero::before,
@@ -937,7 +938,7 @@ td.inventory-actions-cell {
 }
 
 .hero::before {
-  top: -100px;
+  top: -150px;
   left: -50px;
 }
 
