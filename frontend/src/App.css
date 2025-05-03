@@ -1663,7 +1663,11 @@ button.home-member-delete-btn:hover {
 .shopping-list-modal-container {
   max-width: 600px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  align-items: center;
+  justify-content: center;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .shopping-list-modal-header {
@@ -1689,9 +1693,9 @@ button.home-member-delete-btn:hover {
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding-top: 10px !important;
-  padding-left: 10px !important;
-  padding: 5px;
+  padding-left: 14px !important;
+  padding-right: 16px !important;
+  padding: 0px;
   margin-bottom: 10px;
   position: relative;
 }
