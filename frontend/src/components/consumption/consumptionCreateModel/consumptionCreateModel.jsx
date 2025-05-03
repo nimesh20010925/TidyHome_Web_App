@@ -1,3 +1,4 @@
+// Frontend/src/components/ConsumptionCreateModal.jsx
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { ConsumptionService } from "../../../services/consumptionServices";
@@ -17,7 +18,6 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [formData, setFormData] = useState({
     product_name: "",
     amount_used: "",
-    user: "",
     date: "",
     remaining_stock: "",
     notes: "",
@@ -27,6 +27,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
   const [loading, setLoading] = useState(false);
   const [validated, setValidated] = useState(false);
   const [error, setError] = useState("");
+  const [homeId, setHomeId] = useState("");
 
   const getTodayDate = () => {
     const today = new Date();
@@ -37,7 +38,14 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
     const fetchInventoryData = async () => {
       setLoading(true);
       try {
-        const items = await InventoryService.getAllInventoryItems();
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || !user.homeID) {
+          setError("User does not belong to any home");
+          setLoading(false);
+          return;
+        }
+        setHomeId(user.homeID);
+        const items = await InventoryService.getAllInventoryItems(user.homeID);
         setInventoryItems(items);
         const names = items.map((item) => item.itemName);
         setItemNames(names);
@@ -49,28 +57,15 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
       }
     };
 
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      setFormData((prev) => ({
-        ...prev,
-        user: userData.name,
-      }));
-    } else {
-      console.error("No user data found in localStorage");
-      setError("User not logged in");
-    }
-
     if (isOpen) {
       fetchInventoryData();
-      setFormData((prev) => ({
-        ...prev,
+      setFormData({
+        product_name: "",
+        amount_used: "",
         date: getTodayDate(),
         remaining_stock: "",
-        amount_used: "",
-        product_name: "",
         notes: "",
-      }));
+      });
       setError("");
       setValidated(false);
     }
@@ -90,7 +85,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
         }));
       }
     }
-  }, [formData.product_name, formData.amount_used, inventoryItems]);
+  }, [formData.product_name, formData.amount_used, inventoryItems]); // Fixed dependency
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -111,7 +106,7 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
     }
 
     try {
-      await ConsumptionService.createConsumption(formData);
+      await ConsumptionService.createConsumption({ ...formData, homeId });
       closeModal();
     } catch (error) {
       console.error("Error creating consumption:", error);
@@ -200,22 +195,6 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                 <Form.Control.Feedback type="invalid" className="ccm-feedback">
                   Please enter a valid amount (greater than or equal to 0).
                 </Form.Control.Feedback>
-              </FloatingLabel>
-
-              <FloatingLabel
-                controlId="user"
-                label="User"
-                className="ccm-form-group"
-              >
-                <Form.Control
-                  type="text"
-                  name="user"
-                  value={formData.user}
-                  onChange={handleInputChange}
-                  disabled
-                  placeholder="User"
-                  className="ccm-form-control ccm-disabled"
-                />
               </FloatingLabel>
 
               <FloatingLabel

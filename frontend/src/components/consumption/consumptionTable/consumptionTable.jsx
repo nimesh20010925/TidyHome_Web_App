@@ -1,9 +1,9 @@
+// Frontend/src/components/ConsumptionTable.jsx
 import { useEffect, useState } from "react";
 import { ConsumptionService } from "../../../services/consumptionServices";
 import ViewModal from "../consumptionViewModel/consumptionViewModel";
 import EditModal from "../consumptionEditModel/consumptionEditModel";
 import DeleteModal from "../consumptionDeleteModel/consumptionDeleteModel";
-
 import "./ConsumptionTable.css";
 
 const ConsumptionTable = () => {
@@ -21,7 +21,13 @@ const ConsumptionTable = () => {
   useEffect(() => {
     const fetchConsumptions = async () => {
       try {
-        const data = await ConsumptionService.getAllConsumptions();
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || !user.homeID) {
+          setError("User does not belong to any home");
+          setLoading(false);
+          return;
+        }
+        const data = await ConsumptionService.getAllConsumptions(user.homeID);
         setConsumptions(data);
       } catch {
         setError("Failed to load data");
@@ -118,7 +124,7 @@ const ConsumptionTable = () => {
                   {[
                     { label: "Product Name", key: "product_name" },
                     { label: "Amount Used", key: "amount_used" },
-                    { label: "User", key: "user" },
+                    { label: "Home", key: "homeId" },
                     { label: "Date", key: "date" },
                     { label: "Remaining Stock", key: "remaining_stock" },
                     { label: "Notes", key: "notes" },
@@ -145,8 +151,8 @@ const ConsumptionTable = () => {
                   <tr key={item._id}>
                     <td data-label="Product Name">{item.product_name}</td>
                     <td data-label="Amount Used">{item.amount_used}</td>
-                    <td data-label="User">
-                      {item.user?.name || "Unknown User"}
+                    <td data-label="Home">
+                      {item.homeId?.homeName || "Unknown Home"}
                     </td>
                     <td data-label="Date">
                       {new Date(item.date).toLocaleDateString()}
