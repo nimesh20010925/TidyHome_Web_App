@@ -61,7 +61,7 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
       itemType: selectedItem?.itemType || "",
       supplierId: selectedItem?.supplierId || undefined,
       lowStockLevel: selectedItem?.lowStockLevel || "",
-      manufacturedDate: selectedItem?.manufacturedDate || "",
+      expiryDate: selectedItem?.expiryDate || "",
       brandName: selectedItem?.brandName || "",
     },
     enableReinitialize: true,
@@ -80,14 +80,12 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
         .positive(t("LOW_LEVEL_MUST_BE_POSITIVE"))
         .min(0.01, t("LOW_LEVEL_CANNOT_BE_ZERO"))
         .required(t("LOW_LEVEL_REQUIRED")),
-      manufacturedDate: Yup.date().nullable(),
+      expiryDate: Yup.date().nullable(),
     }),
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       const transformedValues = {
         ...values,
-        manufacturedDate: values.manufacturedDate
-          ? new Date(values.manufacturedDate)
-          : null,
+        expiryDate: values.expiryDate ? new Date(values.expiryDate) : null,
       };
 
       try {
@@ -383,39 +381,37 @@ const UpdateInventoryModal = ({ isOpen, toggle, selectedItem }) => {
             <Form.Control
               className="custom-inventory-form-input-date"
               type="date"
-              name="manufacturedDate"
+              name="expiryDate"
               value={
-                formik.values.manufacturedDate
-                  ? new Date(formik.values.manufacturedDate)
+                formik.values.expiryDate
+                  ? new Date(formik.values.expiryDate)
                       .toISOString()
                       .split("T")[0]
                   : ""
               }
               onChange={(e) =>
-                formik.setFieldValue("manufacturedDate", e.target.value)
+                formik.setFieldValue("expiryDate", e.target.value)
               }
               onBlur={(e) => {
                 const newDate = new Date(e.target.value);
 
                 // Check if the entered date is valid, not a future date, and within the past 2 years
-                if (newDate > today || newDate < twoYearsAgo) {
+                if (newDate < today) {
                   toast.error(t("INVALID_DATE"), {
                     style: {
                       background: "#B32113",
                       color: "#fff",
                     },
                   });
-                  formik.setFieldValue("manufacturedDate", "");
+                  formik.setFieldValue("expiryDate", "");
                 }
               }}
-              min={twoYearsAgo.toISOString().split("T")[0]}
-              max={today.toISOString().split("T")[0]}
+              min={today.toISOString().split("T")[0]}
             />
-            <Form.Label>{t("MANUFACTURED_DATE")}</Form.Label>
-            {formik.touched.manufacturedDate &&
-              formik.errors.manufacturedDate && (
-                <div className="error">{formik.errors.manufacturedDate}</div>
-              )}
+            <Form.Label>{t("EXPIRY_DATE")}</Form.Label>
+            {formik.touched.expiryDate && formik.errors.expiryDate && (
+              <div className="error">{formik.errors.expiryDate}</div>
+            )}
           </Form.Group>
 
           <Form.Group className="custom-inventory-form-group">

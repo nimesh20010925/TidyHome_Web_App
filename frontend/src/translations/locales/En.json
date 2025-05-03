@@ -81,6 +81,8 @@
     "SHOPPING_ITEM_COST_SUMMARY": "Shoppping Item Cost Summary",
     "SHOPPINGLIST_TOTAL_COST": "Shopping List Total Cost",
     "HOME_SUMMARY": "Home Summary", 
+    "SAVE": "Save",
+    "NO_INVENTORY_ITEMS_FOUND": "No Inventory Items Found",
 
     "NOTIFICATIONS": "Notifications",
     "Search": "Search",

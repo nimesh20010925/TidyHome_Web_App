@@ -129,36 +129,58 @@ const Inventory = () => {
   const [selectedItem, setSelectedItem] = useState();
   const [selectedItemToUpdate, setSelectedItemToUpdate] = useState();
   const [cardHeight, setCardHeight] = useState();
+  const [user, setUser] = useState();
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { t } = useTranslation();
 
-  const addInventoryToggle = () => setAddInventoryModal(!addInventoryModal);
+  const addInventoryToggle = async () => {
+    setAddInventoryModal(!addInventoryModal);
+    if (addInventoryModal) {
+      await getAllInventoryItems();
+    }
+  };
 
   const deleteItemToggle = () => {
     setDeleteItemModal(!deleteItemModal);
   };
 
-  const updateItemToggle = () => {
+  const updateItemToggle = async () => {
     setUpdateItemModal(!updateItemModal);
-  };
-
-  const getAllInventoryItems = async () => {
-    const data = await InventoryService.getAllInventoryItems();
-    console.log(data);
-    setInventories(data);
+    if (updateItemModal) {
+      await getAllInventoryItems();
+    }
   };
 
   useEffect(() => {
-    getAllInventoryItems();
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+    }
+    setIsUserLoaded(true);
   }, []);
 
-  useEffect(() => {
-    getAllInventoryItems();
-  }, [!addInventoryModal]);
+  const getAllInventoryItems = async () => {
+    try {
+      setIsLoading(true);
+      const data = await InventoryService.getAllInventoryItems(user?.homeID);
+      setInventories(data || []);
+    } catch (error) {
+      console.error("Failed to fetch inventory:", error);
+      toast.error(t("INVENTORY_FETCH_FAILED"));
+      setInventories([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    getAllInventoryItems();
-  }, [!updateItemModal]);
+    if (user?.homeID) {
+      getAllInventoryItems();
+    }
+  }, [user?.homeID]);
 
   const handleDeleteInventory = async (id) => {
     try {
@@ -273,6 +295,8 @@ const Inventory = () => {
     { i: "lineChart", x: 9, y: 0, w: 6.9, h: 3.05 },
   ];
 
+  if (!isUserLoaded) return null;
+
   return (
     <div className="inventory-container mt-4 ms-2">
       {/* Categories Section */}
@@ -337,60 +361,75 @@ const Inventory = () => {
                 <th>{t("CATEGORY")}</th>
                 <th>{t("QUANTITY")}</th>
                 <th>{t("ITEM_TYPE")}</th>
-                <th>{t("MANUFACTURED")}</th>
                 <th>{t("EXPIRY_DATE")}</th>
                 <th>{t("SUPPLIER")}</th>
                 <th>{t("ACTIONS")}</th>
               </tr>
             </thead>
             <tbody className="inventory-table-body">
-              {inventories.map((item) => (
-                <tr key={item._id}>
-                  <td>{item.itemName}</td>
-                  <td>
-                    {item.categoryId ? item.categoryId.category_name : "-"}
-                  </td>
-                  <td>{item.quantity || "-"}</td>
-                  <td>{item.itemType || "-"}</td>
-                  <td>
-                    {item.manufacturedDate
-                      ? new Date(item.manufacturedDate).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td>
-                    {item.expiryDate
-                      ? new Date(item.expiryDate).toLocaleDateString()
-                      : "-"}
-                  </td>
-                  <td>
-                    {item.supplierId ? item.supplierId.supplier_name : "-"}
-                  </td>
-                  <td className="inventory-actions-cell">
-                    <div className="inventory-actions-row">
-                      <Button
-                        className="inventory-actions-no-bg"
-                        onMouseDown={(e) => e.stopPropagation()}
+              {isLoading ? (
+                <tr>
+                  <td colSpan="7" className="text-center">
+                    <div className="d-flex justify-content-center py-4">
+                      <div
+                        className="spinner-border text-primary"
+                        role="status"
                       >
-                        <img src={viewIcon} alt="View" />
-                      </Button>
-                      <Button
-                        className="inventory-actions-no-bg"
-                        onClick={() => handleUpdateInventoryModal(item)}
-                        onMouseDown={(e) => e.stopPropagation()}
-                      >
-                        <img src={editIcon} alt="Edit" />
-                      </Button>
-                      <Button
-                        className="inventory-actions-no-bg"
-                        onClick={() => handleDeleteInventoryModal(item._id)}
-                        onMouseDown={(e) => e.stopPropagation()}
-                      >
-                        <img src={deleteIcon} alt="Delete" />
-                      </Button>
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : inventories.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="text-center py-4">
+                    {t("NO_INVENTORY_ITEMS_FOUND")}
+                  </td>
+                </tr>
+              ) : (
+                inventories.map((item) => (
+                  <tr key={item._id}>
+                    <td>{item.itemName}</td>
+                    <td>
+                      {item.categoryId ? item.categoryId.category_name : "-"}
+                    </td>
+                    <td>{item.quantity || "-"}</td>
+                    <td>{item.itemType || "-"}</td>
+                    <td>
+                      {item.expiryDate
+                        ? new Date(item.expiryDate).toLocaleDateString()
+                        : "-"}
+                    </td>
+                    <td>
+                      {item.supplierId ? item.supplierId.supplier_name : "-"}
+                    </td>
+                    <td className="inventory-actions-cell">
+                      <div className="inventory-actions-row">
+                        <Button
+                          className="inventory-actions-no-bg"
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <img src={viewIcon} alt="View" />
+                        </Button>
+                        <Button
+                          className="inventory-actions-no-bg"
+                          onClick={() => handleUpdateInventoryModal(item)}
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <img src={editIcon} alt="Edit" />
+                        </Button>
+                        <Button
+                          className="inventory-actions-no-bg"
+                          onClick={() => handleDeleteInventoryModal(item._id)}
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <img src={deleteIcon} alt="Delete" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </Table>
         </div>

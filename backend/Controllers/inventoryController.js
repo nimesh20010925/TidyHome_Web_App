@@ -13,14 +13,17 @@ class InventoryController {
       itemType,
       supplierId,
       lowStockLevel,
-      manufacturedDate,
+      expiryDate,
       brandName,
       createdBy,
     } = req.body;
 
     try {
+      console.log(req.body);
       const inventoryItem = new Inventory({
-        homeId,
+        homeId: mongoose.Types.ObjectId.isValid(homeId)
+          ? new mongoose.Types.ObjectId(homeId)
+          : null,
         itemImage,
         itemName,
         categoryId: mongoose.Types.ObjectId.isValid(categoryId)
@@ -33,7 +36,7 @@ class InventoryController {
         price,
         itemType,
         lowStockLevel,
-        manufacturedDate: manufacturedDate ? new Date(manufacturedDate) : null,
+        expiryDate: expiryDate ? new Date(expiryDate) : null,
         brandName,
         createdBy,
       });
@@ -50,23 +53,33 @@ class InventoryController {
 
   static async getAllInventoryItems(req, res, next) {
     try {
-      const inventories = await Inventory.find()
+      const { homeId } = req.query;
+      console.log("homeId from query:", homeId);
+  
+      if (!homeId) {
+        return res.status(400).json({
+          success: false,
+          message: "homeId is required to fetch inventories.",
+        });
+      }
+  
+      const inventories = await Inventory.find({ homeId })
         .populate("categoryId")
         .populate("supplierId")
         .sort({ createdAt: -1 });
-
+  
       if (!inventories || inventories.length === 0) {
         return res.status(404).json({
           success: false,
-          message: "No inventories found.",
+          message: "No inventories found for the given homeId.",
         });
       }
-
+  
       res.status(200).json({
         success: true,
         data: inventories,
       });
-
+  
       console.log("Successfully found inventories!");
     } catch (error) {
       console.error("Error fetching inventories:", error);
@@ -76,6 +89,7 @@ class InventoryController {
       });
     }
   }
+  
 
   static async getInventoryItemById(req, res, next) {
     const { id } = req.params;

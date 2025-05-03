@@ -3,10 +3,13 @@ import axios from "axios";
 const API_URL = "http://localhost:3500/api/inventory";
 import { NotificationService } from "./NotificationService";
 export class InventoryService {
-  static async getAllInventoryItems() {
+  static async getAllInventoryItems(homeId) {
+    console.log("getAllInventoryItems");
+    console.log(homeId);
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(`${API_URL}/getAllInventories`, {
+        params: { homeId },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -38,8 +41,8 @@ export class InventoryService {
         }
       );
       NotificationService.sendNotification({
-              message: `New Inventory Item created for ${inventoryData.itemName}`,
-            });
+        message: `New Inventory Item created for ${inventoryData.itemName}`,
+      });
       return response.data;
     } catch (error) {
       console.error("Error creating inventory item:", error);
@@ -94,6 +97,4 @@ export class InventoryService {
       throw error;
     }
   }
-
-  
 }
