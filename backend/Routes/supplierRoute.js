@@ -4,10 +4,10 @@ import { authenticateUser } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/create", authenticateUser, supplierController.createsupplier);
-router.get("/", authenticateUser, supplierController.getsupplier);
-router.get("/:id", authenticateUser, supplierController.getsupplierById);
-router.put("/:id", authenticateUser, supplierController.updatesupplier);
-router.delete("/:id", authenticateUser, supplierController.deletesupplier);
+router.post("/create", authenticateUser, supplierController.createSupplier);
+router.get("/", authenticateUser, supplierController.getSupplier);
+router.get("/:id", authenticateUser, supplierController.getSupplierById);
+router.put("/:id", authenticateUser, supplierController.updateSupplier);
+router.delete("/:id", authenticateUser, supplierController.deleteSupplier);
 
-export default router;
+export default router;

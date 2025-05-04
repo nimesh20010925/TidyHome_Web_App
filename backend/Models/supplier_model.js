@@ -32,10 +32,10 @@ const supplierSchema = new mongoose.Schema(
       enum: ["Supplier", "Store"],
       default: "Supplier",
     },
-    userID: {
+    homeId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true, // Ensure every supplier is tied to a user
+      ref: "Home",
+      required: true, // Ensure every supplier is tied to a home
     },
   },
   {
@@ -43,8 +43,8 @@ const supplierSchema = new mongoose.Schema(
   }
 );
 
-// Ensure supplier_id and supplier_email are unique within a user
-supplierSchema.index({ supplier_id: 1, userID: 1 }, { unique: true });
-supplierSchema.index({ supplier_email: 1, userID: 1 }, { unique: true });
+// Ensure supplier_id and supplier_email are unique within a home
+supplierSchema.index({ supplier_id: 1, homeId: 1 }, { unique: true });
+supplierSchema.index({ supplier_email: 1, homeId: 1 }, { unique: true });
 
 export const supplier = mongoose.model("suppliers", supplierSchema);
