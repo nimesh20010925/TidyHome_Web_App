@@ -1436,13 +1436,27 @@ h2 {
   transition: opacity 0.3s ease;
 }
 
-.custom-modal .modal-dialog {
-  max-width: 36vw !important;
-  width: 36vw !important;
+.custom-shopping-modal .modal-dialog {
+  max-width: 40vw !important;
+  width: 40vw !important;
   justify-content: center;
   align-items: center;
   text-align: center;
   align-self: center;
+}
+
+.custom-modal .modal-dialog {
+  max-width: 44vw !important;
+  width: 44vw !important;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  align-self: center;
+}
+
+.custom-shopping-modal {
+  height: 94vh !important;
+  max-height: 94vh !important;
 }
 
 .custom-modal {
@@ -1816,7 +1830,7 @@ button.home-member-delete-btn:hover {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   overflow-y: auto;
   max-height: 250px;
 }
@@ -1958,4 +1972,8 @@ button.home-member-delete-btn:hover {
 .inventory-table-body tr.expired-row:hover td,
 .inventory-table-body tr.expiring-soon-row:hover td {
   background-color: inherit !important;
+}
+
+.shopping-height {
+
 }

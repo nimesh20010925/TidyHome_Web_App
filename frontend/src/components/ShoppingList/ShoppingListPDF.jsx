@@ -11,6 +11,7 @@ import {
 import PropTypes from "prop-types";
 import starIcon from "../../assets/shoppingList/star-red.png";
 import HomeDummyImg from "../../assets/navBar/dummy-home.jpg";
+import TidyHomeLogo from "../../assets/logo/TidyHome_Logo.png";
 
 const styles = StyleSheet.create({
   page: {
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
   homeAddress: {
     fontSize: 11,
     color: "#4a5568",
-    marginBottom: 2
+    marginBottom: 2,
   },
   logoImage: {
     width: 50,
@@ -163,6 +164,25 @@ const styles = StyleSheet.create({
   saveText: {
     color: "#065f46",
     fontSize: 12,
+  },
+  footer: {
+    marginTop: 30,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#e5e7eb",
+    borderTopStyle: "solid",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  footerText: {
+    fontSize: 10,
+    color: "#6b7280",
+    marginLeft: 8,
+  },
+  footerLogo: {
+    width: 45,
+    height: 40,
   },
 });
 
@@ -331,6 +351,13 @@ const ShoppingListPDF = ({ selectedShoppingList }) => {
             </Text>
           </View>
         )}
+
+        <View style={styles.footer}>
+          <Image style={styles.footerLogo} src={TidyHomeLogo} />
+          <Text style={styles.footerText}>
+            **Generated Automatically by TidyHome Inventory Tracker**
+          </Text>
+        </View>
       </Page>
     </Document>
   );

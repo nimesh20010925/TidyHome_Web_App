@@ -83,6 +83,13 @@
     "HOME_SUMMARY": "Home Summary", 
     "SAVE": "Save",
     "NO_INVENTORY_ITEMS_FOUND": "No Inventory Items Found",
+    "EXPIRED_ITEMS_ALERT": "Expired Items Alert",
+    "SEARCH_INVENTORY_PLACEHOLDER": "Search Inventory...",
+    "EXPIRED_ITEMS_COUNT": "expired items",
+    "YOU_HAVE": "You have",
+    "EXPIRED_ON": "Expired on",
+    "AMOUNT": "Amount",
+    "ADD_NIWEST_ITEM": "Add Niwest Item",
 
     "NOTIFICATIONS": "Notifications",
     "Search": "Search",
@@ -119,7 +126,7 @@
     "CREATENEWSHOPPINGLIST":"Create New Shopping List",
     "ADDNEWINVENTORY":"Add New Inventory",
     "ADDSUPPLIER":"Add Supplier",
-    "EXPORTREPORT":"Export Inventory Summry Reports",
+    "EXPORTREPORT":"Inventory Summry Report",
     "FAMILYMEMBERS":"FAMILY MEMBERS",
 
     "SPECIALNOTICES":"Special Notices",

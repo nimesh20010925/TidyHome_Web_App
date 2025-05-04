@@ -173,8 +173,8 @@ const ShoppingListModal = ({ isOpen, toggle, selectedShoppingList }) => {
             </div>
           </div>
           {totalCost > urgentItemsCost && (
-            <div className="ps-3 pe-3 pt-4">
-              <div className="alert alert-success mt-2 mb-0" role="alert">
+            <div className="pe-3 ps-3 pt-4 ps-0">
+              <div className="alert alert-success mt-2 mb-0 pe-5"  style={{paddingLeft: "0px"}} role="alert">
                 You can save{" "}
                 <strong>
                   {(totalCost - urgentItemsCost).toLocaleString(undefined, {
