@@ -12,8 +12,10 @@ import {
   MenuItem,
   Snackbar,
   Alert,
+  InputAdornment,
 } from "@mui/material";
 import { CategoryService } from "../../../services/categoryServices";
+import { Image, Label, Category, Description } from "@mui/icons-material";
 
 const CategoryTable = () => {
   const [showModal, setShowModal] = useState(false);
@@ -39,6 +41,42 @@ const CategoryTable = () => {
     "Pet Supplies",
     "Kitchenware & Dining",
   ];
+
+  const purpleTheme = {
+    lightPurple: "#DAD5FB",
+    buttonPurple: "#AC9EFF",
+    buttonHover: "#9a80ff",
+    accentPurple: "#7b1fa2",
+  };
+
+  const inputStyles = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "12px",
+      backgroundColor: "#f8f9fa",
+      transition: "all 0.3s ease",
+      "& fieldset": {
+        borderColor: purpleTheme.lightPurple,
+      },
+      "&:hover fieldset": {
+        borderColor: purpleTheme.buttonPurple,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: purpleTheme.accentPurple,
+        boxShadow: `0 0 8px ${purpleTheme.buttonPurple}50`,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: "#6B7280",
+      fontWeight: 500,
+      "&.Mui-focused": {
+        color: purpleTheme.accentPurple,
+      },
+    },
+    "& .MuiInputBase-input": {
+      padding: "12px",
+      fontSize: "0.95rem",
+    },
+  };
 
   const handleSubmit = async () => {
     if (!categoryType || !categoryName || !categoryDescription) {
@@ -124,11 +162,6 @@ const CategoryTable = () => {
     borderRadius: 8,
   };
 
-  const purpleTheme = {
-    buttonPurple: "#AC9EFF",
-    buttonHover: "#9a80ff",
-  };
-
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -161,48 +194,84 @@ const CategoryTable = () => {
 
       {/* Modal for Create Form */}
       <Modal open={showModal} onClose={() => setShowModal(false)}>
-        <Box sx={modalStyle}>
-          <Typography variant="h6" gutterBottom>Add New Category</Typography>
+        <Box sx={{ ...modalStyle, width: { xs: "90%", sm: 450 } }}>
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{
+              fontWeight: "bold",
+              color: "#1F2937",
+              mb: 3,
+              textAlign: "center",
+            }}
+          >
+            Add New Category
+          </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="CATEGORY IMAGE"
+                label="Category Image"
                 type="file"
                 InputLabelProps={{ shrink: true }}
                 inputProps={{ accept: "image/*" }}
                 onChange={handleImageChange}
                 variant="outlined"
+                sx={inputStyles}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Image sx={{ color: purpleTheme.accentPurple }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
               {categoryImage && (
-                <img
-                  src={URL.createObjectURL(categoryImage)}
-                  alt="Preview"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    marginTop: "10px",
-                  }}
-                />
+                <Box sx={{ mt: 2, textAlign: "center" }}>
+                  <img
+                    src={URL.createObjectURL(categoryImage)}
+                    alt="Preview"
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: "8px",
+                      objectFit: "cover",
+                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                    }}
+                  />
+                </Box>
               )}
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="CATEGORY NAME"
+                label="Category Name"
                 value={categoryName}
                 onChange={(e) => setCategoryName(e.target.value)}
                 type="text"
                 variant="outlined"
+                sx={inputStyles}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Label sx={{ color: purpleTheme.accentPurple }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
             <Grid item xs={12}>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>CATEGORY TYPE</InputLabel>
+              <FormControl fullWidth variant="outlined" sx={inputStyles}>
+                <InputLabel>Category Type</InputLabel>
                 <Select
                   value={categoryType}
                   onChange={(e) => setCategoryType(e.target.value)}
-                  label="CATEGORY TYPE"
+                  label="Category Type"
+                  startAdornment={
+                    <InputAdornment position="start">
+                      <Category sx={{ color: purpleTheme.accentPurple }} />
+                    </InputAdornment>
+                  }
                 >
                   <MenuItem value="">Select a category type</MenuItem>
                   {categoryTypes.map((type) => (
@@ -216,12 +285,20 @@ const CategoryTable = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="DESCRIPTION"
+                label="Description"
                 value={categoryDescription}
                 onChange={(e) => setCategoryDescription(e.target.value)}
                 multiline
                 rows={4}
                 variant="outlined"
+                sx={inputStyles}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Description sx={{ color: purpleTheme.accentPurple }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -230,12 +307,48 @@ const CategoryTable = () => {
                 onClick={handleSubmit}
                 fullWidth
                 sx={{
-                  backgroundColor: purpleTheme.buttonPurple,
+                  background: `linear-gradient(135deg, ${purpleTheme.buttonPurple} 0%, ${purpleTheme.accentPurple} 100%)`,
                   color: "white",
-                  "&:hover": { backgroundColor: purpleTheme.buttonHover },
+                  borderRadius: "12px",
+                  py: 1.5,
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  boxShadow: `0 4px 12px ${purpleTheme.buttonPurple}50`,
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    background: `linear-gradient(135deg, ${purpleTheme.buttonHover} 0%, ${purpleTheme.accentPurple} 100%)`,
+                    boxShadow: `0 6px 16px ${purpleTheme.buttonHover}80`,
+                    transform: "translateY(-2px)",
+                  },
                 }}
               >
                 Submit
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="outlined"
+                onClick={() => setShowModal(false)}
+                fullWidth
+                sx={{
+                  borderColor: purpleTheme.buttonPurple,
+                  color: purpleTheme.buttonPurple,
+                  borderRadius: "12px",
+                  py: 1.5,
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    borderColor: purpleTheme.buttonHover,
+                    color: purpleTheme.buttonHover,
+                    backgroundColor: `${purpleTheme.buttonPurple}10`,
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                Cancel
               </Button>
             </Grid>
           </Grid>
