@@ -302,7 +302,7 @@ const InventorySummaryPDF = ({ inventoryData = [], user = {}, loading = false })
         )}
 
         <Text style={styles.footer}>
-          **Generated Automatically by HomeStock Inventory Tracker**
+          **Generated Automatically by TidyHome Inventory Tracker**
         </Text>
       </Page>
     </Document>

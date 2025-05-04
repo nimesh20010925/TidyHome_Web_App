@@ -6,7 +6,7 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import userAvatar from "../assets/navBar/dummy-user.png";
 import addNotification from "../assets/sideBar/add-notification.png";
-import addShopping from "../assets/sideBar/add-shopping.png";
+// import addShopping from "../assets/sideBar/add-shopping.png";
 import categories from "../assets/sideBar/categories.png";
 import AddHomeMembers from "../components/Home/AddHomeMembers";
 import {
@@ -19,6 +19,8 @@ import NotificationModal from "../components/custom_notification/customnotificat
 
 import Modal from "../components/consumption/consumptionCreateModel/consumptionCreateModel";
 import InventorySummaryReport from "../common/Reports/InventorySummryReport";
+import AddInventoryModal from "../components/Inventory/Modals/addInventoryModal";
+// import ShoppingListDisplay from "../components/Home/HomeModals/ShoppingListDisplay";
 const SideBar = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -26,6 +28,8 @@ const SideBar = () => {
   const [userRole, setUserRole] = useState("");
   const [loading, setLoading] = useState(true);
   const [addHomeMembersModal, setAddHomeMembersModal] = useState(false);
+  const [addInventoryModal, setAddInventoryModal] = useState(false);
+  // const [addShoppinglistModal, setAddShoppinglistModal] = useState(false);
   const [inventorySummaryReportModal, setInventorySummaryReportModal] =
     useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
@@ -41,6 +45,11 @@ const SideBar = () => {
 
   const addHomeMembersToggle = () =>
     setAddHomeMembersModal(!addHomeMembersModal);
+
+  const addInventoryToggle = () => setAddInventoryModal(!addInventoryModal);
+
+  // const addShoppinglistToggle = () =>
+  //   setAddShoppinglistModal(!addShoppinglistModal);
 
   const inventorySummaryReportToggle = () =>
     setInventorySummaryReportModal(!inventorySummaryReportModal);
@@ -178,7 +187,7 @@ const SideBar = () => {
             <img
               src={addNotification}
               className="me-3"
-              style={{marginLeft: -2}}
+              style={{ marginLeft: -2 }}
               width="20px"
               height="20px"
               alt="Add Notification"
@@ -190,20 +199,36 @@ const SideBar = () => {
             onClose={closeNotificationModal}
           />
 
-          <ListGroup.Item action className="border-0">
+          {/* <ListGroup.Item
+            action
+            className="border-0"
+            onClick={addShoppinglistToggle}
+          >
             <img
               src={addShopping}
               className="me-2"
-              style={{marginLeft: -2}}
+              style={{ marginLeft: -2 }}
               width="20px"
               height="20px"
               alt="Create Shopping List"
             />{" "}
             {t("CREATENEWSHOPPINGLIST")}
           </ListGroup.Item>
-          <ListGroup.Item action className="border-0">
+          <ShoppingListDisplay
+            isOpen={addShoppinglistModal}
+            toggle={addShoppinglistToggle}
+          /> */}
+          <ListGroup.Item
+            action
+            className="border-0"
+            onClick={addInventoryToggle}
+          >
             <FaBox className="me-2" /> {t("ADDNEWINVENTORY")}
           </ListGroup.Item>
+          <AddInventoryModal
+            isOpen={addInventoryModal}
+            toggle={addInventoryToggle}
+          />
           <a href="/app/supplier-home" style={{ textDecoration: "none" }}>
             <ListGroup.Item action className="border-0">
               <FaTruck className="me-3" />
