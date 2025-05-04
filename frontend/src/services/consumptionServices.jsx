@@ -1,12 +1,14 @@
+// Frontend/src/services/consumptionServices.js
 import axios from "axios";
 import { API_BASE_URL } from "../config/config";
 import { NotificationService } from "./NotificationService";
 
 export class ConsumptionService {
-  static async getAllConsumptions() {
+  static async getAllConsumptions(homeId) {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(`${API_BASE_URL}/consumption`, {
+        params: { homeId }, // Pass homeId as a query parameter
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -40,7 +42,7 @@ export class ConsumptionService {
         },
       });
       if (response.data.success) {
-        return response.data.data;
+        return response.data.consumptionRecord;
       } else {
         console.error("Error:", response.data.message);
         throw new Error(response.data.message);
