@@ -20,7 +20,7 @@
     "ACTIONS": "Actions",
     "INVENTORY_LIST": "Inventory List",
     "ADD_INVENTORY": "Add Inventory",
-    "INVENTORY_CATEGORIES": "Inventory Categories",
+    "INVENTORY_CATEGORIES": "Inventory Item Categories",
     "LOW_INVENTORY_ITEMS": "Low Inventory Items",
     "YOU_MUST_RESTORE_ITEMS": "You must immediately restore the lowest inventory items.",
     "INVENTORY_ITEMS_SUMMARY_BY_CATEGORIES": "Inventory Items Summary by Categories",

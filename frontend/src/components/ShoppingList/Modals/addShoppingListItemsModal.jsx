@@ -57,6 +57,7 @@ const AddShoppingListItemsModal = ({
   const [isItemUrgent, setIsItemUrgent] = useState();
   const [deleteItemModal, setDeleteItemModal] = useState(false);
   const [selectedItemToDelete, setSelectedItemToDelete] = useState();
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
 
   const { t } = useTranslation();
 
@@ -93,6 +94,7 @@ const AddShoppingListItemsModal = ({
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
     }
+    setIsUserLoaded(true);
   }, []);
 
   useEffect(() => {
@@ -304,16 +306,21 @@ const AddShoppingListItemsModal = ({
   };
 
   const getAllInventoryItems = async () => {
-    const data = await InventoryService.getAllInventoryItems(
-      user?.homeID,
-      user?._id
-    );
-    setInventories(data);
+    try {
+      const data = await InventoryService.getAllInventoryItems(user?.homeID);
+      setInventories(data || []);
+    } catch (error) {
+      console.error("Failed to fetch inventory:", error);
+      toast.error(t("INVENTORY_FETCH_FAILED"));
+      setInventories([]);
+    }
   };
 
   useEffect(() => {
-    getAllInventoryItems();
-  }, []);
+    if (user?.homeID) {
+      getAllInventoryItems();
+    }
+  }, [user?.homeID]);
 
   const decrementCount = () => setItemCount((prev) => Math.max(prev - 1, 0));
   const incrementCount = () => {
@@ -461,6 +468,8 @@ const AddShoppingListItemsModal = ({
       />
     </button>
   );
+
+  if (!isUserLoaded) return null;
 
   return (
     <Modal

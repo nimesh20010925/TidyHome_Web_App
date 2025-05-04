@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Card, Row, Col, Alert } from "react-bootstrap";
-import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import { Table, Button, Card, Row, Col, Alert, Form } from "react-bootstrap";
+import { Cell, Tooltip, Legend } from "recharts";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -26,99 +24,6 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
-const categories = [
-  { id: 1, name: "Grains & Cereals", image: DummyCategoryImage, itemCount: 10 },
-  { id: 2, name: "Dairy Products", image: DummyCategoryImage, itemCount: 12 },
-  { id: 3, name: "Beverages", image: DummyCategoryImage, itemCount: 4 },
-  { id: 4, name: "Household Items", image: DummyCategoryImage, itemCount: 5 },
-  { id: 5, name: "Frozen Foods", image: DummyCategoryImage, itemCount: 18 },
-  {
-    id: 6,
-    name: "Fruits & Vegetables",
-    image: DummyCategoryImage,
-    itemCount: 2,
-  },
-  { id: 7, name: "Meat & Seafood", image: DummyCategoryImage, itemCount: 1 },
-  { id: 8, name: "Snacks", image: DummyCategoryImage, itemCount: 25 },
-  { id: 9, name: "Bakery", image: DummyCategoryImage, itemCount: 3 },
-  { id: 10, name: "Personal Care", image: DummyCategoryImage, itemCount: 4 },
-  {
-    id: 11,
-    name: "Cleaning Supplies",
-    image: DummyCategoryImage,
-    itemCount: 10,
-  },
-  {
-    id: 12,
-    name: "Condiments & Spices",
-    image: DummyCategoryImage,
-    itemCount: 12,
-  },
-];
-
-const pieData = {
-  labels: [
-    "Household Items",
-    "Beverages",
-    "Dairy Products",
-    "Food",
-    "Bakery",
-    "Fruits & Vegetables",
-    "Other",
-  ],
-  datasets: [
-    {
-      data: [7, 22.5, 37.5, 27.5, 5, 12, 4.5],
-      backgroundColor: [
-        "#1E90FF",
-        "#FFD700",
-        "#FF4500",
-        "#8A2BE2",
-        "#32CD32",
-        "#FFC688",
-        "#FF3458",
-      ],
-    },
-  ],
-};
-
-const lineData = {
-  labels: [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ],
-  datasets: [
-    {
-      label: "Inventory Cost",
-      data: [
-        20000, 15000, 30000, 60000, 25000, 40000, 45000, 30000, 28000, 50000,
-        55000, 70000,
-      ],
-      borderColor: "#8A2BE2",
-      fill: false,
-    },
-  ],
-};
-
-const lowInventoryData = [
-  { name: "Item A", unit: "unit", existingLevel: 4, lowLevel: 10 },
-  { name: "Item B", unit: "kg", existingLevel: 0.5, lowLevel: 2 },
-  { name: "Item C", unit: "litre", existingLevel: 18, lowLevel: 20 },
-  { name: "Item D", unit: "metre", existingLevel: 5, lowLevel: 8 },
-  { name: "Item E", unit: "litre", existingLevel: 8, lowLevel: 20 },
-  { name: "Item F", unit: "metre", existingLevel: 5, lowLevel: 8 },
-];
-
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const Inventory = () => {
@@ -132,8 +37,76 @@ const Inventory = () => {
   const [user, setUser] = useState();
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryCounts, setCategoryCounts] = useState([]);
+  const [expiredItems, setExpiredItems] = useState([]);
+  const [viewItemModal, setViewItemModal] = useState(false);
+  const [selectedItemToView, setSelectedItemToView] = useState(null);
+  // const [expiringSoonItems, setExpiringSoonItems] = useState([]);
 
   const { t } = useTranslation();
+
+  const viewItemToggle = () => {
+    setViewItemModal(!viewItemModal);
+  };
+
+  const filteredInventories = inventories.filter((item) => {
+    if (!searchTerm) return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      item.itemName?.toLowerCase().includes(searchLower) ||
+      item.categoryId?.category_name?.toLowerCase().includes(searchLower) ||
+      item.supplierId?.supplier_name?.toLowerCase().includes(searchLower) ||
+      item.itemType?.toLowerCase().includes(searchLower) ||
+      item.quantity?.toString().includes(searchTerm) ||
+      (item.expiryDate &&
+        new Date(item.expiryDate)
+          .toLocaleDateString()
+          .toLowerCase()
+          .includes(searchLower))
+    );
+  });
+
+  const checkExpiryStatus = (items) => {
+    const now = new Date();
+    const oneMonthFromNow = new Date();
+    oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+
+    const expired = [];
+    const expiringSoon = [];
+
+    items.forEach((item) => {
+      if (!item.expiryDate) return;
+
+      const expiryDate = new Date(item.expiryDate);
+
+      if (expiryDate <= now) {
+        expired.push(item);
+      } else if (expiryDate >= oneMonthFromNow) {
+        expiringSoon.push(item);
+      }
+    });
+
+    setExpiredItems(expired);
+    // setExpiringSoonItems(expiringSoon);
+  };
+
+  const getRowClass = (item) => {
+    if (!item.expiryDate) return "";
+
+    const expiryDate = new Date(item.expiryDate);
+    const now = new Date();
+    const oneMonthFromNow = new Date();
+    oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+
+    if (expiryDate < now) {
+      return "expired-row";
+    } else if (expiryDate <= oneMonthFromNow) {
+      return "expiring-soon-row";
+    }
+    return "";
+  };
 
   const addInventoryToggle = async () => {
     setAddInventoryModal(!addInventoryModal);
@@ -144,6 +117,11 @@ const Inventory = () => {
 
   const deleteItemToggle = () => {
     setDeleteItemModal(!deleteItemModal);
+  };
+
+  const handleViewInventoryModal = (item) => {
+    setSelectedItemToView(item);
+    viewItemToggle();
   };
 
   const updateItemToggle = async () => {
@@ -162,11 +140,33 @@ const Inventory = () => {
     setIsUserLoaded(true);
   }, []);
 
+  const fetchCategoryCounts = async () => {
+    try {
+      const data = await InventoryService.getInventoryCountByCategory(
+        user?.homeID
+      );
+
+      const coloredData = data.map((item, index) => ({
+        ...item,
+        fill: colorPalette[index % colorPalette.length],
+      }));
+
+      setCategoryCounts(coloredData);
+    } catch (error) {
+      console.error("Error loading category data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategoryCounts();
+  }, [user]);
+
   const getAllInventoryItems = async () => {
     try {
       setIsLoading(true);
       const data = await InventoryService.getAllInventoryItems(user?.homeID);
       setInventories(data || []);
+      checkExpiryStatus(data || []);
     } catch (error) {
       console.error("Failed to fetch inventory:", error);
       toast.error(t("INVENTORY_FETCH_FAILED"));
@@ -210,7 +210,6 @@ const Inventory = () => {
   };
 
   const handleUpdateInventoryModal = (item) => {
-    console.log(item);
     setSelectedItemToUpdate(item);
     updateItemToggle();
   };
@@ -226,59 +225,31 @@ const Inventory = () => {
     </button>
   );
 
-  const pieChartData = pieData.labels.map((label, index) => ({
-    name: label,
-    value: pieData.datasets[0].data[index],
-    fill: pieData.datasets[0].backgroundColor[index],
-  }));
+  const colorPalette = [
+    "#8884d8",
+    "#82ca9d",
+    "#ffc658",
+    "#ff8042",
+    "#8dd1e1",
+    "#a4de6c",
+    "#d0ed57",
+    "#d0743c",
+    "#e377c2",
+    "#17becf",
+  ];
 
-  const lineChartData = lineData.labels.map((label, index) => ({
-    name: label,
-    Cost: lineData.datasets[0].data[index],
-  }));
-
-  const maxValue = lowInventoryData.reduce((max, item) => {
-    return Math.max(max, item.existingLevel, item.lowLevel);
-  }, 0);
-
-  const hasCriticalItems = lowInventoryData.some(
-    (item) => item.existingLevel <= 1
-  );
-
-  // Function to calculate the card height based on the number of rows in the table
   const calculateCardHeight = () => {
     const rowHeight = 1.75;
     const headerHeight = 1.8;
-
-    const totalRows = inventories.length;
-
+    const totalRows = filteredInventories.length;
     const calculatedHeight = totalRows * rowHeight + headerHeight;
-
-    console.log(totalRows);
-
     setCardHeight(calculatedHeight);
-
-    console.log(cardHeight);
   };
 
-  // Recalculate the card height whenever the number of inventories changes
   useEffect(() => {
     calculateCardHeight();
-  }, [inventories]);
+  }, [filteredInventories]);
 
-  // Handle resizing of the card and update table height
-  // const onResizeStop = (layout, oldItem, newItem) => {
-  //   if (newItem.i === "inventoryList") {
-  //     const rowHeight = 1.75;
-  //     const headerHeight = 1.8;
-  //     const totalRows = inventories.length;
-  //     const maxHeight = totalRows * rowHeight + headerHeight;
-  //     const calculatedHeight = Math.min(newItem.h * rowHeight, maxHeight);
-  //     setCardHeight(calculatedHeight);
-  //   }
-  // };
-
-  // Layout configuration
   const layout = [
     {
       i: "inventoryList",
@@ -299,53 +270,88 @@ const Inventory = () => {
 
   return (
     <div className="inventory-container mt-4 ms-2">
-      {/* Categories Section */}
       <div className="inventory-category-section ms-2">
         <h5 className="ms-2 mb-2 fw-bold">{t("INVENTORY_CATEGORIES")}</h5>
         <div className="inventory-categories-container">
-          {categories.map((category) => (
+          {categoryCounts.map((category) => (
             <Card
               key={category.id}
               className="inventory-category-card"
               style={{ backgroundColor: "#ffffff" }}
             >
               <img
-                src={category.image}
-                alt={category.name}
+                src={
+                  category.categoryImage
+                    ? `http://localhost:3500${category.categoryImage}`
+                    : DummyCategoryImage
+                }
+                alt={category.categoryName}
                 className="inventory-category-image"
               />
-              <div className="inventory-category-name">{category.name}</div>
+              <div className="inventory-category-name">
+                {category.categoryName}
+              </div>
               <div className="inventory-category-item-count">
-                {category.itemCount}
+                {category.count}
               </div>
             </Card>
           ))}
         </div>
       </div>
 
-      {/* Inventory List */}
-
       <Card
         key="inventoryList"
         className="pt-3 ps-3 pe-3 pb-1 mt-3 ms-2 inventory-table-card"
-        style={{ mixHeight: cardHeight }}
+        style={{ minHeight: cardHeight }}
       >
-        <div className="d-flex justify-content-between align-items-center">
-          <h5 className="ms-1 fw-bold">Inventory List</h5>
-          <Button
-            onClick={addInventoryToggle}
-            onMouseDown={(e) => e.stopPropagation()}
-            className="rounded-pill border-0 add-inventory-button fw-bold"
-          >
-            <img
-              src={addIcon}
-              alt="Add Item"
-              width={16}
-              height={16}
-              className="mb-1 me-1"
-            />{" "}
-            Add Inventory
-          </Button>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h5 className="ms-1 fw-bold">{t("INVENTORY_LIST")}</h5>
+          <div className="d-flex align-items-center">
+            <Form.Control
+              type="text"
+              placeholder={t("SEARCH_INVENTORY_PLACEHOLDER")}
+              className="me-3"
+              style={{ width: "300px" }}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button
+              onClick={addInventoryToggle}
+              className="rounded-pill border-0 add-inventory-button fw-bold"
+            >
+              <img
+                src={addIcon}
+                alt="Add Item"
+                width={16}
+                height={16}
+                className="mb-1 me-1"
+              />{" "}
+              {t("ADD_INVENTORY")}
+            </Button>
+          </div>
+        </div>
+
+        {/* Expired Items Alert Section */}
+        <div className="mb-1 mt-2">
+          {expiredItems.length > 0 ? (
+            <Alert variant="danger" className="mb-0">
+              <strong>⚠️ {t("EXPIRED_ITEMS_ALERT")}:</strong> {t("YOU_HAVE")}{" "}
+              {expiredItems.length} {t("EXPIRED_ITEMS_COUNT")}
+              <ul className="mb-0 mt-2">
+                {expiredItems.map((item) => (
+                  <li key={item._id}>
+                    {item.itemName} ({t("EXPIRED_ON")}:{" "}
+                    {new Date(item.expiryDate).toLocaleDateString()})
+                  </li>
+                ))}
+              </ul>
+            </Alert>
+          ) : (
+            <Alert variant="success" className="mb-0">
+              {" "}
+              {t("NO_EXPIRED_ITEMS")}
+            </Alert>
+          )}
         </div>
 
         <AddInventoryModal
@@ -380,15 +386,17 @@ const Inventory = () => {
                     </div>
                   </td>
                 </tr>
-              ) : inventories.length === 0 ? (
+              ) : filteredInventories.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center py-4">
-                    {t("NO_INVENTORY_ITEMS_FOUND")}
+                    {searchTerm
+                      ? t("NO_MATCHING_ITEMS")
+                      : t("NO_INVENTORY_ITEMS_FOUND")}
                   </td>
                 </tr>
               ) : (
-                inventories.map((item) => (
-                  <tr key={item._id}>
+                filteredInventories.map((item) => (
+                  <tr key={item._id} className={getRowClass(item)}>
                     <td>{item.itemName}</td>
                     <td>
                       {item.categoryId ? item.categoryId.category_name : "-"}
@@ -407,6 +415,7 @@ const Inventory = () => {
                       <div className="inventory-actions-row">
                         <Button
                           className="inventory-actions-no-bg"
+                          onClick={() => handleViewInventoryModal(item)}
                           onMouseDown={(e) => e.stopPropagation()}
                         >
                           <img src={viewIcon} alt="View" />
@@ -435,6 +444,125 @@ const Inventory = () => {
         </div>
       </Card>
 
+      <Modal isOpen={viewItemModal} toggle={viewItemToggle} centered size="lg">
+        <ModalHeader toggle={viewItemToggle} className="border-0">
+          <h5 className="fw-bold mb-0">{t("INVENTORY_DETAILS")}</h5>
+        </ModalHeader>
+
+        <ModalBody>
+          {selectedItemToView && (
+            <div className="row">
+              {/* Image Section */}
+              <div className="col-md-4 mb-4 d-flex align-items-center justify-content-center">
+                <div
+                  className="rounded border bg-light"
+                  style={{
+                    width: "100%",
+                    height: "250px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                  }}
+                >
+                  <img
+                    src={
+                      selectedItemToView.categoryId?.category_image
+                        ? `http://localhost:3500${selectedItemToView.categoryId?.category_image}`
+                        : DummyCategoryImage
+                    }
+                    alt={selectedItemToView.itemName || "No image"}
+                    style={{
+                      maxHeight: "100%",
+                      maxWidth: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Details Section */}
+              <div className="col-md-8">
+                <div className="ps-md-3">
+                  {/* Highlighted Item Name */}
+                  <h3
+                    className="fw-bold text-primary mb-3"
+                    style={{ fontSize: "1.75rem" }}
+                  >
+                    {selectedItemToView.itemName}
+                  </h3>
+
+                  {/* Info Rows */}
+                  <div className="mb-2">
+                    <span className="fw-semibold text-muted">
+                      {t("CATEGORY")}:{" "}
+                    </span>
+                    <span>
+                      {selectedItemToView.categoryId?.category_name || "-"}
+                    </span>
+                  </div>
+
+                  <div className="mb-2">
+                    <span className="fw-semibold text-muted">
+                      {t("QUANTITY")}:{" "}
+                    </span>
+                    <span>{selectedItemToView.quantity || "-"}</span>
+                  </div>
+
+                  <div className="mb-2">
+                    <span className="fw-semibold text-muted">
+                      {t("ITEM_TYPE")}:{" "}
+                    </span>
+                    <span>{selectedItemToView.itemType || "-"}</span>
+                  </div>
+
+                  <div className="mb-2">
+                    <span className="fw-semibold text-muted">
+                      {t("EXPIRY_DATE")}:{" "}
+                    </span>
+                    <span>
+                      {selectedItemToView.expiryDate
+                        ? new Date(
+                            selectedItemToView.expiryDate
+                          ).toLocaleDateString()
+                        : "-"}
+                    </span>
+                  </div>
+
+                  <div className="mb-2">
+                    <span className="fw-semibold text-muted">
+                      {t("SUPPLIER")}:{" "}
+                    </span>
+                    <span>
+                      {selectedItemToView.supplierId?.supplier_name || "-"}
+                    </span>
+                  </div>
+
+                  {selectedItemToView.description && (
+                    <div className="mb-2">
+                      <span className="fw-semibold text-muted">
+                        {t("DESCRIPTION")}:{" "}
+                      </span>
+                      <span>{selectedItemToView.description}</span>
+                    </div>
+                  )}
+
+                  <div className="mb-2">
+                    <span className="fw-semibold text-muted">
+                      {t("LAST_UPDATED")}:{" "}
+                    </span>
+                    <span>
+                      {new Date(selectedItemToView.updatedAt).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </ModalBody>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={deleteItemModal}
         toggle={deleteItemToggle}
@@ -486,7 +614,7 @@ const Inventory = () => {
         selectedItem={selectedItemToUpdate}
       />
 
-      {/* Charts */}
+      {/* Charts Section */}
       <ResponsiveGridLayout
         className="layout"
         layouts={{ lg: layout }}
@@ -502,10 +630,22 @@ const Inventory = () => {
           <Card className="p-3 shadow-sm justify-content-center inventory-barchart ms-2">
             <h5 className="mb-4">{t("LOW_INVENTORY_ITEMS")}</h5>
             <ResponsiveContainer width="90%" height={400}>
-              <BarChart data={lowInventoryData}>
+              <BarChart
+                data={inventories
+                  .filter(
+                    (item) =>
+                      item.quantity !== undefined &&
+                      item.lowStockLevel !== undefined
+                  )
+                  .map((item) => ({
+                    name: item.itemName || t("UNNAMED_ITEM"),
+                    existingLevel: item.quantity,
+                    lowLevel: item.lowStockLevel,
+                  }))}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
-                <YAxis domain={[0, maxValue]} />
+                <YAxis domain={[0, 10]} />
                 <Tooltip />
                 <Legend
                   payload={[
@@ -526,78 +666,37 @@ const Inventory = () => {
                     },
                   ]}
                 />
-
                 <Bar
                   dataKey="existingLevel"
                   name={t("EXISTING_QUANTITY")}
                   fill="#8884d8"
                 >
-                  {lowInventoryData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={
-                        entry.existingLevel <= 1
-                          ? "#FF0000" // Critical Level
-                          : "#000000" // Existing Level
-                      }
-                    />
-                  ))}
+                  {inventories
+                    .filter((item) => item.quantity !== undefined)
+                    .map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={
+                          entry.quantity <= entry.lowStockLevel
+                            ? "#FF0000"
+                            : "#000000"
+                        }
+                      />
+                    ))}
                 </Bar>
-
                 <Bar dataKey="lowLevel" fill="#BB87FA" name={t("LOW_LEVEL")} />
               </BarChart>
             </ResponsiveContainer>
 
-            {hasCriticalItems && (
+            {inventories.some(
+              (item) => item.quantity <= item.lowStockLevel
+            ) && (
               <Alert variant="danger" className="mt-3 text-center">
                 ⚠️ {t("YOU_MUST_RESTORE_ITEMS")}
               </Alert>
             )}
           </Card>
         </div>
-
-        <Card
-          key="pieChart"
-          className="inventory-pie-chart p-3 shadow-sm ms-2"
-          style={{ marginTop: "36px", marginBottom: "36px" }}
-        >
-          <h5>{t("INVENTORY_ITEMS_SUMMARY_BY_CATEGORIES")}</h5>
-          <PieChart width={400} height={400}>
-            <Pie
-              data={pieChartData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={120}
-              label
-            >
-              {pieChartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </Card>
-
-        <Card
-          key="lineChart"
-          className="inventory-line-chart p-3 shadow-sm mb-4"
-          style={{ marginTop: "36px" }}
-        >
-          <h5 className="mb-4">{t("MONTHLY_INVENTORY_COST_SUMMARY")}</h5>
-          <ResponsiveContainer width="100%" height={380}>
-            <LineChart data={lineChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="Cost" stroke="#8A2BE2" />
-            </LineChart>
-          </ResponsiveContainer>
-        </Card>
       </ResponsiveGridLayout>
       <div style={{ height: "48px" }}></div>
     </div>

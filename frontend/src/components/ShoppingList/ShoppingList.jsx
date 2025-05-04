@@ -10,6 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
   Cell,
+  CartesianGrid,
 } from "recharts";
 import { motion } from "framer-motion";
 import {
@@ -25,7 +26,7 @@ import {
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import AddShoppingListItemsModal from "./Modals/addShoppingListItemsModal.jsx";
 import ShoppingListModal from "./Modals/viewShoppingListModal.jsx";
-import { ShoppingListService } from "../../services/ShoppingListSevices.jsx";
+// import { ShoppingListService } from "../../services/ShoppingListSevices.jsx";
 import axios from "axios";
 import { Modal, ModalHeader, ModalBody, Col, Row, Button } from "reactstrap";
 import { useTranslation } from "react-i18next";
@@ -58,25 +59,7 @@ const cardData = [
   },
 ];
 
-// Pie Chart Data
-const pieData = [
-  { name: "List 1", value: 6 },
-  { name: "List 2", value: 2 },
-  { name: "List 3", value: 9 },
-  { name: "List 4", value: 5 },
-  { name: "List 5", value: 1 },
-];
-
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#ff6666"];
-
-// Bar Chart Data
-const barData = [
-  { name: "List 1", total: 18000, urgent: 7000 },
-  { name: "List 2", total: 12000, urgent: 4000 },
-  { name: "List 3", total: 19000, urgent: 9000 },
-  { name: "List 4", total: 14000, urgent: 5000 },
-  { name: "List 5", total: 16000, urgent: 6000 },
-];
 
 // Animation Variants
 const cardVariants = {
@@ -134,7 +117,6 @@ const ShoppingList = () => {
   // }, [!addShoppingItemsModal]);
 
   useEffect(() => {
-    // Calculate total cost whenever shoppingLists changes
     const calculateTotalCost = () => {
       const total = shoppingLists.reduce((sum, list) => {
         const listTotal = Array.isArray(list.itemList)
@@ -163,7 +145,7 @@ const ShoppingList = () => {
         }
       );
 
-      console.log("Fetched Shopping Lists Response:", response.data); // Log to confirm structure
+      console.log("Fetched Shopping Lists Response:", response.data);
 
       // Extract the shoppingLists array from the response
       if (response.data && Array.isArray(response.data.shoppingLists)) {
@@ -244,6 +226,51 @@ const ShoppingList = () => {
       />
     </button>
   );
+
+  // 1. First, define the formatYAxis function (add this above your component)
+  const formatYAxis = (tick) => {
+    // Format numbers as currency in LKR
+    return `${tick.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  const pieData =
+    shoppingLists?.map((list) => ({
+      name: list.listName,
+      value: list.itemList.length,
+    })) || [];
+
+  const generateBarChartData = () => {
+    return shoppingLists.map((list) => {
+      // Calculate total cost for this list
+      const totalCost = Array.isArray(list.itemList)
+        ? list.itemList.reduce(
+            (sum, item) => sum + (item.estimatedItemCost || 0),
+            0
+          )
+        : 0;
+
+      // Calculate urgent items cost based on isUrgent field
+      const urgentCost = Array.isArray(list.itemList)
+        ? list.itemList.reduce((sum, item) => {
+            // Check if the item is marked as urgent
+            const isUrgent = item.isUrgent === true;
+            return isUrgent ? sum + (item.estimatedItemCost || 0) : sum;
+          }, 0)
+        : 0;
+
+      return {
+        name: list.listName || `List ${list._id}`,
+        total: totalCost,
+        urgent: urgentCost,
+      };
+    });
+  };
+
+  // Then use it in your component
+  const barData = generateBarChartData();
 
   return (
     <div className="shopping-container">
@@ -417,29 +444,123 @@ const ShoppingList = () => {
           initial="hidden"
           animate="visible"
         >
-          <h5 className="mb-4">Shopping Item Count Summary</h5>
-          <ResponsiveContainer width="100%" height={300}>
+          <div className="chart-header">
+            <h5 className="mb-4">Shopping Item Distribution</h5>
+            <div className="total-items-badge">
+              {pieData.reduce((sum, item) => sum + item.value, 0)} items
+            </div>
+          </div>
+
+          <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
                 data={pieData}
                 cx="50%"
                 cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
+                innerRadius={90}
+                outerRadius={140}
+                paddingAngle={2}
                 dataKey="value"
-                label
+                nameKey="name"
+                label={({
+                  cx,
+                  cy,
+                  midAngle,
+                  innerRadius,
+                  outerRadius,
+                  percent,
+                }) => {
+                  const RADIAN = Math.PI / 180;
+                  const radius =
+                    innerRadius + (outerRadius - innerRadius) * 0.5;
+                  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                  return (
+                    <text
+                      x={x}
+                      y={y}
+                      fill="white"
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      className="pie-label"
+                    >
+                      {`${(percent * 100).toFixed(0)}%`}
+                    </text>
+                  );
+                }}
+                labelLine={false}
               >
                 {pieData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
+                    stroke="#fff"
+                    strokeWidth={2}
                   />
                 ))}
               </Pie>
-              <Tooltip />
-              <Legend />
+              <Tooltip
+                formatter={(value, name) => [`${value} items`, `${name}`]}
+                contentStyle={{
+                  background: "rgba(255, 255, 255, 0.96)",
+                  border: "none",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                  padding: "12px",
+                }}
+              />
+              <Legend
+                layout="vertical"
+                verticalAlign="middle"
+                align="right"
+                wrapperStyle={{
+                  paddingLeft: "24px",
+                }}
+                formatter={(value, entry) => (
+                  <span className="legend-item">
+                    <span
+                      className="legend-color"
+                      style={{ backgroundColor: entry.color }}
+                    />
+                    {value}
+                  </span>
+                )}
+              />
             </PieChart>
           </ResponsiveContainer>
+
+          <style>{`
+            .chart-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0 16px;
+            }
+
+            .total-items-badge {
+              background: #f0f2f5;
+              padding: 4px 12px;
+              border-radius: 16px;
+              font-weight: 600;
+              font-size: 14px;
+              color: #555;
+            }
+
+            .pie-label {
+              font-size: 12px;
+              font-weight: 600;
+              text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            }
+
+            .legend-item {
+              display: flex;
+              align-items: center;
+              margin-bottom: 8px;
+              font-size: 13px;
+              color: #666;
+            }
+          `}</style>
         </motion.div>
 
         <motion.div
@@ -448,15 +569,44 @@ const ShoppingList = () => {
           initial="hidden"
           animate="visible"
         >
-          <h5 className="mb-5">Shopping Estimated Cost Summary</h5>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={barData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+          <h5 className="mb-4">Shopping Estimated Cost Summary</h5>
+          <ResponsiveContainer width="100%" height={430}>
+            <BarChart
+              data={barData}
+              margin={{
+                bottom: 100,
+                left: 10,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="name"
+                angle={-45}
+                textAnchor="end"
+                height={80}
+                tick={{ fontSize: 12 }}
+              />
+              <YAxis tickFormatter={formatYAxis} />
+              <Tooltip
+                formatter={(value) => [
+                  `${value}`,
+                  value === value ? "Total Cost" : "Urgent Cost",
+                ]}
+                labelFormatter={(label) => `List: ${label}`}
+              />
               <Legend />
-              <Bar dataKey="total" fill="#8884d8" />
-              <Bar dataKey="urgent" fill="#ff6666" />
+              <Bar
+                dataKey="total"
+                name="Total Cost"
+                fill="#8884d8"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar
+                dataKey="urgent"
+                name="Urgent Cost"
+                fill="#ff6666"
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>

@@ -1747,7 +1747,7 @@ button.home-member-delete-btn:hover {
   color: #333;
 }
 
-.page_404_container{
+.page_404_container {
   align-items: center;
   justify-content: center;
   margin-left: 250px;
@@ -1756,7 +1756,7 @@ button.home-member-delete-btn:hover {
 .page_404 {
   padding: 40px 0;
   background: #fff;
-  font-family: 'Arvo', serif;
+  font-family: "Arvo", serif;
 }
 
 .four_zero_four_bg {
@@ -1816,7 +1816,7 @@ button.home-member-delete-btn:hover {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
 .notices-header {
@@ -1851,7 +1851,7 @@ button.home-member-delete-btn:hover {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .notice-input {
@@ -1894,7 +1894,7 @@ button.home-member-delete-btn:hover {
   border-left: 4px solid #3498db;
   padding: 15px;
   border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
@@ -1944,4 +1944,18 @@ button.home-member-delete-btn:hover {
   text-align: center;
   color: #7f8c8d;
   padding: 20px;
+}
+
+.inventory-table-body .expired-row tr {
+  background-color: red !important;
+}
+
+.inventory-table-body .expiring-soon-row tr {
+  background-color: #fff3cd !important;
+}
+
+/* Keep hover behavior from overriding the background */
+.inventory-table-body tr.expired-row:hover td,
+.inventory-table-body tr.expiring-soon-row:hover td {
+  background-color: inherit !important;
 }
