@@ -21,6 +21,8 @@ import {
   InputLabel,
   FormControl,
   Menu,
+  Fade,
+  InputAdornment,
 } from "@mui/material";
 import {
   Edit,
@@ -30,11 +32,17 @@ import {
   ArrowBack,
   ArrowForward,
   Download,
+  Email,
+  Phone,
+  Person,
+  LocationOn,
+  CalendarToday,
 } from "@mui/icons-material";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import HomeSummary from "../../../Home/HomeModals/HomeSummary.jsx";
 import supplierService from "../../../../services/supplierService.jsx";
+import TidyHomeLogo from "../../../../assets/logo/TidyHome_Logo.png";
 
 const SupplierServiceComponent = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -372,10 +380,19 @@ const SupplierServiceComponent = () => {
 
     try {
       const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const logoWidth = 30;
+      const logoX = (pageWidth - logoWidth) / 2;
+      doc.addImage(TidyHomeLogo, 'PNG', logoX, 10, logoWidth, 0);
+
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(18);
-      doc.text("Supplier/Store Report", 14, 22);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Supplier/Store Report", pageWidth / 2, 40, { align: 'center' });
+
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 48, { align: 'center' });
 
       const headers = [
         "Supplier/Store ID",
@@ -400,9 +417,9 @@ const SupplierServiceComponent = () => {
       autoTable(doc, {
         head: [headers],
         body: data,
-        startY: 40,
+        startY: 58,
         theme: "grid",
-        styles: { fontSize: 10, cellPadding: 2 },
+        styles: { fontSize: 9, cellPadding: 2 },
         headStyles: { fillColor: [172, 158, 255] },
         columnStyles: {
           4: { cellWidth: 40 },
@@ -414,9 +431,7 @@ const SupplierServiceComponent = () => {
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `suppliers_stores_report_${
-        new Date().toISOString().split("T")[0]
-      }.pdf`;
+      link.download = `suppliers_stores_report_${new Date().toISOString().split("T")[0]}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

@@ -524,7 +524,8 @@ const CategoryTable = () => {
                   <TableCell>
                     {new Date(category.date).toLocaleDateString()}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right"
+                  style={{padding: "0px"}}>
                     <IconButton
                       onClick={() => {
                         setViewCategory(category);
