@@ -27,11 +27,12 @@ export const homeOwnerRegisterController = async (req, res) => {
     }
 
     // Validate password strength
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters long and contain at least one number",
+        message: "Password must be at least 8 characters long and contain at least one letter and one number",
       });
     }
 
