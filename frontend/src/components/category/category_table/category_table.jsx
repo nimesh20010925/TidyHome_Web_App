@@ -94,7 +94,7 @@ const CategoryTable = () => {
   });
 
   const categoryTypes = [
-    "Food & Grocery", 
+    "Food & Grocery",
     "Cleaning Supplies",
     "Personal Care & Hygiene",
     "Emergency & Safety Items",
@@ -103,8 +103,8 @@ const CategoryTable = () => {
     "Outdoor & Gardening",
     "Automotive & Accessories",
     "Pet Supplies",
-    "Kitchenware & Dining",];
-
+    "Kitchenware & Dining",
+  ];
 
   const openMenu = Boolean(anchorEl);
 
@@ -243,10 +243,25 @@ const CategoryTable = () => {
 
     try {
       const doc = new jsPDF();
+      // Adding a simple logo (circle with text) at the top center
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const logoX = pageWidth / 2; // Center horizontally
+      doc.setFillColor(172, 158, 255);
+      doc.circle(logoX, 14, 8, 'F');
+      doc.setFontSize(12);
+      doc.setTextColor(255, 255, 255);
+      doc.text('CM', logoX, 16, { align: 'center' });
+
+      // Set font to bold for the report title
+      doc.setFont("helvetica", "bold");
       doc.setFontSize(18);
-      doc.text("Category Report", 14, 22);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Category Report", pageWidth / 2, 28, { align: 'center' });
+      
+      // Reset font to normal for subsequent text
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 36, { align: 'center' });
 
       const tableData = filteredCategories.map((category) => [
         category.category_name || "",
@@ -256,7 +271,7 @@ const CategoryTable = () => {
       ]);
 
       autoTable(doc, {
-        startY: 40,
+        startY: 46,
         head: [["Name", "Type", "Description", "Date"]],
         body: tableData,
         theme: "striped",
