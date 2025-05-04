@@ -51,4 +51,14 @@ const consumptionSchema = new mongoose.Schema(
   }
 );
 
+consumptionSchema.pre("save", function (next) {
+  if (this.remaining_stock != null) {
+    const parsedStock = parseFloat(this.remaining_stock);
+    if (!isNaN(parsedStock)) {
+      this.remaining_stock = parsedStock.toFixed(2); // Format to 2 decimal places
+    }
+  }
+  next();
+});
+
 export const consumption = mongoose.model("consumptions", consumptionSchema);
