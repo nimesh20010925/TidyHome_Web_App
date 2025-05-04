@@ -3,29 +3,39 @@ import mongoose from 'mongoose';
 
 // Get all notices for the user's home
 export const getAllNotices = async (req, res) => {
-  try {
-    const notices = await Notice.find({ homeId: req.user.homeId })
-      .sort({ createdAt: -1 })
-      .populate('createdBy', 'name');
-
-    res.json(notices);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+    try {
+      const homeId = req.query.homeId || req.user.homeId; // Use homeId from query or from user
+  
+      const notices = await Notice.find({ homeId })
+        .sort({ createdAt: -1 })
+        .populate('createdBy', 'name');
+  
+      res.json(notices);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+  
 
 // Create a new notice
 export const createNotice = async (req, res) => {
-  const { message } = req.body;
+  const { message, homeId } = req.body;
 
   if (!message) {
     return res.status(400).json({ message: 'Notice message is required' });
   }
 
+  // Use homeId from body if provided, otherwise from authenticated user
+  const noticeHomeId = homeId || req.user.homeId;
+  
+  if (!noticeHomeId) {
+    return res.status(400).json({ message: 'homeId is required' });
+  }
+
   try {
     const newNotice = new Notice({
       message,
-      homeId: req.user.homeId,
+      homeId: noticeHomeId,
       createdBy: req.user._id
     });
 

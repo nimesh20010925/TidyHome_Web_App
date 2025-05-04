@@ -55,31 +55,31 @@ class InventoryController {
     try {
       const { homeId } = req.query;
       console.log("homeId from query:", homeId);
-  
+
       if (!homeId) {
         return res.status(400).json({
           success: false,
           message: "homeId is required to fetch inventories.",
         });
       }
-  
+
       const inventories = await Inventory.find({ homeId })
         .populate("categoryId")
         .populate("supplierId")
         .sort({ createdAt: -1 });
-  
+
       if (!inventories || inventories.length === 0) {
         return res.status(404).json({
           success: false,
           message: "No inventories found for the given homeId.",
         });
       }
-  
+
       res.status(200).json({
         success: true,
         data: inventories,
       });
-  
+
       console.log("Successfully found inventories!");
     } catch (error) {
       console.error("Error fetching inventories:", error);
@@ -89,7 +89,57 @@ class InventoryController {
       });
     }
   }
-  
+
+  static async getInventoryCountByCategory(req, res, next) {
+    try {
+      const { homeId } = req.query;
+      console.log("Home", homeId);
+
+      if (!homeId || !mongoose.Types.ObjectId.isValid(homeId)) {
+        return res.status(400).json({ error: "Valid homeId is required." });
+      }
+
+      const results = await Inventory.aggregate([
+        {
+          $match: {
+            homeId: new mongoose.Types.ObjectId(homeId),
+          },
+        },
+        {
+          $group: {
+            _id: "$categoryId",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $lookup: {
+            from: "categorys",
+            localField: "_id",
+            foreignField: "_id",
+            as: "category",
+          },
+        },
+        {
+          $unwind: "$category",
+        },
+        {
+          $project: {
+            _id: 0,
+            categoryId: "$_id",
+            count: 1,
+            categoryName: "$category.category_name",
+            categoryImage: "$category.category_image",
+          },
+        },
+      ]);
+
+      console.log("results", results);
+      res.status(200).json({ success: true, data: results });
+    } catch (error) {
+      console.error("Error getting inventory count by category:", error);
+      res.status(500).json({ error: "Failed to fetch data" });
+    }
+  }
 
   static async getInventoryItemById(req, res, next) {
     const { id } = req.params;

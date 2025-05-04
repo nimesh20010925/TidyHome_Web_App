@@ -34,4 +34,10 @@ inventoryRoutes.delete(
   InventoryController.deleteInventoryItem
 );
 
+inventoryRoutes.get(
+  "/getInventoryCountByCategory",
+  authenticateUser,
+  InventoryController.getInventoryCountByCategory
+);
+
 export default inventoryRoutes;

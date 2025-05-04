@@ -17,10 +17,10 @@ const Home = () => {
       { i: "ShoppingListDisplay", x: 6, y: 7, w: 6, h: 15 },
     ],
     md: [
-      { i: "SpecialNotices", x: 0, y: 0, w: 18, h: 8 },
+      { i: "SpecialNotices", x: 0, y: 0, w: 18, h: 9 },
       { i: "HomeSummary", x: 4, y: 0, w: 8, h: 7 },
       { i: "ShoppingDashboard", x: 0, y: 7, w: 8, h: 12 },
-      { i: "ShoppingListDisplay", x: 4, y: 7, w: 8, h: 12 },
+      { i: "ShoppingListDisplay", x: 4, y: 7, w: 8, h: 15 },
     ],
     sm: [
       { i: "SpecialNotices", x: 0, y: 0, w: 18, h: 10 },

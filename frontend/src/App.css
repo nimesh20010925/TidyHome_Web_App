@@ -1663,7 +1663,11 @@ button.home-member-delete-btn:hover {
 .shopping-list-modal-container {
   max-width: 600px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  align-items: center;
+  justify-content: center;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .shopping-list-modal-header {
@@ -1689,9 +1693,9 @@ button.home-member-delete-btn:hover {
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding-top: 10px !important;
-  padding-left: 10px !important;
-  padding: 5px;
+  padding-left: 14px !important;
+  padding-right: 16px !important;
+  padding: 0px;
   margin-bottom: 10px;
   position: relative;
 }
@@ -1743,7 +1747,7 @@ button.home-member-delete-btn:hover {
   color: #333;
 }
 
-.page_404_container{
+.page_404_container {
   align-items: center;
   justify-content: center;
   margin-left: 250px;
@@ -1752,7 +1756,7 @@ button.home-member-delete-btn:hover {
 .page_404 {
   padding: 40px 0;
   background: #fff;
-  font-family: 'Arvo', serif;
+  font-family: "Arvo", serif;
 }
 
 .four_zero_four_bg {
@@ -1806,4 +1810,152 @@ button.home-member-delete-btn:hover {
   background: #2d8a27;
   text-decoration: none;
   color: #fff;
+}
+
+.special-notices {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  overflow-y: auto;
+  max-height: 250px;
+}
+
+.notices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.notices-title {
+  color: #2c3e50;
+  margin: 0;
+}
+
+.add-notice-button {
+  background-color: #9166cc;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.add-notice-button:hover {
+  background-color: #935be1;
+}
+
+.notice-form {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notice-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  min-height: 100px;
+  margin-bottom: 10px;
+  font-family: inherit;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-button {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #27ae60;
+}
+
+.notices-list {
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  padding: 10px !important;
+  border: 1px solid #ddd !important;
+  background-color: #fff !important;
+  border-radius: 5px !important;
+}
+
+.notice-card {
+  background-color: white;
+  position: relative;
+}
+
+.notice-message {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.notice-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.delete-notice {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #e74c3c;
+  padding: 0 5px;
+}
+
+.delete-notice:hover {
+  color: #c0392b;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #7f8c8d;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #fadbd8;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.empty-notices {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 20px;
+}
+
+.inventory-table-body .expired-row tr {
+  background-color: red !important;
+}
+
+.inventory-table-body .expiring-soon-row tr {
+  background-color: #fff3cd !important;
+}
+
+/* Keep hover behavior from overriding the background */
+.inventory-table-body tr.expired-row:hover td,
+.inventory-table-body tr.expiring-soon-row:hover td {
+  background-color: inherit !important;
 }

@@ -55,6 +55,9 @@ const AddShoppingListItemsModal = ({
   const [itemQuantity, setItemQuantity] = useState();
   const [itemPrice, setItemPrice] = useState();
   const [isItemUrgent, setIsItemUrgent] = useState();
+  const [deleteItemModal, setDeleteItemModal] = useState(false);
+  const [selectedItemToDelete, setSelectedItemToDelete] = useState();
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
 
   const { t } = useTranslation();
 
@@ -63,6 +66,10 @@ const AddShoppingListItemsModal = ({
   const updateItemToggle = () => setUpdateItemModal(!updateItemModal);
 
   const addNewestItemToggle = () => setAddNewestItemModal(!addNewestItemModal);
+
+  const deleteItemToggle = () => {
+    setDeleteItemModal(!deleteItemModal);
+  };
 
   useEffect(() => {
     if (selectedInventoryItem?.price) {
@@ -87,6 +94,7 @@ const AddShoppingListItemsModal = ({
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
     }
+    setIsUserLoaded(true);
   }, []);
 
   useEffect(() => {
@@ -275,18 +283,44 @@ const AddShoppingListItemsModal = ({
     updateItemToggle();
   };
 
+  const handleDeleteItem = (itemId) => {
+    setSelectedItemToDelete(itemId);
+    deleteItemToggle();
+  };
+
+  const deleteShoppinglistItem = async (itemId) => {
+    console.log(itemId);
+    try {
+      const response = await ShoppingListService.deleteShoppingListItem(itemId);
+      console.log("Deleted item:", response.shoppingListItem);
+
+      // Remove the deleted item from the state
+      setShoppingListItems((prevItems) =>
+        prevItems.filter((item) => item._id !== itemId)
+      );
+
+      deleteItemToggle();
+    } catch (error) {
+      console.error("Failed to delete item:", error.message);
+    }
+  };
+
   const getAllInventoryItems = async () => {
-    const data = await InventoryService.getAllInventoryItems(
-      user.homeID,
-      user._id
-    );
-    setInventories(data);
-    console.log(data);
+    try {
+      const data = await InventoryService.getAllInventoryItems(user?.homeID);
+      setInventories(data || []);
+    } catch (error) {
+      console.error("Failed to fetch inventory:", error);
+      toast.error(t("INVENTORY_FETCH_FAILED"));
+      setInventories([]);
+    }
   };
 
   useEffect(() => {
-    getAllInventoryItems();
-  }, []);
+    if (user?.homeID) {
+      getAllInventoryItems();
+    }
+  }, [user?.homeID]);
 
   const decrementCount = () => setItemCount((prev) => Math.max(prev - 1, 0));
   const incrementCount = () => {
@@ -423,6 +457,19 @@ const AddShoppingListItemsModal = ({
       />
     </button>
   );
+
+  const closeDeleteItemBtn = (
+    <button className="close-btn" onClick={deleteItemToggle} type="button">
+      <img
+        width="20"
+        height="20"
+        src="https://img.icons8.com/ios/20/cancel.png"
+        alt="cancel"
+      />
+    </button>
+  );
+
+  if (!isUserLoaded) return null;
 
   return (
     <Modal
@@ -1165,7 +1212,7 @@ const AddShoppingListItemsModal = ({
                             cursor: "pointer",
                             fontSize: "16px",
                           }}
-                          // onClick={() => handleDeleteItem(item.id)}
+                          onClick={() => handleDeleteItem(item._id)}
                         />
                       </Col>
                     </Row>
@@ -1400,6 +1447,52 @@ const AddShoppingListItemsModal = ({
                   </div>
                 </ModalBody>
               </Modal>
+              <Modal
+                isOpen={deleteItemModal}
+                toggle={deleteItemToggle}
+                centered
+                scrollable
+              >
+                <ModalHeader
+                  toggle={deleteItemToggle}
+                  close={closeDeleteItemBtn}
+                  className="border-0 pb-0 pr-4 pl-4 ms-2 mr-2 fw-bold"
+                >
+                  {t("INVENTORY_DELETION_CONFIRMATION")}
+                </ModalHeader>
+                <ModalBody>
+                  <div className="d-flex flex-column">
+                    <div className="form-group mb-4 ms-3 justify-content-center align-items-center">
+                      {t("ARE_YOU_SURE_INVENTORY_DELETION")}
+                    </div>
+                    <Row className="form-group mb-2 mr-1 d-flex justify-content-end">
+                      <Col xs="auto">
+                        <Button
+                          style={{ cursor: "pointer" }}
+                          onClick={deleteItemToggle}
+                          className="ps-4 pe-4 border-0 rounded-pill bg-black fw-bold"
+                        >
+                          {t("CANCEL")}
+                        </Button>
+                      </Col>
+                      <Col xs="auto">
+                        <Button
+                          style={{
+                            backgroundColor: "#ff0000",
+                            cursor: "pointer",
+                          }}
+                          onClick={() =>
+                            deleteShoppinglistItem(selectedItemToDelete)
+                          }
+                          className="ps-4 pe-4 border-0 rounded-pill ms-3 fw-bold"
+                        >
+                          {t("DELETE")}
+                        </Button>
+                      </Col>
+                    </Row>
+                  </div>
+                </ModalBody>
+              </Modal>
             </div>
           </div>
         )}
@@ -1430,32 +1523,30 @@ const AddShoppingListItemsModal = ({
 
       {!isInputFocused && (
         <div className="mb-2 ps-3 pe-3">
-          {urgentItemsCost > 0 && (
-            <div className="d-flex justify-content-between align-items-center">
-              <span
-                style={{
-                  fontWeight: "600",
-                  fontSize: "16px",
-                  color: "#dc3545",
-                }}
-              >
-                Estimated Total Urgent Items Cost:
-              </span>
-              <span
-                style={{
-                  fontWeight: "700",
-                  fontSize: "17px",
-                  color: "#dc3545",
-                }}
-              >
-                {urgentItemsCost.toLocaleString(undefined, {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}{" "}
-                LKR
-              </span>
-            </div>
-          )}
+          <div className="d-flex justify-content-between align-items-center">
+            <span
+              style={{
+                fontWeight: "600",
+                fontSize: "16px",
+                color: "#dc3545",
+              }}
+            >
+              Estimated Total Urgent Items Cost:
+            </span>
+            <span
+              style={{
+                fontWeight: "700",
+                fontSize: "17px",
+                color: "#dc3545",
+              }}
+            >
+              {urgentItemsCost.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{" "}
+              LKR
+            </span>
+          </div>
         </div>
       )}
 

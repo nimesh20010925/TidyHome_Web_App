@@ -97,4 +97,32 @@ export class InventoryService {
       throw error;
     }
   }
+
+  static async getInventoryCountByCategory(homeId) {
+    try {
+      const token = localStorage.getItem("token");
+      console.log(homeId);
+
+      const response = await axios.get(
+        `${API_URL}/getInventoryCountByCategory`,
+        {
+          params: { homeId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        console.log(response.data.data);
+        return response.data.data;
+      } else {
+        console.error("Error:", response.data.message);
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching inventory count by category:", error);
+      return [];
+    }
+  }
 }

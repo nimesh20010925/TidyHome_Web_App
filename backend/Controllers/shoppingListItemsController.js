@@ -149,6 +149,7 @@ class ShoppingListItemsController {
 
   static async deleteShoppingListItem(req, res, next) {
     const { itemId } = req.params;
+    console.log(itemId);
 
     try {
       if (!mongoose.Types.ObjectId.isValid(itemId)) {

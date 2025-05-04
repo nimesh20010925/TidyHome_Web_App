@@ -39,18 +39,20 @@ export const generatePDF = (consumptions) => {
   const tableColumns = [
     "Product Name",
     "Amount Used",
-    "User",
+    "Item Type",
+    // "User",
     "Date",
     "Remaining Stock",
     "Notes",
   ];
   const tableRows = consumptions.map((item) => [
-    item.product_name,
-    item.amount_used,
-    item.user?.name || "Unknown User",
-    new Date(item.date).toLocaleDateString(),
-    item.remaining_stock,
-    item.notes,
+    item.product_name || "-",
+    item.amount_used || "-",
+    item.item_type || "-",
+    // item.user?.name || "Unknown User",
+    item.date ? new Date(item.date).toLocaleDateString() : "-",
+    item.remaining_stock || "-",
+    item.notes || "-",
   ]);
 
   // Add table using autoTable
@@ -89,18 +91,20 @@ export const generateCSV = (consumptions) => {
   const headers = [
     "Product Name",
     "Amount Used",
-    "User",
+    "Item Type",
+    // "User",
     "Date",
     "Remaining Stock",
     "Notes",
   ];
   const rows = consumptions.map((item) => [
-    `"${item.product_name}"`,
-    item.amount_used,
-    `"${item.user?.name || "Unknown User"}"`,
-    new Date(item.date).toLocaleDateString(),
-    item.remaining_stock,
-    `"${item.notes}"`,
+    `"${item.product_name || "-"}"`,
+    item.amount_used || "-",
+    `"${item.item_type || "-"}"`,
+    // `"${item.user?.name || "Unknown User"}"`,
+    item.date ? new Date(item.date).toLocaleDateString() : "-",
+    item.remaining_stock || "-",
+    `"${item.notes || "-"}"`,
   ]);
 
   const csvContent = [
