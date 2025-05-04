@@ -43,105 +43,113 @@ class ErrorBoundary extends React.Component {
 }
 
 // PDF Styles
+// Updated PDF Styles with smaller fonts
 const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontFamily: 'Helvetica'
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: '#112131',
-    borderBottomStyle: 'solid',
-    paddingBottom: 10
-  },
-  logo: {
-    width: 120,
-    height: 50
-  },
-  title: {
-    fontSize: 24,
-    textAlign: 'center',
-    marginBottom: 20,
-    fontWeight: 'bold',
-    color: '#112131'
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 30
-  },
-  section: {
-    marginBottom: 20
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    backgroundColor: '#f0f0f0',
-    padding: 5
-  },
-  divider: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#112131',
-    borderBottomStyle: 'solid',
-    marginBottom: 10
-  },
-  table: {
-    width: '100%',
-    marginBottom: 15
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
-    padding: 5,
-    fontWeight: 'bold'
-  },
-  tableRow: {
-    flexDirection: 'row',
-    padding: 5,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-    borderBottomStyle: 'solid'
-  },
-  col1: {
-    width: '30%'
-  },
-  col2: {
-    width: '20%',
-    textAlign: 'right'
-  },
-  col3: {
-    width: '25%',
-    textAlign: 'right'
-  },
-  col4: {
-    width: '25%',
-    textAlign: 'right'
-  },
-  footer: {
-    fontSize: 10,
-    textAlign: 'center',
-    marginTop: 30,
-    color: '#666666'
-  },
-  bold: {
-    fontWeight: 'bold'
-  },
-  alert: {
-    color: '#e74c3c'
-  },
-  warning: {
-    color: '#f39c12'
-  },
-  errorText: {
-    color: '#e74c3c',
-    textAlign: 'center',
-    padding: 20
-  }
-});
+    page: {
+      padding: 20,  // Reduced from 30
+      fontFamily: 'Helvetica'
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 15,  // Reduced from 20
+      borderBottomWidth: 1,  // Reduced from 2
+      borderBottomColor: '#112131',
+      borderBottomStyle: 'solid',
+      paddingBottom: 8  // Reduced from 10
+    },
+    logo: {
+      width: 100,  // Reduced from 120
+      height: 40  // Reduced from 50
+    },
+    title: {
+      fontSize: 18,  // Reduced from 24
+      textAlign: 'center',
+      marginBottom: 15,  // Reduced from 20
+      fontWeight: 'bold',
+      color: '#112131'
+    },
+    subtitle: {
+      fontSize: 12,  // Reduced from 14
+      textAlign: 'center',
+      marginBottom: 20  // Reduced from 30
+    },
+    section: {
+      marginBottom: 15  // Reduced from 20
+    },
+    sectionTitle: {
+      fontSize: 14,  // Reduced from 16
+      fontWeight: 'bold',
+      marginBottom: 8,  // Reduced from 10
+      backgroundColor: '#f0f0f0',
+      padding: 4  // Reduced from 5
+    },
+    divider: {
+      borderBottomWidth: 1,
+      borderBottomColor: '#112131',
+      borderBottomStyle: 'solid',
+      marginBottom: 8  // Reduced from 10
+    },
+    table: {
+      width: '100%',
+      marginBottom: 12  // Reduced from 15
+    },
+    tableHeader: {
+      flexDirection: 'row',
+      backgroundColor: '#f0f0f0',
+      padding: 4,  // Reduced from 5
+      fontWeight: 'bold',
+      fontSize: 10  // Added smaller font size for table headers
+    },
+    tableRow: {
+      flexDirection: 'row',
+      padding: 4,  // Reduced from 5
+      borderBottomWidth: 1,
+      borderBottomColor: '#f0f0f0',
+      borderBottomStyle: 'solid',
+      fontSize: 10  // Added smaller font size for table rows
+    },
+    col1: {
+      width: '30%',
+      fontSize: 10  // Added explicit font size
+    },
+    col2: {
+      width: '20%',
+      textAlign: 'right',
+      fontSize: 10  // Added explicit font size
+    },
+    col3: {
+      width: '25%',
+      textAlign: 'right',
+      fontSize: 10  // Added explicit font size
+    },
+    col4: {
+      width: '25%',
+      textAlign: 'right',
+      fontSize: 10  // Added explicit font size
+    },
+    footer: {
+      fontSize: 8,  // Reduced from 10
+      textAlign: 'center',
+      marginTop: 20,  // Reduced from 30
+      color: '#666666'
+    },
+    bold: {
+      fontWeight: 'bold'
+    },
+    alert: {
+      color: '#e74c3c'
+    },
+    warning: {
+      color: '#f39c12'
+    },
+    errorText: {
+      color: '#e74c3c',
+      textAlign: 'center',
+      padding: 15,  // Reduced from 20
+      fontSize: 12  // Added explicit font size
+    }
+  });
 
 // PDF Document Component
 const InventorySummaryPDF = ({ inventoryData = [], user = {}, loading = false }) => {
