@@ -83,6 +83,14 @@
     "HOME_SUMMARY": "නිවෙස් සාරාංශය", 
     "SAVE": "සුරකින්න",
     "NO_INVENTORY_ITEMS_FOUND": "බඩු තොග කිසිවක් හමු නොවීය",
+    "EXPIRED_ITEMS_ALERT": "කල් ඉකුත් වූ අයිතම දැනුම් දීම",
+    "SEARCH_INVENTORY_PLACEHOLDER": "බඩුතොග සොයන්න...",
+    "EXPIRED_ITEMS_COUNT": "ක් ඇත",
+    "YOU_HAVE": "ඔබගේ ගබඩාවේ කල් ඉකුත් වූ අයිතම",
+    "EXPIRED_ON": "කල්ඉකුත් වූයේ",
+    "AMOUNT": "ප්‍රමාණය",
+    "ADD_NIWEST_ITEM": "නව අයිතමයක් එක් කරන්න",
+
 
     "NOTIFICATIONS": "දැනුම්දීම්",
     "Search": "සොයන්න",
@@ -119,7 +127,7 @@
     "CREATENEWSHOPPINGLIST":"නව සාප්පු ලැයිස්තුවක් සාදන්න",
     "ADDNEWINVENTORY":"නව බඩු තොග එකතු කරන්න",
     "ADDSUPPLIER":"සැපයුම්කරු එකතු කරන්න",
-    "EXPORTREPORT":"බඩු තොග වාර්තාව බාගත කරගන්න",
+    "EXPORTREPORT":"බඩු තොග වාර්තා",
     "FAMILYMEMBERS":"පවුලේ සාමාජිකයන්",
 
     "SPECIALNOTICES":"විශේෂ නිවේදන",

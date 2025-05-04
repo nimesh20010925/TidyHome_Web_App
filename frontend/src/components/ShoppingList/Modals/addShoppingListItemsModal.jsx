@@ -477,7 +477,7 @@ const AddShoppingListItemsModal = ({
       toggle={toggle}
       centered={true}
       scrollable
-      modalClassName="custom-modal mt-4"
+      modalClassName="custom-shopping-modal shopping-height mt-4"
     >
       <ModalHeader
         toggle={toggle}
@@ -793,7 +793,7 @@ const AddShoppingListItemsModal = ({
 
                 <Col className="text-end">
                   <button
-                    className="col-9 border-0 rounded-pill fw-bold"
+                    className="col-12 border-0 rounded-pill fw-bold"
                     style={{
                       backgroundColor: "#976BDB",
                       height: "36px",
@@ -801,7 +801,7 @@ const AddShoppingListItemsModal = ({
                     }}
                     onClick={() => handleClickAddNewestItemBtn()}
                   >
-                    Add Newest Item
+                    {t("ADD_NIWEST_ITEM")}
                   </button>
                 </Col>
               </Row>

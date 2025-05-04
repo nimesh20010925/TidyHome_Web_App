@@ -26,7 +26,8 @@ const SideBar = () => {
   const [userRole, setUserRole] = useState("");
   const [loading, setLoading] = useState(true);
   const [addHomeMembersModal, setAddHomeMembersModal] = useState(false);
-  const [inventorySummaryReportModal, setInventorySummaryReportModal] = useState(false);
+  const [inventorySummaryReportModal, setInventorySummaryReportModal] =
+    useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
   const [isNotificationModalOpen, setNotificationModalOpen] = useState(false);
@@ -134,7 +135,7 @@ const SideBar = () => {
         <h6 className="fw-bold mt-2 pt-1 ms-3">{t("QUICKACTION")}</h6>
 
         <ListGroup variant="flush">
-          <a href="/app/category-home">
+          <a href="/app/category-home" style={{ textDecoration: "none" }}>
             <ListGroup.Item action className="border-0">
               <img
                 src={categories}
@@ -151,7 +152,7 @@ const SideBar = () => {
             action
             className="border-0"
           >
-            <FaPlus className="me-2" />
+            <FaPlus className="me-3" />
             {t("CREATECONSUMPTION")}
           </ListGroup.Item>
           <Modal
@@ -164,7 +165,7 @@ const SideBar = () => {
               to="/app/custom-notification"
               className="text-decoration-none text-dark"
             >
-              <FaClock className="me-2" />
+              <FaClock className="me-3" />
               Reminders
             </Link>
           </ListGroup.Item>
@@ -176,9 +177,10 @@ const SideBar = () => {
           >
             <img
               src={addNotification}
-              className="me-2"
-              width="22px"
-              height="22px"
+              className="me-3"
+              style={{marginLeft: -2}}
+              width="20px"
+              height="20px"
               alt="Add Notification"
             />
             {t("CREATECUSTOMREMINDERS")}
@@ -192,8 +194,9 @@ const SideBar = () => {
             <img
               src={addShopping}
               className="me-2"
-              width="22px"
-              height="22px"
+              style={{marginLeft: -2}}
+              width="20px"
+              height="20px"
               alt="Create Shopping List"
             />{" "}
             {t("CREATENEWSHOPPINGLIST")}
@@ -201,15 +204,18 @@ const SideBar = () => {
           <ListGroup.Item action className="border-0">
             <FaBox className="me-2" /> {t("ADDNEWINVENTORY")}
           </ListGroup.Item>
-          <a href="/app/supplier-home">
+          <a href="/app/supplier-home" style={{ textDecoration: "none" }}>
             <ListGroup.Item action className="border-0">
-              <FaTruck className="me-2" />{t("ADDSUPPLIER")}
+              <FaTruck className="me-3" />
+              {t("ADDSUPPLIER")}
             </ListGroup.Item>
           </a>
-          <ListGroup.Item action className="border-0" onClick={inventorySummaryReportToggle}>
-            <FaFileExport
-
-              className="me-2" /> {t("EXPORTREPORT")}
+          <ListGroup.Item
+            action
+            className="border-0"
+            onClick={inventorySummaryReportToggle}
+          >
+            <FaFileExport className="me-2" /> {t("EXPORTREPORT")}
           </ListGroup.Item>
         </ListGroup>
 
@@ -250,8 +256,14 @@ const SideBar = () => {
           )}
         </ListGroup>
 
-        <AddHomeMembers isOpen={addHomeMembersModal} toggle={addHomeMembersToggle} />
-        <InventorySummaryReport isOpen={inventorySummaryReportModal} toggle={inventorySummaryReportToggle} />
+        <AddHomeMembers
+          isOpen={addHomeMembersModal}
+          toggle={addHomeMembersToggle}
+        />
+        <InventorySummaryReport
+          isOpen={inventorySummaryReportModal}
+          toggle={inventorySummaryReportToggle}
+        />
       </div>
     </>
   );

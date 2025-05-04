@@ -23,6 +23,8 @@ import { toast } from "react-hot-toast";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import { InputGroup } from "react-bootstrap";
+import { FaSearch } from "react-icons/fa";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -307,14 +309,17 @@ const Inventory = () => {
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="ms-1 fw-bold">{t("INVENTORY_LIST")}</h5>
           <div className="d-flex align-items-center">
-            <Form.Control
-              type="text"
-              placeholder={t("SEARCH_INVENTORY_PLACEHOLDER")}
-              className="me-3"
-              style={{ width: "300px" }}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <InputGroup className="me-3" style={{ width: "300px" }}>
+              <InputGroup.Text>
+                <FaSearch />
+              </InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder={t("SEARCH_INVENTORY_PLACEHOLDER")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </InputGroup>
             <Button
               onClick={addInventoryToggle}
               className="rounded-pill border-0 add-inventory-button fw-bold"

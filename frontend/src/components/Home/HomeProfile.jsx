@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import HomeMembersTable from './HomeModals/HomeMembersTable';
 import HomeSummary from './HomeModals/HomeSummary';
@@ -121,7 +121,7 @@ const HomeProfile = () => {
       {/* Edit Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="home-profile-modal-content">
             <div className="modal-header">
               <h2>Edit Home Details</h2>
               <button className="modal-close" onClick={() => setIsModalOpen(false)}>

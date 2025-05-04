@@ -8,7 +8,7 @@ import { InventoryService } from "../../../services/InventoryServices.jsx";
 import { CategoryService } from "../../../services/categoryServices";
 import PropTypes from "prop-types";
 import { toast } from "react-hot-toast";
-import axios from "axios";
+import SupplierService from "../../../services/supplierService.jsx";
 
 const AddInventoryModal = ({ isOpen, toggle }) => {
   const [categories, setCategories] = useState([]);
@@ -98,9 +98,9 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
 
   const getSuppliers = async () => {
     try {
-      const response = await axios.get("http://localhost:3500/api/supplier");
-      setSuppliers(response.data.suppliers);
-      console.log(response.data.suppliers);
+      const response = await SupplierService.getAllSuppliers(user?.homeId);
+      setSuppliers(response);
+      console.log(response);
     } catch (error) {
       console.error("Fetch suppliers error:", error);
     }
@@ -151,7 +151,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
 
       <ModalBody className="add-inventory-modal-body">
         <Form onSubmit={formik.handleSubmit}>
-          <Form.Group className="custom-inventory-form-group">
+          {/* <Form.Group className="custom-inventory-form-group">
             <Form.Control
               className="custom-inventory-form-input"
               type="file"
@@ -162,7 +162,7 @@ const AddInventoryModal = ({ isOpen, toggle }) => {
               onMouseDown={(e) => e.stopPropagation()}
             />
             <Form.Label>{t("ITEM_IMAGE")}</Form.Label>
-          </Form.Group>
+          </Form.Group> */}
 
           <Form.Group className="custom-inventory-form-group">
             <Form.Control
