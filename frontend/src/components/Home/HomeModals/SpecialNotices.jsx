@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
-// Make sure to create this CSS file
 
 const SpecialNotices = () => {
   const { t } = useTranslation();
@@ -19,14 +18,15 @@ const SpecialNotices = () => {
       try {
         const userData = JSON.parse(localStorage.getItem("user"));
         const token = localStorage.getItem("token");
+        const homeId = localStorage.getItem("homeId");
 
         if (userData && token) {
           setUser({
             ...userData,
             token,
+            homeId
           });
 
-          // Handle both homeID and homeId cases
           const homeIdFromStorage = userData.homeID || userData.homeId;
           if (!homeIdFromStorage) {
             console.error("homeId not found in user data");
@@ -53,11 +53,14 @@ const SpecialNotices = () => {
         setIsLoading(false);
         return;
       }
-
+  
       try {
         const response = await axios.get("http://localhost:3500/api/notices", {
           headers: {
             Authorization: `Bearer ${user.token}`,
+          },
+          params: {
+            homeId: homeId,
           },
         });
         setNotices(response.data);
@@ -68,7 +71,7 @@ const SpecialNotices = () => {
         setIsLoading(false);
       }
     };
-
+  
     fetchNotices();
   }, [user?.token, homeId, t]);
 
@@ -158,19 +161,19 @@ const SpecialNotices = () => {
         </div>
       )}
 
-      <div className="notices-list">
+     
         {notices.length === 0 ? (
           <p className="empty-notices">{t("NO_NOTICES_AVAILABLE")}</p>
         ) : (
           notices.map((notice) => (
-            <div className="notice-card" key={notice._id}>
+            <div className="notice-card" key={notice._id} style={{backgroundColor: "#D84040", padding: "10px", marginBottom: "10px"}}>
               <div className="notice-content">
-                <p className="notice-message">📢 {notice.message}</p>
+                <p className="notice-message" style={{color:"#fff"}}>📢 {notice.message}</p>
                 <div className="notice-meta">
-                  <span className="notice-author">
+                  <span className="notice-author" style={{color:"#fff"}}>
                     {t("POSTED_BY")}: {notice.createdBy?.name || t("UNKNOWN_USER")}
                   </span>
-                  <span className="notice-date">
+                  <span className="notice-date" style={{color:"#fff"}}>
                     {new Date(notice.createdAt).toLocaleDateString()}
                   </span>
                 </div>
@@ -181,6 +184,7 @@ const SpecialNotices = () => {
                     className="delete-notice"
                     onClick={() => removeNotice(notice._id)} onMouseDown={(e) => e.stopPropagation()}
                     aria-label={t("DELETE_NOTICE")}
+                    style={{color:"#fff"}}
                   >
                     ×
                   </button>
@@ -189,7 +193,7 @@ const SpecialNotices = () => {
           ))
         )}
       </div>
-    </div>
+    
   );
 };
 

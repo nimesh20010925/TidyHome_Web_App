@@ -10,6 +10,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { CategoryService } from "../../../services/categoryServices";
 
@@ -19,6 +21,11 @@ const CategoryTable = () => {
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   const categoryTypes = [
     "Food & Groceries",
@@ -33,17 +40,24 @@ const CategoryTable = () => {
     "Kitchenware & Dining",
   ];
 
-  const handleSubmit = async () => { // Removed e parameter since no form
+  const handleSubmit = async () => {
     if (!categoryType || !categoryName || !categoryDescription) {
-      alert("All fields except image are required");
+      setSnackbar({
+        open: true,
+        message: "All fields except image are required",
+        severity: "error",
+      });
       return;
     }
 
     const nameRegex = /^[a-zA-Z0-9\s&]+$/;
     if (!nameRegex.test(categoryName)) {
-      alert(
-        "Category Name can only contain letters, numbers, and spaces. No special characters allowed."
-      );
+      setSnackbar({
+        open: true,
+        message:
+          "Category Name can only contain letters, numbers, and spaces. No special characters allowed.",
+        severity: "error",
+      });
       return;
     }
 
@@ -51,7 +65,11 @@ const CategoryTable = () => {
       categoryDescription.length < 10 ||
       categoryDescription.length > 500
     ) {
-      alert("Description must be between 10 and 500 characters long.");
+      setSnackbar({
+        open: true,
+        message: "Description must be between 10 and 500 characters long.",
+        severity: "error",
+      });
       return;
     }
 
@@ -67,7 +85,11 @@ const CategoryTable = () => {
     try {
       const response = await CategoryService.createCategory(formData);
       console.log("Category created:", response);
-      alert("Category created successfully!");
+      setSnackbar({
+        open: true,
+        message: "Category created successfully!",
+        severity: "success",
+      });
       setShowModal(false);
       setCategoryType("");
       setCategoryName("");
@@ -75,7 +97,11 @@ const CategoryTable = () => {
       setCategoryImage(null);
     } catch (error) {
       console.error("Error creating category:", error);
-      alert("Error creating category. Please try again.");
+      setSnackbar({
+        open: true,
+        message: "Error creating category. Please try again.",
+        severity: "error",
+      });
     }
   };
 
@@ -133,7 +159,7 @@ const CategoryTable = () => {
         </button>
       </div>
 
-      {/* Modal for Create Form (Styled like SupplierService) */}
+      {/* Modal for Create Form */}
       <Modal open={showModal} onClose={() => setShowModal(false)}>
         <Box sx={modalStyle}>
           <Typography variant="h6" gutterBottom>Add New Category</Typography>
@@ -215,6 +241,21 @@ const CategoryTable = () => {
           </Grid>
         </Box>
       </Modal>
+
+      {/* Snackbar for success/error messages */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
