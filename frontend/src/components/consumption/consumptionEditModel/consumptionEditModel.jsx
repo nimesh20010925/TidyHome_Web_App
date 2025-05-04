@@ -20,11 +20,13 @@ import {
   Cancel as CancelIcon,
 } from "@mui/icons-material";
 import { InventoryService } from "../../../services/InventoryServices";
+import { ConsumptionService } from "../../../services/consumptionServices";
 
 const EditModal = ({ open, onClose, item, onSave }) => {
   const [editedItem, setEditedItem] = useState({
     product_name: "",
     amount_used: "",
+    item_type: "",
     user: "",
     date: "",
     remaining_stock: "",
@@ -33,10 +35,12 @@ const EditModal = ({ open, onClose, item, onSave }) => {
   });
   const [errors, setErrors] = useState({});
   const [inventoryItems, setInventoryItems] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchInventoryData = async () => {
       try {
+        setLoading(true);
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user || !user.homeID) {
           setErrors({ general: "User does not belong to any home" });
@@ -47,21 +51,24 @@ const EditModal = ({ open, onClose, item, onSave }) => {
       } catch (error) {
         console.error("Error fetching inventory items:", error);
         setErrors({ general: "Failed to load inventory items" });
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchInventoryData();
 
-    // Initialize editedItem with item data and logged-in user's name
+    // Initialize editedItem with item data
     const user = JSON.parse(localStorage.getItem("user"));
-    const userName = user?.name || "Unknown User"; // Adjust based on your user object structure
+    const userName = user?.name || "Unknown User";
 
     if (item && typeof item === "object") {
       setEditedItem({
         _id: item._id || "",
         product_name: item.product_name || "",
         amount_used: item.amount_used?.toString() || "",
-        user: item.user || userName, // Pre-populate with logged-in user's name if item.user is empty
+        item_type: item.item_type || "",
+        user: item.user || userName,
         date: item.date ? new Date(item.date).toISOString().split("T")[0] : "",
         remaining_stock: item.remaining_stock?.toString() || "",
         notes: item.notes || "",
@@ -87,7 +94,8 @@ const EditModal = ({ open, onClose, item, onSave }) => {
         const newStock = selectedItem.quantity + stockDifference;
         setEditedItem((prev) => ({
           ...prev,
-          remaining_stock: newStock >= 0 ? newStock.toFixed(3) : "0",
+          item_type: selectedItem.itemType || "",
+          remaining_stock: newStock >= 0 ? newStock.toFixed(2) : "0",
         }));
       }
     }
@@ -119,7 +127,10 @@ const EditModal = ({ open, onClose, item, onSave }) => {
       parseFloat(editedItem.amount_used) <= 0
     )
       newErrors.amount_used = "Enter a valid amount (> 0)";
-    if (!editedItem.user) newErrors.user = "User is required";
+    if (!editedItem.item_type) newErrors.item_type = "Item type is required";
+    if (!editedItem.date) newErrors.date = "Date is required";
+    else if (editedItem.date < today)
+      newErrors.date = "Date must be today or a future date";
     if (
       !editedItem.remaining_stock ||
       isNaN(editedItem.remaining_stock) ||
@@ -128,24 +139,42 @@ const EditModal = ({ open, onClose, item, onSave }) => {
       newErrors.remaining_stock = "Remaining stock cannot be negative";
     if (!editedItem.notes || editedItem.notes.length < 5)
       newErrors.notes = "Notes must be at least 5 characters";
-    if (!editedItem.date) {
-      newErrors.date = "Date is required";
-    } else if (editedItem.date < today) {
-      newErrors.date = "Date must be today or a future date";
-    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
-    if (validateForm()) {
-      onSave({
-        ...editedItem,
+  const handleSave = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+      const updatedData = {
+        product_name: editedItem.product_name,
         amount_used: parseFloat(editedItem.amount_used),
+        item_type: editedItem.item_type,
+        date: editedItem.date,
         remaining_stock: parseFloat(editedItem.remaining_stock),
-      });
+        notes: editedItem.notes,
+      };
+
+      // Update consumption via API
+      const response = await ConsumptionService.updateConsumption(
+        editedItem._id,
+        updatedData
+      );
+
+      // Update local state via onSave
+      onSave({ ...updatedData, _id: editedItem._id });
+
       onClose();
+    } catch (error) {
+      console.error("Error saving consumption:", error);
+      setErrors({
+        general: error.response?.data?.message || "Failed to save changes",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -190,10 +219,14 @@ const EditModal = ({ open, onClose, item, onSave }) => {
               Edit Consumption
             </Typography>
           </Box>
-          -OrReplace
           {errors.general && (
             <Typography color="error" sx={{ mb: 2 }}>
               {errors.general}
+            </Typography>
+          )}
+          {loading && (
+            <Typography sx={{ mb: 2, textAlign: "center" }}>
+              Saving...
             </Typography>
           )}
           <TextField
@@ -205,7 +238,6 @@ const EditModal = ({ open, onClose, item, onSave }) => {
             fullWidth
             margin="normal"
             variant="outlined"
-            disabled
             error={!!errors.product_name}
             helperText={errors.product_name}
             InputProps={{
@@ -245,6 +277,26 @@ const EditModal = ({ open, onClose, item, onSave }) => {
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
           />
           <TextField
+            label="Item Type"
+            name="item_type"
+            value={editedItem.item_type || ""}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            error={!!errors.item_type}
+            helperText={errors.item_type}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <InventoryIcon />
+                </InputAdornment>
+              ),
+              readOnly: true,
+            }}
+            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
+          />
+          <TextField
             label="User"
             name="user"
             value={editedItem.user || ""}
@@ -262,7 +314,6 @@ const EditModal = ({ open, onClose, item, onSave }) => {
               ),
             }}
             sx={{ "& .MuiOutlinedInput-root": { borderRadius: 2 } }}
-            // disabled // Uncomment this line to make the user field read-only
           />
           <TextField
             label="Date"
@@ -327,6 +378,7 @@ const EditModal = ({ open, onClose, item, onSave }) => {
               color="primary"
               onClick={handleSave}
               startIcon={<SaveIcon />}
+              disabled={loading}
               sx={{
                 borderRadius: 2,
                 px: 3,
@@ -375,6 +427,7 @@ EditModal.propTypes = {
     _id: PropTypes.string,
     product_name: PropTypes.string,
     amount_used: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    item_type: PropTypes.string,
     user: PropTypes.string,
     date: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
     remaining_stock: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

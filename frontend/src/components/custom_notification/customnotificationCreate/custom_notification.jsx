@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import emailjs from "@emailjs/browser";
 import { NotificationService } from "../../../services/customNotificationServices";
 
 const NotificationModal = ({ isOpen, onClose }) => {
@@ -19,6 +20,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
   });
 
   const [errors, setErrors] = useState({});
+  const [emailStatus, setEmailStatus] = useState("");
 
   const validateForm = () => {
     const newErrors = {};
@@ -61,16 +63,49 @@ const NotificationModal = ({ isOpen, onClose }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
   };
 
+  const sendEmail = async () => {
+    const emailParams = {
+      to_email: formData.email,
+      notification_title: formData.notification_title,
+      message: formData.message,
+      date: formData.date,
+      time: formData.time,
+      assign_to: formData.assign_to,
+      priority_level: formData.priority_level,
+    };
+
+    try {
+      await emailjs.send(
+        "service_r7lopns", // Replace with your EmailJS service ID
+        "template_98eio7j", // Replace with your EmailJS template ID
+        emailParams,
+        "jjpEgn36J2PLbAw7G" // Replace with your EmailJS public key
+      );
+      setEmailStatus("Email sent successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setEmailStatus("Failed to send email");
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+
+    // Send email first
+    const emailSent = await sendEmail();
+    if (!emailSent) {
+      alert("Failed to send email, but proceeding with notification creation.");
+    }
 
     try {
       await NotificationService.createNotification(formData);
@@ -90,6 +125,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
         notes: "",
       });
       setErrors({});
+      setEmailStatus("");
       onClose();
     } catch (error) {
       console.error("Error creating notification:", error);
@@ -128,8 +164,14 @@ const NotificationModal = ({ isOpen, onClose }) => {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", textAlign: 'center' }}>
-          <h2 style={{ margin: 0, color: "#C799FF", textAlign: 'center' }}>Create Notification</h2>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <h2 style={{ margin: 0, color: "#C799FF" }}>Create Notification</h2>
           <button
             onClick={onClose}
             style={{
@@ -142,7 +184,19 @@ const NotificationModal = ({ isOpen, onClose }) => {
             ×
           </button>
         </div>
-        <p style={{ textAlign: "center", color: "#6c757d" }}>Schedule and customize your notification</p>
+        <p style={{ textAlign: "center", color: "#6c757d" }}>
+          Schedule and customize your notification
+        </p>
+        {emailStatus && (
+          <p
+            style={{
+              textAlign: "center",
+              color: emailStatus.includes("successfully") ? "green" : "red",
+            }}
+          >
+            {emailStatus}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div style={{ display: "grid", gap: "15px" }}>
@@ -155,15 +209,19 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 value={formData.notification_title}
                 onChange={handleChange}
                 placeholder="Title"
-                style={{ 
-                  width: "100%", 
-                  padding: "8px", 
-                  borderRadius: "4px", 
-                  border: errors.notification_title ? "1px solid red" : "1px solid #ddd" 
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: errors.notification_title
+                    ? "1px solid red"
+                    : "1px solid #ddd",
                 }}
               />
               {errors.notification_title && (
-                <span style={{ color: "red", fontSize: "12px" }}>{errors.notification_title}</span>
+                <span style={{ color: "red", fontSize: "12px" }}>
+                  {errors.notification_title}
+                </span>
               )}
             </div>
             <div>
@@ -175,15 +233,17 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email"
-                style={{ 
-                  width: "100%", 
-                  padding: "8px", 
-                  borderRadius: "4px", 
-                  border: errors.email ? "1px solid red" : "1px solid #ddd" 
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: errors.email ? "1px solid red" : "1px solid #ddd",
                 }}
               />
               {errors.email && (
-                <span style={{ color: "red", fontSize: "12px" }}>{errors.email}</span>
+                <span style={{ color: "red", fontSize: "12px" }}>
+                  {errors.email}
+                </span>
               )}
             </div>
             <div>
@@ -193,11 +253,13 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 name="notification_type"
                 value={formData.notification_type}
                 onChange={handleChange}
-                style={{ 
-                  width: "100%", 
-                  padding: "8px", 
-                  borderRadius: "4px", 
-                  border: errors.notification_type ? "1px solid red" : "1px solid #ddd" 
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: errors.notification_type
+                    ? "1px solid red"
+                    : "1px solid #ddd",
                 }}
               >
                 <option value="">Select Type</option>
@@ -206,7 +268,9 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 <option value="update">Update</option>
               </select>
               {errors.notification_type && (
-                <span style={{ color: "red", fontSize: "12px" }}>{errors.notification_type}</span>
+                <span style={{ color: "red", fontSize: "12px" }}>
+                  {errors.notification_type}
+                </span>
               )}
             </div>
             <div>
@@ -218,15 +282,17 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 value={formData.assign_to}
                 onChange={handleChange}
                 placeholder="Assign To"
-                style={{ 
-                  width: "100%", 
-                  padding: "8px", 
-                  borderRadius: "4px", 
-                  border: errors.assign_to ? "1px solid red" : "1px solid #ddd" 
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: errors.assign_to ? "1px solid red" : "1px solid #ddd",
                 }}
               />
               {errors.assign_to && (
-                <span style={{ color: "red", fontSize: "12px" }}>{errors.assign_to}</span>
+                <span style={{ color: "red", fontSize: "12px" }}>
+                  {errors.assign_to}
+                </span>
               )}
             </div>
             <div>
@@ -236,7 +302,12 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 name="repeat_notification"
                 value={formData.repeat_notification}
                 onChange={handleChange}
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #ddd",
+                }}
               >
                 <option value="none">None</option>
                 <option value="daily">Daily</option>
@@ -251,11 +322,13 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 name="send_notification_via"
                 value={formData.send_notification_via}
                 onChange={handleChange}
-                style={{ 
-                  width: "100%", 
-                  padding: "8px", 
-                  borderRadius: "4px", 
-                  border: errors.send_notification_via ? "1px solid red" : "1px solid #ddd" 
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: errors.send_notification_via
+                    ? "1px solid red"
+                    : "1px solid #ddd",
                 }}
               >
                 <option value="">Select Method</option>
@@ -264,7 +337,9 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 <option value="push">Push Notification</option>
               </select>
               {errors.send_notification_via && (
-                <span style={{ color: "red", fontSize: "12px" }}>{errors.send_notification_via}</span>
+                <span style={{ color: "red", fontSize: "12px" }}>
+                  {errors.send_notification_via}
+                </span>
               )}
             </div>
             <div>
@@ -274,7 +349,12 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 name="priority_level"
                 value={formData.priority_level}
                 onChange={handleChange}
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #ddd",
+                }}
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -292,15 +372,17 @@ const NotificationModal = ({ isOpen, onClose }) => {
                   value={formData.date}
                   onChange={handleChange}
                   min={new Date().toISOString().split("T")[0]}
-                  style={{ 
-                    width: "100%", 
-                    padding: "8px", 
-                    borderRadius: "4px", 
-                    border: errors.date ? "1px solid red" : "1px solid #ddd" 
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    border: errors.date ? "1px solid red" : "1px solid #ddd",
                   }}
                 />
                 {errors.date && (
-                  <span style={{ color: "red", fontSize: "12px" }}>{errors.date}</span>
+                  <span style={{ color: "red", fontSize: "12px" }}>
+                    {errors.date}
+                  </span>
                 )}
               </div>
               <div style={{ flex: 1 }}>
@@ -311,15 +393,17 @@ const NotificationModal = ({ isOpen, onClose }) => {
                   name="time"
                   value={formData.time}
                   onChange={handleChange}
-                  style={{ 
-                    width: "100%", 
-                    padding: "8px", 
-                    borderRadius: "4px", 
-                    border: errors.time ? "1px solid red" : "1px solid #ddd" 
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    border: errors.time ? "1px solid red" : "1px solid #ddd",
                   }}
                 />
                 {errors.time && (
-                  <span style={{ color: "red", fontSize: "12px" }}>{errors.time}</span>
+                  <span style={{ color: "red", fontSize: "12px" }}>
+                    {errors.time}
+                  </span>
                 )}
               </div>
             </div>
@@ -341,7 +425,9 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 }}
               />
               {errors.message && (
-                <span style={{ color: "red", fontSize: "12px" }}>{errors.message}</span>
+                <span style={{ color: "red", fontSize: "12px" }}>
+                  {errors.message}
+                </span>
               )}
             </div>
             <div>
@@ -353,7 +439,12 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 value={formData.actions}
                 onChange={handleChange}
                 placeholder="Actions"
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                style={{
+                  width: "100%",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  border: "1px solid #ddd",
+                }}
               />
             </div>
             <div>
@@ -386,8 +477,12 @@ const NotificationModal = ({ isOpen, onClose }) => {
                   cursor: "pointer",
                   transition: "transform 0.2s",
                 }}
-                onMouseEnter={(e) => (e.target.style.transform = "translateY(-2px)")}
-                onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
+                onMouseEnter={(e) =>
+                  (e.target.style.transform = "translateY(-2px)")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.transform = "translateY(0)")
+                }
               >
                 Create Notification
               </button>

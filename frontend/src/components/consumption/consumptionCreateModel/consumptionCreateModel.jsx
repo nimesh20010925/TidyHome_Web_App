@@ -266,8 +266,8 @@ const ConsumptionCreateModal = ({ isOpen, closeModal }) => {
                   required
                   rows={3}
                   minLength={5}
-                  maxLength={10}
-                  placeholder="Add notes (5-10 chars)"
+                  maxLength={30}
+                  placeholder="Add notes (5-30 chars)"
                   className="ccm-form-control"
                 />
                 <Form.Control.Feedback type="invalid" className="ccm-feedback">
