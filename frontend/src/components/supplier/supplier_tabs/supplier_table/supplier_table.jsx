@@ -450,11 +450,20 @@ const SupplierServiceComponent = () => {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: { xs: "90%", sm: 400 },
+    width: { xs: "90%", sm: 450 },
     bgcolor: "white",
-    boxShadow: 24,
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
     p: 4,
-    borderRadius: 8,
+    borderRadius: 3,
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(255, 255, 255, 0.18)",
+  };
+
+  const purpleTheme = {
+    lightPurple: "#DAD5FB",
+    buttonPurple: "#AC9EFF",
+    buttonHover: "#9a80ff",
+    accentPurple: "#7b1fa2",
   };
 
   const filteredSuppliers = suppliers.filter((supplier) => {
@@ -480,18 +489,40 @@ const SupplierServiceComponent = () => {
     page * rowsPerPage + rowsPerPage
   );
 
-  const purpleTheme = {
-    lightPurple: "#DAD5FB",
-    buttonPurple: "#AC9EFF",
-    buttonHover: "#9a80ff",
-    accentPurple: "#7b1fa2",
-  };
-
   const totalPages = Math.ceil(filteredSuppliers.length / rowsPerPage);
   const pageNumbers = [];
   for (let i = Math.max(0, page - 2); i < Math.min(totalPages, page + 3); i++) {
     pageNumbers.push(i);
   }
+
+  const inputStyles = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "12px",
+      backgroundColor: "#f8f9fa",
+      transition: "all 0.3s ease",
+      "& fieldset": {
+        borderColor: purpleTheme.lightPurple,
+      },
+      "&:hover fieldset": {
+        borderColor: purpleTheme.buttonPurple,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: purpleTheme.accentPurple,
+        boxShadow: `0 0 8px ${purpleTheme.buttonPurple}50`,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: "#6B7280",
+      fontWeight: 500,
+      "&.Mui-focused": {
+        color: purpleTheme.accentPurple,
+      },
+    },
+    "& .MuiInputBase-input": {
+      padding: "12px",
+      fontSize: "0.95rem",
+    },
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -499,22 +530,39 @@ const SupplierServiceComponent = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
+          flexDirection: "column",
           alignItems: "center",
           mb: 3,
         }}
       >
-        <Typography variant="h4" sx={{ fontWeight: "bold", color: "#1F2937" }}>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: "bold",
+            color: "#1F2937",
+            mb: 2,
+            textAlign: "center",
+          }}
+        >
           Supplier/Store Management
         </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+            width: "100%",
+          }}
+        >
           <TextField
             label="Search Suppliers/Stores"
             variant="outlined"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{
-              width: 300,
+              width: { xs: "100%", sm: 300 },
               backgroundColor: "#fff",
               borderRadius: "25px",
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
@@ -551,7 +599,7 @@ const SupplierServiceComponent = () => {
               },
             }}
           />
-          <FormControl sx={{ width: 200 }}>
+          <FormControl sx={{ width: { xs: "100%", sm: 200 } }}>
             <InputLabel>Filter by Type</InputLabel>
             <Select
               value={typeFilter}
@@ -903,22 +951,36 @@ const SupplierServiceComponent = () => {
         )}
       </TableContainer>
 
-      <Modal open={openCreate} onClose={() => setOpenCreate(false)}>
+      <Modal open={openCreate} onClose={() => setOpenCreate(false)} TransitionComponent={Fade}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" gutterBottom>
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{
+              fontWeight: "bold",
+              color: "#1F2937",
+              mb: 3,
+              textAlign: "center",
+            }}
+          >
             Create Supplier/Store
           </Typography>
           <Grid container spacing={2}>
             {Object.keys(formData).map((key) =>
               key === "type" ? (
                 <Grid item xs={12} key={key}>
-                  <FormControl fullWidth variant="outlined">
+                  <FormControl fullWidth variant="outlined" sx={inputStyles}>
                     <InputLabel>Type</InputLabel>
                     <Select
                       name="type"
                       value={formData.type}
                       onChange={handleInputChange}
                       label="Type"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <Person sx={{ color: purpleTheme.accentPurple }} />
+                        </InputAdornment>
+                      }
                     >
                       <MenuItem value="Supplier">Supplier</MenuItem>
                       <MenuItem value="Store">Store</MenuItem>
@@ -938,15 +1000,13 @@ const SupplierServiceComponent = () => {
                     InputLabelProps={{
                       shrink: true,
                     }}
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          borderColor: "#6A5ACD",
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#7B68EE",
-                        },
-                      },
+                    sx={inputStyles}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarToday sx={{ color: purpleTheme.accentPurple }} />
+                        </InputAdornment>
+                      ),
                     }}
                   />
                 </Grid>
@@ -957,12 +1017,34 @@ const SupplierServiceComponent = () => {
                     label={key
                       .replace("supplier_", "Supplier/Store ")
                       .replace("_", " ")
-                      .toUpperCase()}
+                      .replace(/\b\w/g, (c) => c.toUpperCase())}
                     name={key}
                     value={formData[key]}
                     onChange={handleInputChange}
-                    type="text"
+                    type={key === "supplier_email" ? "email" : "text"}
                     variant="outlined"
+                    sx={inputStyles}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          {key === "supplier_id" && (
+                            <Person sx={{ color: purpleTheme.accentPurple }} />
+                          )}
+                          {key === "supplier_name" && (
+                            <Person sx={{ color: purpleTheme.accentPurple }} />
+                          )}
+                          {key === "supplier_contact" && (
+                            <Phone sx={{ color: purpleTheme.accentPurple }} />
+                          )}
+                          {key === "supplier_email" && (
+                            <Email sx={{ color: purpleTheme.accentPurple }} />
+                          )}
+                          {key === "supplier_address" && (
+                            <LocationOn sx={{ color: purpleTheme.accentPurple }} />
+                          )}
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Grid>
               )
@@ -973,20 +1055,56 @@ const SupplierServiceComponent = () => {
                 onClick={handleCreate}
                 fullWidth
                 sx={{
-                  backgroundColor: purpleTheme.buttonPurple,
+                  background: `linear-gradient(135deg, ${purpleTheme.buttonPurple} 0%, ${purpleTheme.accentPurple} 100%)`,
                   color: "white",
-                  "&:hover": { backgroundColor: purpleTheme.buttonHover },
+                  borderRadius: "12px",
+                  py: 1.5,
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  boxShadow: `0 4px 12px ${purpleTheme.buttonPurple}50`,
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    background: `linear-gradient(135deg, ${purpleTheme.buttonHover} 0%, ${purpleTheme.accentPurple} 100%)`,
+                    boxShadow: `0 6px 16px ${purpleTheme.buttonHover}80`,
+                    transform: "translateY(-2px)",
+                  },
                 }}
               >
                 Create
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                variant="outlined"
+                onClick={() => setOpenCreate(false)}
+                fullWidth
+                sx={{
+                  borderColor: purpleTheme.buttonPurple,
+                  color: purpleTheme.buttonPurple,
+                  borderRadius: "12px",
+                  py: 1.5,
+                  fontWeight: "bold",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    borderColor: purpleTheme.buttonHover,
+                    color: purpleTheme.buttonHover,
+                    backgroundColor: `${purpleTheme.buttonPurple}10`,
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                Cancel
               </Button>
             </Grid>
           </Grid>
         </Box>
       </Modal>
 
-      <Modal open={openUpdate} onClose={() => setOpenUpdate(false)}>
-        <Box sx={modalStyle}>
+      <Modal open={openUpdate} onClose={() => setOpenUpdate(false)} TransitionComponent={Fade}>
+        <Box sx={{ ...modalStyle, width: { xs: "90%", sm: 450 } }}>
           <Box
             sx={{
               maxHeight: "80vh",
@@ -994,20 +1112,34 @@ const SupplierServiceComponent = () => {
               p: 2,
             }}
           >
-            <Typography variant="h6" gutterBottom>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{
+                fontWeight: "bold",
+                color: "#1F2937",
+                mb: 3,
+                textAlign: "center",
+              }}
+            >
               Update Supplier/Store
             </Typography>
             <Grid container spacing={2}>
               {Object.keys(formData).map((key) =>
                 key === "type" ? (
                   <Grid item xs={12} key={key}>
-                    <FormControl fullWidth variant="outlined">
+                    <FormControl fullWidth variant="outlined" sx={inputStyles}>
                       <InputLabel>Type</InputLabel>
                       <Select
                         name="type"
                         value={formData.type}
                         onChange={handleInputChange}
                         label="Type"
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <Person sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        }
                       >
                         <MenuItem value="Supplier">Supplier</MenuItem>
                         <MenuItem value="Store">Store</MenuItem>
@@ -1027,15 +1159,13 @@ const SupplierServiceComponent = () => {
                       InputLabelProps={{
                         shrink: true,
                       }}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          "& fieldset": {
-                            borderColor: "#6A5ACD",
-                          },
-                          "&:hover fieldset": {
-                            borderColor: "#7B68EE",
-                          },
-                        },
+                      sx={inputStyles}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CalendarToday sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        ),
                       }}
                     />
                   </Grid>
@@ -1046,12 +1176,34 @@ const SupplierServiceComponent = () => {
                       label={key
                         .replace("supplier_", "Supplier/Store ")
                         .replace("_", " ")
-                        .toUpperCase()}
+                        .replace(/\b\w/g, (c) => c.toUpperCase())}
                       name={key}
                       value={formData[key]}
                       onChange={handleInputChange}
-                      type="text"
+                      type={key === "supplier_email" ? "email" : "text"}
                       variant="outlined"
+                      sx={inputStyles}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            {key === "supplier_id" && (
+                              <Person sx={{ color: purpleTheme.accentPurple }} />
+                            )}
+                            {key === "supplier_name" && (
+                              <Person sx={{ color: purpleTheme.accentPurple }} />
+                            )}
+                            {key === "supplier_contact" && (
+                              <Phone sx={{ color: purpleTheme.accentPurple }} />
+                            )}
+                            {key === "supplier_email" && (
+                              <Email sx={{ color: purpleTheme.accentPurple }} />
+                            )}
+                            {key === "supplier_address" && (
+                              <LocationOn sx={{ color: purpleTheme.accentPurple }} />
+                            )}
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   </Grid>
                 )
@@ -1073,9 +1225,21 @@ const SupplierServiceComponent = () => {
                     variant="contained"
                     onClick={handleUpdate}
                     sx={{
-                      backgroundColor: purpleTheme.buttonPurple,
+                      background: `linear-gradient(135deg, ${purpleTheme.buttonPurple} 0%, ${purpleTheme.accentPurple} 100%)`,
                       color: "white",
-                      "&:hover": { backgroundColor: purpleTheme.buttonHover },
+                      borderRadius: "12px",
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      boxShadow: `0 4px 12px ${purpleTheme.buttonPurple}50`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        background: `linear-gradient(135deg, ${purpleTheme.buttonHover} 0%, ${purpleTheme.accentPurple} 100%)`,
+                        boxShadow: `0 6px 16px ${purpleTheme.buttonHover}80`,
+                        transform: "translateY(-2px)",
+                      },
                     }}
                   >
                     Update
@@ -1084,11 +1248,20 @@ const SupplierServiceComponent = () => {
                     variant="outlined"
                     onClick={() => setOpenUpdate(false)}
                     sx={{
-                      color: purpleTheme.buttonPurple,
                       borderColor: purpleTheme.buttonPurple,
+                      color: purpleTheme.buttonPurple,
+                      borderRadius: "12px",
+                      px: 4,
+                      py: 1.5,
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                      transition: "all 0.3s ease",
                       "&:hover": {
                         borderColor: purpleTheme.buttonHover,
                         color: purpleTheme.buttonHover,
+                        backgroundColor: `${purpleTheme.buttonPurple}10`,
+                        transform: "translateY(-2px)",
                       },
                     }}
                   >
@@ -1101,9 +1274,18 @@ const SupplierServiceComponent = () => {
         </Box>
       </Modal>
 
-      <Modal open={openView} onClose={() => setOpenView(false)}>
+      <Modal open={openView} onClose={() => setOpenView(false)} TransitionComponent={Fade}>
         <Box sx={modalStyle}>
-          <Typography variant="h6" gutterBottom>
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{
+              fontWeight: "bold",
+              color: "#1F2937",
+              mb: 3,
+              textAlign: "center",
+            }}
+          >
             View Supplier/Store Details
           </Typography>
           {selectedSupplier && (
@@ -1111,64 +1293,141 @@ const SupplierServiceComponent = () => {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER/STORE ID"
+                  label="Supplier/Store Id"
                   value={selectedSupplier.supplier_id}
                   variant="outlined"
-                  InputProps={{ readOnly: true }}
+                  sx={inputStyles}
+                  InputLabelProps={{
+                    sx: { textTransform: "capitalize" },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Person sx={{ color: purpleTheme.accentPurple }} />
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER/STORE NAME"
+                  label="Supplier/Store Name"
                   value={selectedSupplier.supplier_name}
                   variant="outlined"
-                  InputProps={{ readOnly: true }}
+                  sx={inputStyles}
+                  InputLabelProps={{
+                    sx: { textTransform: "capitalize" },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Person sx={{ color: purpleTheme.accentPurple }} />
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER/STORE CONTACT"
+                  label="Supplier/Store Contact"
                   value={selectedSupplier.supplier_contact}
                   variant="outlined"
-                  InputProps={{ readOnly: true }}
+                  sx={inputStyles}
+                  InputLabelProps={{
+                    sx: { textTransform: "capitalize" },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Phone sx={{ color: purpleTheme.accentPurple }} />
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER/STORE EMAIL"
+                  label="Supplier/Store Email"
                   value={selectedSupplier.supplier_email}
                   variant="outlined"
-                  InputProps={{ readOnly: true }}
+                  sx={inputStyles}
+                  InputLabelProps={{
+                    sx: { textTransform: "capitalize" },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Email sx={{ color: purpleTheme.accentPurple }} />
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="SUPPLIER/STORE ADDRESS"
+                  label="Supplier/Store Address"
                   value={selectedSupplier.supplier_address}
                   variant="outlined"
-                  InputProps={{ readOnly: true }}
+                  sx={inputStyles}
+                  InputLabelProps={{
+                    sx: { textTransform: "capitalize" },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOn sx={{ color: purpleTheme.accentPurple }} />
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="DATE"
+                  label="Date"
                   value={new Date(selectedSupplier.date).toLocaleDateString()}
                   variant="outlined"
-                  InputProps={{ readOnly: true }}
+                  sx={inputStyles}
+                  InputLabelProps={{
+                    sx: { textTransform: "capitalize" },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CalendarToday sx={{ color: purpleTheme.accentPurple }} />
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   fullWidth
-                  label="TYPE"
+                  label="Type"
                   value={selectedSupplier.type}
                   variant="outlined"
-                  InputProps={{ readOnly: true }}
+                  sx={inputStyles}
+                  InputLabelProps={{
+                    sx: { textTransform: "capitalize" },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Person sx={{ color: purpleTheme.accentPurple }} />
+                      </InputAdornment>
+                    ),
+                    readOnly: true,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -1177,11 +1436,19 @@ const SupplierServiceComponent = () => {
                   onClick={() => setOpenView(false)}
                   fullWidth
                   sx={{
-                    color: purpleTheme.buttonPurple,
                     borderColor: purpleTheme.buttonPurple,
+                    color: purpleTheme.buttonPurple,
+                    borderRadius: "12px",
+                    py: 1.5,
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    transition: "all 0.3s ease",
                     "&:hover": {
                       borderColor: purpleTheme.buttonHover,
                       color: purpleTheme.buttonHover,
+                      backgroundColor: `${purpleTheme.buttonPurple}10`,
+                      transform: "translateY(-2px)",
                     },
                   }}
                 >
