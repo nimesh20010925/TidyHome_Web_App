@@ -26,6 +26,7 @@ import {
   Menu,
   Snackbar,
   Alert,
+  InputAdornment,
 } from "@mui/material";
 import {
   Edit,
@@ -34,6 +35,10 @@ import {
   ArrowBack,
   ArrowForward,
   Download,
+  Image,
+  Label,
+  Category,
+  Description,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { jsPDF } from "jspdf";
@@ -114,6 +119,35 @@ const CategoryTable = () => {
     buttonPurple: "#AC9EFF",
     buttonHover: "#9a80ff",
     accentPurple: "#7b1fa2",
+  };
+
+  const inputStyles = {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "12px",
+      backgroundColor: "#f8f9fa",
+      transition: "all 0.3s ease",
+      "& fieldset": {
+        borderColor: purpleTheme.lightPurple,
+      },
+      "&:hover fieldset": {
+        borderColor: purpleTheme.buttonPurple,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: purpleTheme.accentPurple,
+        boxShadow: `0 0 8px ${purpleTheme.buttonPurple}50`,
+      },
+    },
+    "& .MuiInputLabel-root": {
+      color: "#6B7280",
+      fontWeight: 500,
+      "&.Mui-focused": {
+        color: purpleTheme.accentPurple,
+      },
+    },
+    "& .MuiInputBase-input": {
+      padding: "12px",
+      fontSize: "0.95rem",
+    },
   };
 
   useEffect(() => {
@@ -244,19 +278,16 @@ const CategoryTable = () => {
 
     try {
       const doc = new jsPDF();
-      // Adding a simple logo (circle with text) at the top center
       const pageWidth = doc.internal.pageSize.getWidth();
-      const logoWidth = 30; // Width in mm
-      const logoX = (pageWidth - logoWidth) / 2; // Center horizontally
-      doc.addImage(TidyHomeLogo, 'PNG', logoX, 10, logoWidth, 0); // Height auto-calculated
+      const logoWidth = 30;
+      const logoX = (pageWidth - logoWidth) / 2;
+      doc.addImage(TidyHomeLogo, 'PNG', logoX, 10, logoWidth, 0);
 
-      // Set font to bold for the report title
       doc.setFont("helvetica", "bold");
       doc.setFontSize(18);
       doc.setTextColor(0, 0, 0);
       doc.text("Category Report", pageWidth / 2, 38, { align: 'center' });
       
-      // Reset font to normal for subsequent text
       doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
       doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 45, { align: 'center' });
@@ -283,7 +314,7 @@ const CategoryTable = () => {
           overflow: "linebreak",
         },
         columnStyles: {
-          2: { cellWidth: 60 }, // Wider column for Description
+          2: { cellWidth: 60 },
         },
       });
 
@@ -355,7 +386,7 @@ const CategoryTable = () => {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
+          flexDirection: "column",
           alignItems: "center",
           mb: 4,
         }}
@@ -366,8 +397,9 @@ const CategoryTable = () => {
             fontWeight: 700,
             fontSize: "22px",
             color: "#1F2937",
-            textAlign: "left",
+            textAlign: "center",
             textShadow: "1px 1px 2px rgba(0, 0, 0, 0.1)",
+            mb: 2,
           }}
         >
           Category Management
@@ -524,8 +556,7 @@ const CategoryTable = () => {
                   <TableCell>
                     {new Date(category.date).toLocaleDateString()}
                   </TableCell>
-                  <TableCell align="right"
-                  style={{padding: "0px"}}>
+                  <TableCell align="right" style={{padding: "0px"}}>
                     <IconButton
                       onClick={() => {
                         setViewCategory(category);
@@ -700,17 +731,60 @@ const CategoryTable = () => {
 
       <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
         <Fade in={openEditModal}>
-          <Box sx={modalStyle}>
+          <Box sx={{ ...modalStyle, width: { xs: "90%", sm: 450 } }}>
             {editCategory && (
               <form onSubmit={handleEditSubmit}>
-                <Typography variant="h6" gutterBottom sx={{ color: "#1976D2" }}>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{
+                    fontWeight: "bold",
+                    color: "#1F2937",
+                    mb: 3,
+                    textAlign: "center",
+                  }}
+                >
                   Edit Category
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="Name"
+                      label="Category Image"
+                      type="file"
+                      InputLabelProps={{ shrink: true }}
+                      inputProps={{ accept: "image/*" }}
+                      onChange={(e) => setImageFile(e.target.files[0])}
+                      variant="outlined"
+                      sx={inputStyles}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Image sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                    {editCategory.category_image && (
+                      <Box sx={{ mt: 2, textAlign: "center" }}>
+                        <img
+                          src={`http://localhost:3500${editCategory.category_image}`}
+                          alt="Preview"
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            borderRadius: "8px",
+                            objectFit: "cover",
+                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                          }}
+                        />
+                      </Box>
+                    )}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Category Name"
                       value={editCategory.category_name}
                       onChange={(e) =>
                         setEditCategory({
@@ -718,30 +792,34 @@ const CategoryTable = () => {
                           category_name: e.target.value,
                         })
                       }
+                      type="text"
                       variant="outlined"
-                      sx={{
-                        "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                      sx={inputStyles}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Label sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        ),
                       }}
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <FormControl
-                      fullWidth
-                      variant="outlined"
-                      sx={{
-                        "& .MuiOutlinedInput-root": { borderRadius: "8px" },
-                      }}
-                    >
-                      <InputLabel id="category-type-label">Type</InputLabel>
+                    <FormControl fullWidth variant="outlined" sx={inputStyles}>
+                      <InputLabel>Category Type</InputLabel>
                       <Select
-                        labelId="category-type-label"
-                        label="Type"
+                        label="Category Type"
                         value={editCategory.category_type || ""}
                         onChange={(e) =>
                           setEditCategory({
                             ...editCategory,
                             category_type: e.target.value,
                           })
+                        }
+                        startAdornment={
+                          <InputAdornment position="start">
+                            <Category sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
                         }
                       >
                         {categoryTypes.map((type) => (
@@ -766,58 +844,65 @@ const CategoryTable = () => {
                         })
                       }
                       variant="outlined"
-                      sx={{
-                        "& .MuiOutlinedInput-root": { borderRadius: "8px" },
+                      sx={inputStyles}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Description sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        ),
                       }}
                     />
                   </Grid>
                   <Grid item xs={12}>
-                    <TextField
+                    <Button
+                      variant="contained"
+                      type="submit"
                       fullWidth
-                      type="file"
-                      onChange={(e) => setImageFile(e.target.files[0])}
-                      inputProps={{ accept: "image/*" }}
-                      variant="outlined"
                       sx={{
-                        "& .MuiOutlinedInput-root": { borderRadius: "8px" },
-                      }}
-                    />
-                    {editCategory.category_image && (
-                      <img
-                        src={`http://localhost:3500${editCategory.category_image}`}
-                        alt="Preview"
-                        style={{
-                          width: 100,
-                          height: 100,
-                          marginTop: 10,
-                          borderRadius: "8px",
-                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                        }}
-                      />
-                    )}
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 2,
-                        justifyContent: "flex-end",
+                        background: `linear-gradient(135deg, ${purpleTheme.buttonPurple} 0%, ${purpleTheme.accentPurple} 100%)`,
+                        color: "white",
+                        borderRadius: "12px",
+                        py: 1.5,
+                        fontWeight: "bold",
+                        textTransform: "uppercase",
+                        letterSpacing: "1px",
+                        boxShadow: `0 4px 12px ${purpleTheme.buttonPurple}50`,
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          background: `linear-gradient(135deg, ${purpleTheme.buttonHover} 0%, ${purpleTheme.accentPurple} 100%)`,
+                          boxShadow: `0 6px 16px ${purpleTheme.buttonHover}80`,
+                          transform: "translateY(-2px)",
+                        },
                       }}
                     >
-                      <StyledButton
-                        variant="contained"
-                        color="primary"
-                        type="submit"
-                      >
-                        Save
-                      </StyledButton>
-                      <StyledButton
-                        variant="outlined"
-                        onClick={() => setOpenEditModal(false)}
-                      >
-                        Cancel
-                      </StyledButton>
-                    </Box>
+                      Save
+                    </Button>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => setOpenEditModal(false)}
+                      fullWidth
+                      sx={{
+                        borderColor: purpleTheme.buttonPurple,
+                        color: purpleTheme.buttonPurple,
+                        borderRadius: "12px",
+                        py: 1.5,
+                        fontWeight: "bold",
+                        textTransform: "uppercase",
+                        letterSpacing: "1px",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          borderColor: purpleTheme.buttonHover,
+                          color: purpleTheme.buttonHover,
+                          backgroundColor: `${purpleTheme.buttonPurple}10`,
+                          transform: "translateY(-2px)",
+                        },
+                      }}
+                    >
+                      Cancel
+                    </Button>
                   </Grid>
                 </Grid>
               </form>
@@ -828,57 +913,138 @@ const CategoryTable = () => {
 
       <Modal open={openViewModal} onClose={() => setOpenViewModal(false)}>
         <Fade in={openViewModal}>
-          <Box sx={modalStyle}>
+          <Box sx={{ ...modalStyle, width: { xs: "90%", sm: 450 } }}>
             {viewCategory && (
-              <Card
-                sx={{
-                  borderRadius: "12px",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                }}
-              >
-                <CardContent>
-                  <Typography
-                    variant="h5"
-                    gutterBottom
-                    sx={{ color: "#1F2937", fontWeight: 600 }}
-                  >
-                    {viewCategory.category_name}
-                  </Typography>
-                  <img
-                    src={
-                      viewCategory.category_image
-                        ? `http://localhost:3500${viewCategory.category_image}`
-                        : "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
-                    }
-                    alt={viewCategory.category_name}
-                    style={{
-                      width: 120,
-                      height: 120,
-                      borderRadius: "12px",
-                      marginBottom: "16px",
-                      boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
-                    }}
-                  />
-                  <Typography sx={{ mb: 1 }}>
-                    <strong>Type:</strong> {viewCategory.category_type}
-                  </Typography>
-                  <Typography sx={{ mb: 1 }}>
-                    <strong>Description:</strong>{" "}
-                    {viewCategory.category_description}
-                  </Typography>
-                  <Typography sx={{ mb: 2 }}>
-                    <strong>Date:</strong>{" "}
-                    {new Date(viewCategory.date).toLocaleDateString()}
-                  </Typography>
-                  <StyledButton
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setOpenViewModal(false)}
-                  >
-                    Close
-                  </StyledButton>
-                </CardContent>
-              </Card>
+              <>
+                <Typography
+                  variant="h6"
+                  gutterBottom
+                  sx={{
+                    fontWeight: "bold",
+                    color: "#1F2937",
+                    mb: 3,
+                    textAlign: "center",
+                  }}
+                >
+                  View Category Details
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Box sx={{ textAlign: "center" }}>
+                      <img
+                        src={
+                          viewCategory.category_image
+                            ? `http://localhost:3500${viewCategory.category_image}`
+                            : "https://media.istockphoto.com/id/1147544807/vector/thumbnail-image-vector-graphic.jpg?s=612x612&w=0&k=20&c=rnCKVbdxqkjlcs3xH87-9gocETqpspHFXu5dIGB4wuM="
+                        }
+                        alt={viewCategory.category_name}
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          borderRadius: "8px",
+                          objectFit: "cover",
+                          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                        }}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Category Name"
+                      value={viewCategory.category_name}
+                      variant="outlined"
+                      sx={inputStyles}
+                      InputProps={{
+                        readOnly: true,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Label sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Category Type"
+                      value={viewCategory.category_type}
+                      variant="outlined"
+                      sx={inputStyles}
+                      InputProps={{
+                        readOnly: true,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Category sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Description"
+                      value={viewCategory.category_description}
+                      multiline
+                      rows={3}
+                      variant="outlined"
+                      sx={inputStyles}
+                      InputProps={{
+                        readOnly: true,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Description sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Date"
+                      value={new Date(viewCategory.date).toLocaleDateString()}
+                      variant="outlined"
+                      sx={inputStyles}
+                      InputProps={{
+                        readOnly: true,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Description sx={{ color: purpleTheme.accentPurple }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => setOpenViewModal(false)}
+                      fullWidth
+                      sx={{
+                        borderColor: purpleTheme.buttonPurple,
+                        color: purpleTheme.buttonPurple,
+                        borderRadius: "12px",
+                        py: 1.5,
+                        fontWeight: "bold",
+                        textTransform: "uppercase",
+                        letterSpacing: "1px",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          borderColor: purpleTheme.buttonHover,
+                          color: purpleTheme.buttonHover,
+                          backgroundColor: `${purpleTheme.buttonPurple}10`,
+                          transform: "translateY(-2px)",
+                        },
+                      }}
+                    >
+                      Close
+                    </Button>
+                  </Grid>
+                </Grid>
+              </>
             )}
           </Box>
         </Fade>
