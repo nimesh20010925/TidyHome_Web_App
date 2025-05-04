@@ -36,7 +36,7 @@ import autoTable from "jspdf-autotable";
 import HomeSummary from "../../../Home/HomeModals/HomeSummary.jsx";
 import supplierService from "../../../../services/supplierService.jsx";
 
-const SupplierService = () => {
+const SupplierServiceComponent = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -65,27 +65,39 @@ const SupplierService = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
 
+  // Retrieve homeId from localStorage (adjust based on your app's logic)
+  const homeId = localStorage.getItem("homeId") || "default-home-id";
+
   useEffect(() => {
     fetchSuppliers();
   }, []);
 
   const fetchSuppliers = async () => {
     try {
-      const response = await supplierService.getAllSuppliers();
-      const sortedSuppliers = response.suppliers.sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
-        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
-        return dateA - dateB; // Oldest first
-      });
-      setSuppliers(sortedSuppliers);
+      // Pass homeId to the service
+      const response = await supplierService.getAllSuppliers(homeId);
+      // Ensure response is an array
+      if (Array.isArray(response)) {
+        const sortedSuppliers = response.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
+          const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
+          return dateA - dateB; // Oldest first
+        });
+        setSuppliers(sortedSuppliers);
+      } else {
+        console.error("Expected an array of suppliers, received:", response);
+        setSuppliers([]);
+        showSnackbar("Invalid data format from server", "error");
+      }
     } catch (error) {
       console.error("Fetch suppliers error:", error);
       const errorMessage = error.message || "Error fetching suppliers/stores";
-      if (error.status === 403) {
+      if (error.status === 403 || error.status === 401) {
         window.location.href = "/login";
       } else {
         showSnackbar(errorMessage, "error");
       }
+      setSuppliers([]);
     }
   };
 
@@ -165,7 +177,7 @@ const SupplierService = () => {
     }
 
     try {
-      const response = await supplierService.createSupplier(formData);
+      const response = await supplierService.createSupplier(formData, homeId);
       const newSupplier = {
         ...response.savedsupplier,
         createdAt: new Date().toISOString(),
@@ -184,7 +196,7 @@ const SupplierService = () => {
     } catch (error) {
       console.error("Create supplier/store error:", error);
       const errorMessage = error.message || "Error creating supplier/store";
-      if (error.status === 403) {
+      if (error.status === 403 || error.status === 401) {
         window.location.href = "/login";
       } else {
         showSnackbar(errorMessage, "error");
@@ -200,7 +212,11 @@ const SupplierService = () => {
     }
 
     try {
-      await supplierService.updateSupplier(selectedSupplier._id, formData);
+      await supplierService.updateSupplier(
+        selectedSupplier._id,
+        formData,
+        homeId
+      );
       setOpenUpdate(false);
       resetForm();
       fetchSuppliers();
@@ -208,7 +224,7 @@ const SupplierService = () => {
     } catch (error) {
       console.error("Update supplier/store error:", error);
       const errorMessage = error.message || "Error updating supplier/store";
-      if (error.status === 403) {
+      if (error.status === 403 || error.status === 401) {
         window.location.href = "/login";
       } else {
         showSnackbar(errorMessage, "error");
@@ -223,7 +239,7 @@ const SupplierService = () => {
 
   const confirmDelete = async () => {
     try {
-      await supplierService.deleteSupplier(supplierToDelete);
+      await supplierService.deleteSupplier(supplierToDelete, homeId);
       fetchSuppliers();
       showSnackbar("Supplier/Store deleted successfully");
       setOpenDeleteConfirm(false);
@@ -231,7 +247,7 @@ const SupplierService = () => {
     } catch (error) {
       console.error("Delete supplier/store error:", error);
       const errorMessage = error.message || "Error deleting supplier/store";
-      if (error.status === 403) {
+      if (error.status === 403 || error.status === 401) {
         window.location.href = "/login";
       } else {
         showSnackbar(errorMessage, "error");
@@ -296,7 +312,10 @@ const SupplierService = () => {
 
   const generateCSVReport = () => {
     if (suppliers.length === 0) {
-      showSnackbar("No suppliers/stores available to generate a report", "warning");
+      showSnackbar(
+        "No suppliers/stores available to generate a report",
+        "warning"
+      );
       return;
     }
 
@@ -344,7 +363,10 @@ const SupplierService = () => {
 
   const generatePDFReport = () => {
     if (suppliers.length === 0) {
-      showSnackbar("No suppliers/stores available to generate a report", "warning");
+      showSnackbar(
+        "No suppliers/stores available to generate a report",
+        "warning"
+      );
       return;
     }
 
@@ -392,7 +414,9 @@ const SupplierService = () => {
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `suppliers_stores_report_${new Date().toISOString().split("T")[0]}.pdf`;
+      link.download = `suppliers_stores_report_${
+        new Date().toISOString().split("T")[0]
+      }.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -682,67 +706,76 @@ const SupplierService = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedSuppliers.map((supplier) => (
-              <TableRow key={supplier._id} hover>
-                <TableCell
-                  sx={{ textAlign: "center", verticalAlign: "middle" }}
-                >
-                  {supplier.supplier_id}
-                </TableCell>
-                <TableCell
-                  sx={{ textAlign: "center", verticalAlign: "middle" }}
-                >
-                  {supplier.supplier_name}
-                </TableCell>
-                <TableCell
-                  sx={{ textAlign: "center", verticalAlign: "middle" }}
-                >
-                  {supplier.supplier_contact}
-                </TableCell>
-                <TableCell
-                  sx={{ textAlign: "center", verticalAlign: "middle" }}
-                >
-                  {supplier.supplier_email}
-                </TableCell>
-                <TableCell
-                  sx={{ textAlign: "center", verticalAlign: "middle" }}
-                >
-                  {supplier.supplier_address}
-                </TableCell>
-                <TableCell
-                  sx={{ textAlign: "center", verticalAlign: "middle" }}
-                >
-                  {new Date(supplier.date).toLocaleDateString()}
-                </TableCell>
-                <TableCell
-                  sx={{ textAlign: "center", verticalAlign: "middle" }}
-                >
-                  {supplier.type}
-                </TableCell>
-                <TableCell
-                  sx={{ textAlign: "center", verticalAlign: "middle" }}
-                >
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleViewClick(supplier)}
-                  >
-                    <Visibility />
-                  </IconButton>
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleEditClick(supplier)}
-                  >
-                    <Edit />
-                  </IconButton>
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(supplier._id)}
-                  >
-                    <Delete />
-                  </IconButton>
+            {paginatedSuppliers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} sx={{ textAlign: "center" }}>
+                  No suppliers/stores found
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              paginatedSuppliers.map((supplier) => (
+                <TableRow key={supplier._id} hover>
+                  <TableCell
+                    sx={{ textAlign: "center", verticalAlign: "middle" }}
+                  >
+                    {supplier.supplier_id}
+                  </TableCell>
+                  <TableCell
+                    sx={{ textAlign: "center", verticalAlign: "middle" }}
+                  >
+                    {supplier.supplier_name}
+                  </TableCell>
+                  <TableCell
+                    sx={{ textAlign: "center", verticalAlign: "middle" }}
+                  >
+                    {supplier.supplier_contact}
+                  </TableCell>
+                  <TableCell
+                    sx={{ textAlign: "center", verticalAlign: "middle" }}
+                  >
+                    {supplier.supplier_email}
+                  </TableCell>
+                  <TableCell
+                    sx={{ textAlign: "center", verticalAlign: "middle" }}
+                  >
+                    {supplier.supplier_address}
+                  </TableCell>
+                  <TableCell
+                    sx={{ textAlign: "center", verticalAlign: "middle" }}
+                  >
+                    {new Date(supplier.date).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell
+                    sx={{ textAlign: "center", verticalAlign: "middle" }}
+                  >
+                    {supplier.type}
+                  </TableCell>
+                  <TableCell
+                    sx={{ textAlign: "center", verticalAlign: "middle" }}
+                    style={{padding: "0px"}}
+                  >
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleViewClick(supplier)}
+                    >
+                      <Visibility />
+                    </IconButton>
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleEditClick(supplier)}
+                    >
+                      <Edit />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      onClick={() => handleDelete(supplier._id)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
 
@@ -1145,7 +1178,10 @@ const SupplierService = () => {
         </Box>
       </Modal>
 
-      <Modal open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)}>
+      <Modal
+        open={openDeleteConfirm}
+        onClose={() => setOpenDeleteConfirm(false)}
+      >
         <Box sx={{ ...modalStyle, width: { xs: "90%", sm: 350 } }}>
           <Typography variant="h6" gutterBottom>
             Confirm Deletion
@@ -1202,4 +1238,4 @@ const SupplierService = () => {
   );
 };
 
-export default SupplierService;
+export default SupplierServiceComponent;
